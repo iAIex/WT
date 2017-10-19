@@ -1,0 +1,40 @@
+body{
+  background-color:white;
+  padding:0;
+  margin:0 20px;
+}
+
+article{
+  margin-top: 5em;
+}
+
+header p {
+  font-weight:bold;
+  margin:0;
+  padding:1.5em;
+  text-align:center;
+  background-color:darkgrey;
+  height:auto;
+  position:fixed;
+  display:block;
+  top:0;
+  left:0;
+  width:100%;
+}
+
+aside{
+  font-style:italic;
+  color:#888;
+  border-left: solid #888 4px;
+  margin-bottom:0.5em;
+  padding-left:0.7em;
+}
+
+footer{
+  border-top: solid black 1px;
+  text-align:right;
+}
+
+header,footer{
+  font-family:Arial;
+}
