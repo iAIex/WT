@@ -1,3 +1,88 @@
-p {
-  color:blue;
+body{
+    margin:0;
+    padding:0;
+}
+
+html {
+  background: url(Media/BgImg2.jpg) no-repeat center center fixed;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+}
+
+#FormBox{
+  height:auto;
+  width:15em;
+  margin:10em auto 5em auto;
+  padding:0;
+  background-color:white;
+  border-radius: .5em;
+  box-shadow: 0 0 15px -10px #333;
+  -webkit-font-smoothing: antialiased;
+}
+
+#FileContainer{
+  /*background-color: blue;*/
+  width:100%;
+  height:10em;
+  border-bottom: 1px dashed #33ccff;
+}
+
+input {
+    outline: none;
+    -webkit-appearance: none;
+    border-radius: 0;
+    box-shadow:none;
+}
+
+input[type=text]{
+    border:none;
+    border-bottom: 1px dashed #33ccff;
+    padding:0;
+    -webkit-transition: .2s;
+    transition: .2s;
+    width:100%;
+    color:#333;
+    font-size:1.2em;
+    margin:0;
+    text-align: center;
+}
+
+input[type=text]:focus {
+    border-bottom: 1px solid #007399;
+}
+
+input[type=submit]{
+    background-color: #33ccff;
+    width:auto;
+    height:auto;
+    margin: 1em auto .5em auto;
+    -webkit-transition: .2s;
+    transition: .2s;
+    border: none;
+    padding:.5em .8em;
+    font-family: Arial;
+    font-size: 1em;
+    border-radius: .3em;
+}
+
+input[type=submit]:hover{
+  background-color: #007399;
+}
+
+label{
+  margin:0 auto;
+  width:100%;
+}
+
+p{
+  text-align:center;
+  font-family: Arial;
+  margin:0;
+  padding:0;
+}
+
+label p{
+  margin:.7em 0 0 0;
 }

@@ -8,9 +8,17 @@
   <title>WT Fileshare</title>
   <meta name="viewport"content="width=device-width,initial-scale=1.0">
   <link type="text/css"rel="stylesheet"href="style.css"/>
-  <script type="text/javascript"src="scripts.js"></script>
+  <!-- <script type="text/javascript"src="scripts.js"></script> -->
 </head>
 <body>
-  <p>CSS Test</p>
+  <div id="FormBox">
+    <p>Dateien hier ablegen<p>
+    <div id="FileContainer"></div>
+    <form action="">
+      <label><p>Sample Textinput<p></label><input type="text" id="vname" placeholder="Sample" />
+      <label><p>Files auswählen<p></label><input name="datei[]" type="file" multiple>
+      <input type="submit" value="Upload"></input>
+    </form>
+  </div>
 </body>
 </html>
