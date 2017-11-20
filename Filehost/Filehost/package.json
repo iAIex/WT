@@ -1,0 +1,11 @@
+{
+  "name": "filehost",
+  "version": "0.0.0",
+  "main": "server.js",
+  "author": "A. Gebhardt, P. Weiss, M. Schreder",
+  "license": "Custom",
+  "dependencies": {
+    "express": "^4.16.2",
+    "socket.io": "^2.0.4"
+  }
+}

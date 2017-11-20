@@ -1,0 +1,18 @@
+<head>
+    <title>Hans</title>
+    <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+
+<a href="/impressum.html">das impressum</a>
+
+    <script>
+        var socket = io();
+        socket.on('hallo', function (data) { console.log(data) });
+
+        function hans(message) {
+            socket.emit('chat-in', message);
+        }
+    </script>
+
+</body>
