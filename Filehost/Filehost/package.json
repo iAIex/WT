@@ -5,6 +5,7 @@
   "author": "A. Gebhardt, P. Weiss, M. Schreder",
   "license": "Custom",
   "dependencies": {
+    "@angular/cli": "^1.5.3",
     "express": "^4.16.2",
     "socket.io": "^2.0.4"
   }
