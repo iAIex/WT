@@ -24,4 +24,4 @@ io.on('connection', function (socket) {
     io.emit('hallo',"Ich bin peter")
 });
 
-io.on('chat-in', function (socket) { console.log(socket) });
+io.on('chat-in', function (socket) { console.log("Test") });

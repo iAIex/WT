@@ -1,0 +1,14 @@
+{
+  "name": "rabbit",
+  "version": "0.0.0",
+  "description": "Rabbit",
+  "main": "server.js",
+  "author": {
+    "name": "Patrick"
+  },
+  "dependencies": {
+    "@angular/cli": "^1.5.4",
+    "express": "^4.16.2",
+    "socket.io": "^2.0.4"
+  }
+}
