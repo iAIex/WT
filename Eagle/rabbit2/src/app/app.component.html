@@ -1,0 +1,16 @@
+<!--The content below is only a placeholder and can be replaced.-->
+<div style="text-align:center">
+  <h1>
+    {{title}}!
+  </h1>
+  <div ng-app="myApp" ng-controller="heroes">
+  <p>{{heroes}}</p>
+  </div>
+  <script>
+  var app = angular.module('myApp', []);
+  app.controller('heroes', function($scope) {
+  $scope.heroes = "Volvo";
+  });
+  </script>
+    </div>
+

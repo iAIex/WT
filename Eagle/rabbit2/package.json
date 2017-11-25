@@ -1,11 +1,7 @@
 {
-  "name": "rabbit",
+  "name": "rabbit2",
   "version": "0.0.0",
-  "description": "Rabbit",
-  "main": "server.js",
-  "author": {
-    "name": "Patrick"
-  },
+  "license": "MIT",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
@@ -14,10 +10,8 @@
     "lint": "ng lint",
     "e2e": "ng e2e"
   },
+  "private": true,
   "dependencies": {
-    "@angular/cli": "^1.5.4",
-    "express": "^4.16.2",
-    "socket.io": "^2.0.4",
     "@angular/animations": "^5.0.0",
     "@angular/common": "^5.0.0",
     "@angular/compiler": "^5.0.0",
