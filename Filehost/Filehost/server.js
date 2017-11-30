@@ -2,26 +2,24 @@
 var express = require('express');
 var app = require('express')();
 var http = require('http').Server(app);
-var io = require('socket.io')(http);
+var mysql = require('mysql');
 
 //Listening on Port 1337
 http.listen(1337, function () {
-    console.log('Server up on 1337')
+    console.log('Server up on 1337\n->Time to party<-');
 })
 
 // ---- ROUTING ----
+app.use('/', express.static(__dirname + '/static'))
+
 app.get('/', function (req, res) {
-    res.sendFile(__dirname + '/websites/index.html')
+    console.log("Root Requested by " + req.ip);
+    res.sendFile(__dirname + '/static/dummy.html')
 })
-
-app.get('/impressum.html', function (req, res) {
-    res.sendFile(__dirname + '/websites/impressum.html')
+app.get('/getFiles:id-:token', function (req, res) {
+    console.log("AJAX Requested by " + req.ip);
+    console.log("   ID: "+req.params.id);
+    console.log("Token: "+req.params.token);
+    res.writeHead(200, { "Content-Type": "text/plain" });
+    res.end("HANS");
 })
-
-
-io.on('connection', function (socket) {
-    console.log('Connection recieved')
-    io.emit('hallo',"Ich bin peter")
-});
-
-io.on('chat-in', function (socket) { console.log("Test") });
