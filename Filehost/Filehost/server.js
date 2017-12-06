@@ -47,8 +47,11 @@ app.post('/upload', function (req, res) {
 
     var myFile = req.files.myFile; //Name of input field
 
+<<<<<<< HEAD
     //var fileId = dbSaveFile(userid, myFile.name.myFile.filetype);
 
+=======
+>>>>>>> 484a433115ee1722cb9ec0f9857bd6d5c2b481e8
     myFile.mv("userfiles/"+myFile.name, function (err) { //move (mv()) file to userfiles
         if (err)
             return res.status(500).send(err);
