@@ -24,14 +24,18 @@ app.get('/ajax', function (req, res) {
     res.end("Hallo");
 })
 
-app.get('/getFiles:id-:token', function (req, res) {
+app.get('/getSharedFiles:id', function (req, res) {
     console.log("AJAX Requested by " + req.ip);
     console.log("   ID: " + req.params.id);
-    console.log("Token: "+req.params.token);
-    res.writeHead(200, { "Content-Type": "text/plain" });
-    res.end("HANS");
-})
+    var callback = function (err, result) {
+        res.writeHead(200, { "Content-Type": "text/plain" });
+        res.end(result);
+    };
+    dbGetSharedFiles(callback,req.params.id);
+});
 
+
+//FILE UPLOAD
 app.use(fileUpload());
 
 app.post('/upload', function (req, res) {
@@ -43,10 +47,46 @@ app.post('/upload', function (req, res) {
 
     var myFile = req.files.myFile; //Name of input field
 
-    myFile.mv("userfiles/ "+myFile.name, function (err) { //move (mv()) file to userfiles
+    //var fileId = dbSaveFile(userid, myFile.name.myFile.filetype);
+
+    myFile.mv("userfiles/"+myFile.name, function (err) { //move (mv()) file to userfiles
         if (err)
             return res.status(500).send(err);
 
         res.send('File uploaded!');
     });
 });
+
+//DATABASE
+
+//ALTER TABLE tablename AUTO_INCREMENT = 1; for resetting AI
+//SELECT filename, name FROM wtf.shares JOIN wtf.files ON wtf.shares.file_id = wtf.files.id JOIN wtf.users ON wtf.files.owner = wtf.users.id WHERE user_id = 2; for getting Shared files
+
+var db = mysql.createConnection({
+    host: "localhost",
+    user: "User1",
+    password: "ibims1user"
+})
+
+db.connect(function (err) {
+    if (err) throw err;
+    console.log("MySQL connected");
+});
+
+
+function dbGetSharedFiles(callback,userid) {
+    var tempQuery = "SELECT filename, name FROM wtf.shares JOIN wtf.files ON wtf.shares.file_id = wtf.files.id JOIN wtf.users ON wtf.files.owner = wtf.users.id WHERE user_id = "+userid+";";
+    db.query(tempQuery, function (err, result) {
+        var json = JSON.stringify(result);
+        console.log(json);
+        callback(null,json);
+    });
+}
+
+/*
+function dbSaveFile(userid,filename,filetype) {
+    var tempQuery = "INSERT INTO `wtf`.`files` (`owner`, `filename`, `filetype`) VALUES ('" + userid + "', '" + filename + "', '" + filetype + "');";
+    var fileID = "";
+    db.query(tempQuery, function (err, result) {
+    });
+}*/
