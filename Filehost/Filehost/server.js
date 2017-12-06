@@ -43,7 +43,7 @@ app.post('/upload', function (req, res) {
 
     var myFile = req.files.myFile; //Name of input field
 
-    myFile.mv("userfiles/ "+myFile.name, function (err) { //move (mv()) file to userfiles
+    myFile.mv("userfiles/"+myFile.name, function (err) { //move (mv()) file to userfiles
         if (err)
             return res.status(500).send(err);
 
