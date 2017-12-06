@@ -1,0 +1,57 @@
+<!Doctype html>
+<html>
+    <script src="https://unpkg.com/vue"></script>
+    <script src="data.js"></script>
+    <script src="javascript.js"></script>
+    <style>
+    header{
+      background-color: green;
+    }
+    table
+    {
+      width: 100%;
+    }
+    td, th, table{
+      border: 1px solid;
+    }
+    caption{
+      text-align: left;
+    }
+    #table1{
+      background-color: yellow;
+      border-collapse: collapse;
+    }
+    #table2{
+      background-color: lightgreen;
+      border-collapse: collapse;
+    }
+    </style>
+<head>
+</head>
+<body>
+  <header>
+    <h3>WTF - Web Technologies Filesharing</h3>
+  </header>
+
+  <table id="table1">
+    <caption>Meine Uploads</caption>
+    <tr>
+    <td>Name</td>
+    <td>Datum</td>
+    <td>Teilen mit</td>
+    </tr>
+  </table>
+<br>
+<br>
+  <table id="table2">
+    <tr>
+    <caption>Geteilte Uploads</caption>
+    </tr>
+    <tr>
+      <td>Name</td>
+      <td>Datum</td>
+      <td>Geteilt von</td>
+    </tr>
+  </table>
+
+</body>
