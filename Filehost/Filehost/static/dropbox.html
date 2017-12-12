@@ -4,11 +4,14 @@
   <script src="https://unpkg.com/vue"></script>
 </head>
 <body>
-  <form action="http://localhost:1337//upload"
+  <form id='uploadForm'
+        action="http://localhost:1337/upload"
         class="dropbox"
         method="post"
         enctype="multipart/form-data">
 <div class="fallback">
   <input name="myFile" type="file multiple"/>
-
+  <input type="submit" value="Upload">
 </form>
+</body>
+</html>

@@ -1,55 +1,29 @@
-function onSignIn(googleUser){
-var profile = googleUser.getBasicProfile();
-console.log('ID: ' + profile.getId());
-console.log('Name: ' + profile.getName());
-console.log('Image URL: ' + profile.getImageUrl());
-console.log('Email: ' + profile.getEmail());
-}
+new Vue({
+  el: "#files",
+  data: {
+    sortKey: 'Datum',
+    reverse: false,
+    search:'',
+    columns: ['id', 'name', 'Datum', 'Teilen mit'],
+    newFile:{},
+    tableData[
+      {id: 1, name: Mix1, Datum: 1.12.2017, Teilen mit: Niemanden},
+      {id: 2, name: Mix2, Datum: 2.12.2017, Teilen mit: Schredi,
+      {id: 3, name: Mix3, Datum: 3.12.2017, Teilen mit: Alex},
+      {id: 4, name: Mix4, Datum: 4.12.2017, Teilen mit: Niemanden},
+      {id: 5, name: Mix5, Datum: 11.12.2017, Teilen mit: Niemanden},
+    ]
+  },
+  methods:{
+    sortBy:
+    function(sortKey){
+      this.reverse = (this.sortKey == sortKey) ?! this.reverse : false;
 
-function signOut(){
-  var auth2 = gapi.auth2.getAuthInstance();
-  auth2.signOut().then(function(){
-    console.log('User signed out');
-  });
-}
-
-if (auth2.isSignedIn.get()){
-  var profile = auth2.currentUser.get().getBasicProfile();
-  console.log('ID: ' + profile.getID());
-  console.log('Full Name: ' + profile.getName());
-  console.log('Given Name: ' + profile.getGivenName());
-  console.log('Family Name: ' + profile.getFamilyName());
-  console.log('getImageUrl: ' + profile.getImageUrl());
-  console.log('Email: ' + profile.getEmail());
-}
-
-gapi.load('auth2', function(){
-  auth2 = gapi.auth2.init({
-    client_id: 'CLIENT_ID.apps.googleusercontent.com',
-    fetch_basic_profile: false,
-    scope:'profile'
-  });
-
-
-auth2.signIn().then(function(){
-  console.log(auth2.currentUser.get().getId());
+      this.sortKey = sortKey;
+    },
+    addFile: function(){
+      this.file.push(this.newFile);
+      this.newFile={};
+    }
+  }
 });
-});
-
-function onSuccess(googleUser) {
-      console.log('Logged in as: ' + googleUser.getBasicProfile().getName());
-    }
-    function onFailure(error) {
-      console.log(error);
-    }
-    function renderButton() {
-      gapi.signin2.render('my-signin2', {
-        'scope': 'profile email',
-        'width': 240,
-        'height': 50,
-        'longtitle': true,
-        'theme': 'dark',
-        'onsuccess': onSuccess,
-        'onfailure': onFailure
-      });
-    }

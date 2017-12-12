@@ -1,0 +1,41 @@
+
+header{
+  background-color: green;
+}
+body{
+  margin: 2em 0;
+}
+a{font-weight: normal;
+color: blue;
+}
+a.active{
+  font-weight: bold;
+  color: black;
+}
+table
+{
+  width: 100%;
+  border-collapse: collapse;
+}
+th{
+  border-bottom: 1px solid #aaa;
+
+}
+caption{
+  text-align: left;
+}
+
+.FileTables{
+  background-color: yellow;
+  border-style: none;
+
+}
+.FileTables th:nth-child(3){
+  width: 40%;
+}
+.FileTables th:nth-child(1){
+  width: 40%;
+}
+.FileTables th:nth-child(2){
+  width: 20%;
+}
