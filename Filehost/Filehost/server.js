@@ -25,13 +25,21 @@ app.get('/ajax', function (req, res) {
 })
 
 app.get('/getSharedFiles:id', function (req, res) {
-    console.log("AJAX Requested by " + req.ip);
-    console.log("   ID: " + req.params.id);
-    var callback = function (err, result) {
-        res.writeHead(200, { "Content-Type": "text/plain" });
+    console.log("Shared files for userid "+req.params.id+" requested by " + req.ip);
+    let callback = function (err, result) {
+        res.writeHead(200, { "Content-Type": "application/json" });
         res.end(result);
     };
     dbGetSharedFiles(callback,req.params.id);
+});
+
+app.get('/getUserFiles:id', function (req, res) {
+    console.log("User files for userid "+req.params.id+" requested by " + req.ip);
+    let callback = function (err, result) {
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(result);
+    };
+    dbGetUserFiles(callback, req.params.id);
 });
 
 
@@ -45,13 +53,10 @@ app.post('/upload', function (req, res) {
     if (!req.files)
         return res.status(400).send('No files were uploaded.');
 
-    var myFile = req.files.myFile; //Name of input field
+    let myFile = req.files.myFile; //Name of input field
 
-<<<<<<< HEAD
     //var fileId = dbSaveFile(userid, myFile.name.myFile.filetype);
 
-=======
->>>>>>> 484a433115ee1722cb9ec0f9857bd6d5c2b481e8
     myFile.mv("userfiles/"+myFile.name, function (err) { //move (mv()) file to userfiles
         if (err)
             return res.status(500).send(err);
@@ -76,12 +81,20 @@ db.connect(function (err) {
     console.log("MySQL connected");
 });
 
-
-function dbGetSharedFiles(callback,userid) {
-    var tempQuery = "SELECT filename, name FROM wtf.shares JOIN wtf.files ON wtf.shares.file_id = wtf.files.id JOIN wtf.users ON wtf.files.owner = wtf.users.id WHERE user_id = "+userid+";";
+function dbGetUserFiles(callback, userid) {
+    let tempQuery = "SELECT filename FROM wtf.files WHERE owner =" + userid + ";";
     db.query(tempQuery, function (err, result) {
         var json = JSON.stringify(result);
-        console.log(json);
+        console.log("dbGetUserFiles for userid " + userid + " resulted in:\n" +json);
+        callback(null, json);
+    });
+}
+
+function dbGetSharedFiles(callback,userid) {
+    let tempQuery = "SELECT filename, name FROM wtf.shares JOIN wtf.files ON wtf.shares.file_id = wtf.files.id JOIN wtf.users ON wtf.files.owner = wtf.users.id WHERE user_id = "+userid+";";
+    db.query(tempQuery, function (err, result) {
+        var json = JSON.stringify(result);
+        console.log("dbGetSharedFiles for userid "+userid+" resulted in:\n"+json);
         callback(null,json);
     });
 }
