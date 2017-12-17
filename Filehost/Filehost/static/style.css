@@ -12,6 +12,10 @@ th{
   border-bottom: 1px solid #aaa;
 
 }
+td{
+  text-align: center;
+  overflow: hidden;
+}
 caption{
   text-align: left;
 }
@@ -21,12 +25,13 @@ caption{
   border-style: none;
 
 }
-.FileTables th:nth-child(3){
-  width: 40%;
-}
+
 .FileTables th:nth-child(1){
   width: 40%;
 }
 .FileTables th:nth-child(2){
   width: 20%;
+}
+.FileTables th:nth-child(3){
+  width: 40%;
 }
