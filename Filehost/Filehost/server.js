@@ -82,7 +82,7 @@ db.connect(function (err) {
 });
 
 function dbGetUserFiles(callback, userid) {
-    let tempQuery = "SELECT filename,upload_time,name FROM wtf.files INNER JOIN wtf.shares ON wtf.files.id = wtf.shares.file_id INNER JOIN wtf.users ON user_id = wtf.users.id WHERE owner = "+userid+" ORDER BY filename, name ASC;";
+    let tempQuery = "SELECT * FROM wtf.files LEFT JOIN wtf.shares ON wtf.files.id = wtf.shares.file_id LEFT JOIN wtf.users ON wtf.shares.user_id = wtf.users.id WHERE owner = "+userid+" ORDER BY wtf.files.id;";
     db.query(tempQuery, function (err, result) {
         var json = JSON.stringify(result);
         console.log("dbGetUserFiles for userid " + userid + " resulted in:\n" +json);
