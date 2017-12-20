@@ -82,7 +82,7 @@ db.connect(function (err) {
 });
 
 function dbGetUserFiles(callback, userid) {
-    let tempQuery = "SELECT filename FROM wtf.files WHERE owner =" + userid + ";";
+    let tempQuery = "SELECT filename,upload_time,name FROM wtf.files INNER JOIN wtf.shares ON wtf.files.id = wtf.shares.file_id INNER JOIN wtf.users ON user_id = wtf.users.id WHERE owner = "+userid+" ORDER BY filename, name ASC;";
     db.query(tempQuery, function (err, result) {
         var json = JSON.stringify(result);
         console.log("dbGetUserFiles for userid " + userid + " resulted in:\n" +json);
@@ -91,7 +91,7 @@ function dbGetUserFiles(callback, userid) {
 }
 
 function dbGetSharedFiles(callback,userid) {
-    let tempQuery = "SELECT filename, name FROM wtf.shares JOIN wtf.files ON wtf.shares.file_id = wtf.files.id JOIN wtf.users ON wtf.files.owner = wtf.users.id WHERE user_id = "+userid+";";
+    let tempQuery = "SELECT filename,upload_time, name FROM wtf.shares JOIN wtf.files ON wtf.shares.file_id = wtf.files.id JOIN wtf.users ON wtf.files.owner = wtf.users.id WHERE user_id = "+userid+";";
     db.query(tempQuery, function (err, result) {
         var json = JSON.stringify(result);
         console.log("dbGetSharedFiles for userid "+userid+" resulted in:\n"+json);
