@@ -76,17 +76,44 @@ var db = mysql.createConnection({
 })
 
 db.connect(function (err) {
-    if (err) throw err;
+    if (err) console.log("Database connection failed!\n"+err);return;
     console.log("MySQL connected");
 });
 
 function dbGetUserFiles(callback, userid) {
     let tempQuery = "SELECT filename,upload_time,name FROM wtf.files LEFT JOIN wtf.shares ON wtf.files.id = wtf.shares.file_id LEFT JOIN wtf.users ON wtf.shares.user_id = wtf.users.id WHERE owner = "+userid+" ORDER BY wtf.files.id;";
     db.query(tempQuery, function (err, result) {
-        var json = JSON.stringify(result);
-        console.log("dbGetUserFiles for userid " + userid + " resulted in:\n" +json);
+        //{ "filenames":,"upload_time":,"usernames":};
+        let tempData = [];
+        for (let i = 0; i < result.length; i++) {
+            console.log(tempData);
+            if (arrContainsObj(result[i], tempData)) {
+                tempData[tempData.length-1].name.push(result[i].name);
+            } else {
+                let tempObj = {};
+                tempObj.filename = result[i].filename;
+                tempObj.upload_time = result[i].upload_time;
+                tempObj.name = [];
+                tempObj.name.push(result[i].name);
+                tempData.push(tempObj);
+            }
+        }
+        var json = JSON.stringify(tempData);
+        console.log("dbGetUserFiles for userid " + userid + " resulted in:\n" + json);
         callback(null, json);
     });
+}
+
+function arrContainsObj(obj, array) {
+    console.log("MOIN");
+    for (let x = 0; x < array.length; x++) {
+        if (array[x].filename.includes(obj.filename)) {
+            console.log("Arary contains name " + obj.name);
+            return true;
+        }
+    }
+    console.log("Arary does not contain name " + obj.name);
+    return false;
 }
 
 function dbGetSharedFiles(callback,userid) {
@@ -105,3 +132,11 @@ function dbSaveFile(userid,filename,filetype) {
     db.query(tempQuery, function (err, result) {
     });
 }*/
+
+function hans() {
+    let callback = function (err, result) {
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(result);
+    };
+    dbGetUserFiles(callback, req.params.id);
+}
