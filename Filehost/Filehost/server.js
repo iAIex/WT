@@ -68,7 +68,6 @@ app.post('/upload', function (req, res) {
 //DATABASE
 
 //ALTER TABLE tablename AUTO_INCREMENT = 1; for resetting AI
-//SELECT filename, name FROM wtf.shares JOIN wtf.files ON wtf.shares.file_id = wtf.files.id JOIN wtf.users ON wtf.files.owner = wtf.users.id WHERE user_id = 2; for getting Shared files
 
 var db = mysql.createConnection({
     host: "localhost",
@@ -82,7 +81,7 @@ db.connect(function (err) {
 });
 
 function dbGetUserFiles(callback, userid) {
-    let tempQuery = "SELECT * FROM wtf.files LEFT JOIN wtf.shares ON wtf.files.id = wtf.shares.file_id LEFT JOIN wtf.users ON wtf.shares.user_id = wtf.users.id WHERE owner = "+userid+" ORDER BY wtf.files.id;";
+    let tempQuery = "SELECT filename,upload_time,name FROM wtf.files LEFT JOIN wtf.shares ON wtf.files.id = wtf.shares.file_id LEFT JOIN wtf.users ON wtf.shares.user_id = wtf.users.id WHERE owner = "+userid+" ORDER BY wtf.files.id;";
     db.query(tempQuery, function (err, result) {
         var json = JSON.stringify(result);
         console.log("dbGetUserFiles for userid " + userid + " resulted in:\n" +json);
