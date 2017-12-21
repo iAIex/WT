@@ -28,7 +28,8 @@ function myFiles(json)
             if(j<maxPers){
               temp.teilenMit=temp.teilenMit+", "+json[i].name[j];
             }else if(j===maxPers){
-              temp.teilenMit=temp.teilenMit+" + "+(json[i].name.length-maxPers)+" anderen";
+              temp.teilenMit=temp.teilenMit+" + "+(json[i].name.length-maxPers)+
+              " anderen";
             }
           }
         }
@@ -49,9 +50,9 @@ console.log(json);
     }
 }
 
-function getMyFiles(userId)
+function getMyFiles()
 {
-  return new Promise(function(resolve, reject){
+  var userId = getUserId();
    if(userId == undefined)
    {
      console.log("userId is undefined");
@@ -65,18 +66,17 @@ function getMyFiles(userId)
         {
            if (xmlhttp.readyState==4 && xmlhttp.status==200)
            {
-              return resolve(JSON.parse(xmlhttp.responseText));
+              myFiles(JSON.parse(xmlhttp.responseText));
            }
 
          };
         xmlhttp.send();
     }
-  });
 }
 
-function getSharedFiles(userId)
+function getSharedFiles()
 {
-  return new Promise(function(resolve, reject){
+  var userId = getUserId();
   if(userId == undefined)
   {
     console.log("userId is undefined");
@@ -90,20 +90,14 @@ function getSharedFiles(userId)
      {
            if (xmlhttp.readyState==4 && xmlhttp.status==200)
            {
-              return resolve(JSON.parse(xmlhttp.responseText));
+              sharedFiles(JSON.parse(xmlhttp.responseText));
            }
      };
      xmlhttp.send();
    }
- });
 }
 
-function showFiles(userId){
-Promise.all([getMyFiles(userId), getSharedFiles(userId)])
-.then(allData =>{
-  myFiles(allData[0]);
-  sharedFiles(allData[1]);
-});
-}
 
-getMyFiles(2);
+function getUserId(){
+  return document.getElementById("inpUserId").value;
+}
