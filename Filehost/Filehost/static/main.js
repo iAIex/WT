@@ -18,7 +18,7 @@ function myFiles(json)
       var temp = {};
       temp.name = json[i].filename;
       temp.datum = json[i].upload_time;
-      if(json[i].name.length === 0){
+      if(json[i].name == 0){
         temp.teilenMit = "Niemandem";
       }else{
         for(var j=0;j<json[i].name.length;j++){
@@ -64,7 +64,10 @@ function getMyFiles()
       xmlhttp.open("GET",window.location.href+"getUserFiles"+userId, true);
       xmlhttp.onreadystatechange=function()
         {
-           if (xmlhttp.readyState==4 && xmlhttp.status==200)
+           if(xmlhttp.status==500){
+             console.log("Something went wrong");
+           }
+           else if (xmlhttp.readyState==4 && xmlhttp.status==200)
            {
               myFiles(JSON.parse(xmlhttp.responseText));
            }
@@ -82,13 +85,18 @@ function getSharedFiles()
     console.log("userId is undefined");
     return;
   }
+
   else
   {
      xmlhttp = new XMLHttpRequest();
      xmlhttp.open("GET",window.location.href+"getSharedFiles"+userId, true);
      xmlhttp.onreadystatechange=function()
      {
-           if (xmlhttp.readyState==4 && xmlhttp.status==200)
+           if(xmlhttp.readyState==4 &&  xmlhttp.status==500)
+           {
+             console.log("Something went wrong");
+           }
+           else if(xmlhttp.readyState==4 && xmlhttp.status==200)
            {
               sharedFiles(JSON.parse(xmlhttp.responseText));
            }
