@@ -64,8 +64,8 @@ function getMyFiles()
       xmlhttp.open("GET",window.location.href+"getUserFiles"+userId, true);
       xmlhttp.onreadystatechange=function()
         {
-           if(xmlhttp.status==500){
-             console.log("Something went wrong");
+           if(xmlhttp.readyState==4 && xmlhttp.status!=200){
+             console.log(xmlhttp.responseText);
            }
            else if (xmlhttp.readyState==4 && xmlhttp.status==200)
            {
@@ -92,9 +92,9 @@ function getSharedFiles()
      xmlhttp.open("GET",window.location.href+"getSharedFiles"+userId, true);
      xmlhttp.onreadystatechange=function()
      {
-           if(xmlhttp.readyState==4 &&  xmlhttp.status==500)
+           if(xmlhttp.readyState==4 &&  xmlhttp.status!=200)
            {
-             console.log("Something went wrong");
+             console.log(xmlhttp.responseText);
            }
            else if(xmlhttp.readyState==4 && xmlhttp.status==200)
            {
