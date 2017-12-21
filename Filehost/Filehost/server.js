@@ -20,7 +20,7 @@ app.get('/', function (req, res) {
 
 app.get('/getSharedFiles:id', function (req, res) { //AJAX endpoint for getting sharedFiles by userId
     console.log("Shared files for userid "+req.params.id+" requested by " + req.ip);
-    let callback = function (err, result) {
+    let callback = function (err, result) { //handles "return" values of SQL query
         if (err) {
             console.log("Error in endpoint /getSharedFiles: " + err);
             res.writeHead(400, { "Content-Type": "text/plain" }); //Error 400: Bad Request
@@ -36,7 +36,7 @@ app.get('/getSharedFiles:id', function (req, res) { //AJAX endpoint for getting 
 
 app.get('/getUserFiles:id', function (req, res) {
     console.log("User files for userid "+req.params.id+" requested by " + req.ip);
-    let callback = function (err, result) {
+    let callback = function (err, result) { //handles "return" values of SQL query
         if (err) {
             console.log("Error in endpoint /getUserFiles: " + err);
             res.writeHead(400, { "Content-Type": "text/plain" }); //Error 400: Bad Request
@@ -51,7 +51,7 @@ app.get('/getUserFiles:id', function (req, res) {
 });
 
 
-//FILE UPLOAD
+// ---- FILE UPLOAD ----
 app.use(fileUpload());
 
 app.post('/upload', function (req, res) {
@@ -73,7 +73,7 @@ app.post('/upload', function (req, res) {
     });
 });
 
-//DATABASE
+// ---- DATABASE ----
 
 //ALTER TABLE tablename AUTO_INCREMENT = 1; for resetting AI
 
@@ -93,10 +93,10 @@ function dbGetUserFiles(callback, userid) {
     db.query(tempQuery, function (err, result) {
         if (err) {
             console.log("Error in query: " + err);
-            callback("Query failed", null);
+            callback("Query failed", null); //"returns" errors to endpoint
         } else {
             let tempData = [];
-            for (let i = 0; i < result.length; i++) {
+            for (let i = 0; i < result.length; i++) { //builds object to be sent to client, removes duplicates in filename
                 console.log(tempData);
                 if (arrContainsObj(result[i], tempData)) {
                     tempData[tempData.length - 1].name.push(result[i].name);
@@ -109,20 +109,11 @@ function dbGetUserFiles(callback, userid) {
                     tempData.push(tempObj);
                 }
             }
-            var json = JSON.stringify(tempData);
+            let json = JSON.stringify(tempData);
             console.log("dbGetUserFiles for userid " + userid + " resulted in:\n" + json);
-            callback(null, json);
+            callback(null, json); //"returns" result to endpoint
         }
     });
-}
-
-function arrContainsObj(obj, array) {
-    for (let x = 0; x < array.length; x++) {
-        if (array[x].filename.includes(obj.filename)) {
-            return true;
-        }
-    }
-    return false;
 }
 
 function dbGetSharedFiles(callback,userid) {
@@ -130,27 +121,22 @@ function dbGetSharedFiles(callback,userid) {
     db.query(tempQuery, function (err, result) {
         if (err) {
             console.log("Error in query: " + err);
-            callback("Query failed", null);
+            callback("Query failed", null); //"returns" errors to endpoint
         } else {
-            var json = JSON.stringify(result);
+            let json = JSON.stringify(result);
             console.log("dbGetSharedFiles for userid " + userid + " resulted in:\n" + json);
-            callback(null, json);
+            callback(null, json); //"returns" result to endpoint
         }
     });
 }
 
-/*
-function dbSaveFile(userid,filename,filetype) {
-    var tempQuery = "INSERT INTO `wtf`.`files` (`owner`, `filename`, `filetype`) VALUES ('" + userid + "', '" + filename + "', '" + filetype + "');";
-    var fileID = "";
-    db.query(tempQuery, function (err, result) {
-    });
-}*/
+// ---- HELPER FUNCTIONS ----
 
-function hans() {
-    let callback = function (err, result) {
-        res.writeHead(200, { "Content-Type": "application/json" });
-        res.end(result);
-    };
-    dbGetUserFiles(callback, req.params.id);
+function arrContainsObj(obj, array) { //checks if obj is already in array based on obj.filename, returns boolean
+    for (let x = 0; x < array.length; x++) {
+        if (array[x].filename.includes(obj.filename)) {
+            return true;
+        }
+    }
+    return false;
 }
