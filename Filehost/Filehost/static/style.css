@@ -5,16 +5,15 @@ header{
 
 table
 {
-  width: 100%;
   border-collapse: collapse;
+  width: 100%;
+}
+td{
+  overflow: hidden;
+  text-align: center;
 }
 th{
   border-bottom: 1px solid #aaa;
-
-}
-td{
-  text-align: center;
-  overflow: hidden;
 }
 caption{
   text-align: left;

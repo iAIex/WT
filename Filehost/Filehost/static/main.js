@@ -1,3 +1,4 @@
+//jshint esversion:6
 var files = new Vue({
   el: "#files",
   data: {
@@ -9,31 +10,33 @@ var files = new Vue({
 
 function myFiles(json)
 {
+  console.log(json);
     files.myFiles = [];
-    for(i=0; i<json.length; i++)
+    for(var i=0; i<json.length; i++)
     {
       var temp = {};
       temp.name = json[i].filename;
-      temp.datum = '21.01.2009';
-      temp.teilenMit = 'Alex';
+      temp.datum = json[i].upload_time;
+      temp.teilenMit = json[i].name;
       files.myFiles.push(temp);
     }
 }
 
 function sharedFiles(json){
+console.log(json);
     files.sharedFiles = [];
-    for(i=0; i<json.length; i++){
+    for(var i=0; i<json.length; i++){
       var temp = {};
       temp.name = json[i].filename;
-      temp.datum = '21.03.2010';
-      temp.geteiltVon = 'Alex';
+      temp.datum = json[i].upload_time;
+      temp.geteiltVon = json[i].name;
       files.sharedFiles.push(temp);
     }
 }
 
 function getMyFiles(userId)
 {
-
+  return new Promise(function(resolve, reject){
    if(userId == undefined)
    {
      console.log("userId is undefined");
@@ -47,16 +50,18 @@ function getMyFiles(userId)
         {
            if (xmlhttp.readyState==4 && xmlhttp.status==200)
            {
-              myFiles(JSON.parse(xmlhttp.responseText));
+              return resolve(JSON.parse(xmlhttp.responseText));
            }
 
          };
         xmlhttp.send();
     }
+  });
 }
 
 function getSharedFiles(userId)
 {
+  return new Promise(function(resolve, reject){
   if(userId == undefined)
   {
     console.log("userId is undefined");
@@ -65,14 +70,23 @@ function getSharedFiles(userId)
   else
   {
      xmlhttp = new XMLHttpRequest();
-     xmlhttp.open("GET",window.location.href+"getUserFiles"+userId, true);
+     xmlhttp.open("GET",window.location.href+"getSharedFiles"+userId, true);
      xmlhttp.onreadystatechange=function()
      {
            if (xmlhttp.readyState==4 && xmlhttp.status==200)
            {
-              sharedFiles(JSON.parse(xmlhttp.responseText));
+              return resolve(JSON.parse(xmlhttp.responseText));
            }
      };
      xmlhttp.send();
    }
+ });
+}
+
+function showFiles(userId){
+Promise.all([getMyFiles(userId), getSharedFiles(userId)])
+.then(allData =>{
+  myFiles(allData[0]);
+  sharedFiles(allData[1]);
+});
 }
