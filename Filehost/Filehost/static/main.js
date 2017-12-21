@@ -11,13 +11,22 @@ var files = new Vue({
 var maxPers=4; //Max numbers of names to show in shared with collumn
 function myFiles(json)
 {
-  console.log(json);
     files.myFiles = [];
     for(var i=0; i<json.length; i++)
     {
       var temp = {};
       temp.name = json[i].filename;
-      temp.datum = json[i].upload_time;
+      var datum = json[i].upload_time.split("T")[0].split("-");//Hilfsobjekt
+      temp.datum="";
+      for(var k=(datum.length-1); k>=0; k--)
+      {
+        if(k===0){
+          temp.datum = temp.datum+datum[k];
+        }
+        else{
+          temp.datum = temp.datum+datum[k]+".";
+        }
+      }
       if(json[i].name == 0){
         temp.teilenMit = "Niemandem";
       }else{
@@ -39,17 +48,28 @@ function myFiles(json)
 }
 
 function sharedFiles(json){
-console.log(json);
     files.sharedFiles = [];
     for(var i=0; i<json.length; i++){
       var temp = {};
       temp.name = json[i].filename;
       temp.datum = json[i].upload_time;
+      var datum = json[i].upload_time.split("T")[0].split("-");//Hilfsobjekt
+      temp.datum="";
+      for(var k=(datum.length-1); k>=0; k--)
+      {
+        if(k===0)
+        {
+          temp.datum = temp.datum+datum[k];
+        }
+        else
+        {
+          temp.datum = temp.datum+datum[k]+".";
+        }
+      }
       temp.geteiltVon = json[i].name;
       files.sharedFiles.push(temp);
     }
 }
-
 function getMyFiles()
 {
   var userId = getUserId();
