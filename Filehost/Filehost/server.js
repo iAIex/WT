@@ -23,7 +23,7 @@ app.get('/getSharedFiles:id', function (req, res) { //AJAX endpoint for getting 
     let callback = function (err, result) {
         if (err) {
             console.log("Error in endpoint /getSharedFiles: " + err);
-            res.writeHead(500, { "Content-Type": "text/plain" });
+            res.writeHead(400, { "Content-Type": "text/plain" }); //Error 400: Bad Request
             res.end(""+err);
             return;
         } else {
@@ -39,7 +39,7 @@ app.get('/getUserFiles:id', function (req, res) {
     let callback = function (err, result) {
         if (err) {
             console.log("Error in endpoint /getUserFiles: " + err);
-            res.writeHead(500, { "Content-Type": "text/plain" });
+            res.writeHead(400, { "Content-Type": "text/plain" }); //Error 400: Bad Request
             res.end(""+err);
             return;
         } else {
