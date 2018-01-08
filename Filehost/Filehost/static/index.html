@@ -1,7 +1,11 @@
 <!Doctype html>
 <html>
 <head>
-    <script src="https://unpkg.com/vue"></script>
+    <!--<script src="vue.min.js"></script>-->
+    <script src="vue.js"></script>
+    <script src="jquery-3.2.1.js"></script>
+    <!--<script src="jquery-3.2.1.min.js"></script>-->
+
     <link rel="stylesheet" href="style.css" type="text/css">
     <title>WTF - Webtechnologies Filesharing</title>
 </head>
@@ -10,11 +14,9 @@
     <h3>WTF - Web Technologies Filesharing</h3>
   </header>
 
-  <form id="uploadForm" action="http://localhost:1337/upload" method="post" enctype="multipart/form-data">
-  <p>Datei hochladen:  <input name="myFile" type="file"> </p>
-  <input type="text">
-  <input type="submit" value="Upload">
-  </form>
+<input type="file" id="uploadFile">
+  <div id="responses"></div>
+ <button onclick="upload()">… und ab geht die Post!</button>
 
 <section>
 <div id="files">
@@ -49,9 +51,9 @@
     </tr>
   </table>
 </div>
-<input type="text" id="inpUserId"></input>
-<input type="button" onclick="getMyFiles()" value="refresh">Get My Files</input>
-<input type="button" onclick="getSharedFiles()" value="refresh">Get Shared Files</input>
+<input type="text" id="inpUserId">
+Get My Files<input type="button" onclick="getMyFiles()" value="refresh">
+Get Shared Files<input type="button" onclick="getSharedFiles()" value="refresh">
 
   <script language="javascript" src="main.js" type="text/javascript">
   </script>
