@@ -5,6 +5,7 @@ const app = require('express')();
 const http = require('http').Server(app);
 const mysql = require('mysql');
 var formidable = require('formidable');
+var path = require('path');
 
 //Listening on Port 1337
 http.listen(1337, function () {
@@ -61,9 +62,12 @@ app.post('/upload', function (req, res) {
 
     var form = new formidable.IncomingForm();
     form.uploadDir = path.join(__dirname, '/userfiles');
-    form.parse(req, function (err, fields, files) {
-        res.write('File uploaded');
-        res.end();
+    form.keepExtensions = true;
+    //form.type = multipart;
+    form.on('file', function (field, file) {
+        //fs.rename(file.path, path.join(form.uploadDir, file.name));
+        console.log(field);
+        console.log(file);
     });
     /*
     if (!req.files)
