@@ -1,4 +1,7 @@
 //jshint esversion:6
+
+
+
 var files = new Vue({
   el: "#files",
   data: {
