@@ -57,9 +57,13 @@ app.use(fileUpload());
 
 app.post('/upload', function (req, res) {
 
+    console.log("GOT POST");
+
     var form = new formidable.IncomingForm();
+    form.uploadDir = path.join(__dirname, '/userfiles');
     form.parse(req, function (err, fields, files) {
-        console.log(fields);
+        res.write('File uploaded');
+        res.end();
     });
     /*
     if (!req.files)
