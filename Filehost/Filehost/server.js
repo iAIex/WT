@@ -4,21 +4,22 @@ const fileUpload = require('express-fileupload');
 const app = require('express')();
 const http = require('http').Server(app);
 const mysql = require('mysql');
+var formidable = require('formidable');
 
 //Listening on Port 1337
 http.listen(1337, function () {
     console.log('Server up on 1337\n->Time to party<-');
-})
+});
 
 // ---- ROUTING ----
-app.use('/', express.static(__dirname + '/static'))
+app.use('/', express.static(__dirname + '/static'));
 
 app.get('/', function (req, res) {
     console.log("Root Requested by " + req.ip);
-    res.sendFile(__dirname + '/static/dummy.html')
-})
+    res.sendFile(__dirname + '/static/dummy.html');
+});
 
-app.get('/getSharedFiles:id', function (req, res) { //AJAX endpoint for getting sharedFiles by userId
+app.get('/getSharedFiles/:id', function (req, res) { //AJAX endpoint for getting sharedFiles by userId
     console.log("Shared files for userid "+req.params.id+" requested by " + req.ip);
     let callback = function (err, result) { //handles "return" values of SQL query
         if (err) {
@@ -34,19 +35,19 @@ app.get('/getSharedFiles:id', function (req, res) { //AJAX endpoint for getting 
     dbGetSharedFiles(callback,req.params.id);
 });
 
-app.get('/getUserFiles:id', function (req, res) {
+app.get('/getUserFiles/:id', function (req, res) {
     console.log("User files for userid "+req.params.id+" requested by " + req.ip);
     let callback = function (err, result) { //handles "return" values of SQL query
         if (err) {
             console.log("Error in endpoint /getUserFiles: " + err);
             res.writeHead(400, { "Content-Type": "text/plain" }); //Error 400: Bad Request
-            res.end(""+err);
+            res.end("" + err);
             return;
         } else {
             res.writeHead(200, { "Content-Type": "application/json" });
             res.end(result);
         }
-    }
+    };
     dbGetUserFiles(callback, req.params.id);
 });
 
@@ -56,8 +57,11 @@ app.use(fileUpload());
 
 app.post('/upload', function (req, res) {
 
-    console.log(req.files);
-
+    var form = new formidable.IncomingForm();
+    form.parse(req, function (err, fields, files) {
+        console.log(fields);
+    });
+    /*
     if (!req.files)
         return res.status(400).send('No files were uploaded.');
 
@@ -68,9 +72,8 @@ app.post('/upload', function (req, res) {
     myFile.mv("userfiles/"+myFile.name, function (err) { //move (mv()) file to userfiles
         if (err)
             return res.status(500).send(err);
-
         res.send('File uploaded!');
-    });
+    });*/
 });
 
 // ---- DATABASE ----
@@ -81,11 +84,11 @@ var db = mysql.createConnection({
     host: "localhost",
     user: "User1",
     password: "ibims1user"
-})
+});
 
 db.connect(function (err) {
-    if (err) console.log("Database connection failed!\n"+err);return;
-    console.log("MySQL connected");
+    if (err) { console.log("Database connection failed!\n" + err); return}
+    else {console.log("MySQL connected")}
 });
 
 function dbGetUserFiles(callback, userid) {
@@ -117,7 +120,7 @@ function dbGetUserFiles(callback, userid) {
 }
 
 function dbGetSharedFiles(callback,userid) {
-    let tempQuery = "SELECT filename,upload_time, name FROM wtf.shares JOIN wtf.files ON wtf.shares.file_id = wtf.files.id JOIN wtf.users ON wtf.files.owner = wtf.users.id WHERE user_id = "+userid+";";
+    let tempQuery = "SELECT filename,upload_time,name,files.id  FROM wtf.shares JOIN wtf.files ON wtf.shares.file_id = wtf.files.id JOIN wtf.users ON wtf.files.owner = wtf.users.id WHERE user_id = "+userid+";";
     db.query(tempQuery, function (err, result) {
         if (err) {
             console.log("Error in query: " + err);
