@@ -6,8 +6,8 @@ function upload() {
   xmlhttp.open("POST",window.location.href+"upload", true);
   xmlhttp.setRequestHeader("Content-type", "application/json");
   xmlhttp.onreadystatechange=function(){
-    if(http.readyState==4 && http.status==201){
-      console.log(http.responseText);
+    if(xmlhttp.readyState==4 && xmlhttp.status==201){
+      console.log(xmlhttp.responseText);
     }
   };
   xmlhttp.send(JSON.stringify(jsonobjekt));

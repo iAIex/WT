@@ -62,6 +62,12 @@ app.post('/upload', function (req, res) {
     console.log("Request by " + req.ip)
     console.log("---- --  REQ BODY  -- ----")
     console.log(req.body);
+    dbAddUpload(req.body.id)
+        .then(function (result) {
+            res.writeHead(201, { "Content-Type": "application/json" });
+            res.end(JSON.stringify({ "UploadID": result }));
+        })
+        .catch(function(err) { res.status(400).send(err)});
 });
 
 app.post('/upload/:id', function (req, res) {
@@ -134,6 +140,21 @@ function dbGetSharedFiles(callback,userid) {
             console.log("dbGetSharedFiles for userid " + userid + " resulted in:\n" + json);
             callback(null, json); //"returns" result to endpoint
         }
+    });
+}
+
+function dbAddUpload(id) {
+    return new Promise(function (resolve, reject) {
+        let tempQuery = "INSERT INTO `wtf`.`files` (`owner`) VALUES ('"+id+"');";
+        db.query(tempQuery, function (err, result) {
+            if (err) {
+                console.log("Error in query: " + err);
+                reject("Error in request");
+            } else {
+                console.log("dbAddUpload added entry with ID " + result.insertId + " for user " + id);
+                resolve(result.insertId);
+            }
+        });
     });
 }
 
