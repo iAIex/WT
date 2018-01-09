@@ -10,8 +10,7 @@ function upload() {
       console.log(http.responseText);
     }
   };
-  xmlhttp.send(jsonobjekt);
-
+  xmlhttp.send(JSON.stringify(jsonobjekt));
 }
 
 var files = new Vue({
