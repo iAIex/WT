@@ -4,8 +4,7 @@ const fileUpload = require('express-fileupload');
 const app = require('express')();
 const http = require('http').Server(app);
 const mysql = require('mysql');
-var formidable = require('formidable');
-var path = require('path');
+var pendingUploads = [];
 
 //Listening on Port 1337
 http.listen(1337, function () {
@@ -13,12 +12,12 @@ http.listen(1337, function () {
 });
 
 // ---- ROUTING ----
-app.use('/', express.static(__dirname + '/static'));
-
 app.get('/', function (req, res) {
     console.log("Root Requested by " + req.ip);
     res.sendFile(__dirname + '/static/dummy.html');
 });
+
+app.use('/', express.static(__dirname + '/static'));
 
 app.get('/getSharedFiles/:id', function (req, res) { //AJAX endpoint for getting sharedFiles by userId
     console.log("Shared files for userid "+req.params.id+" requested by " + req.ip);
@@ -57,31 +56,28 @@ app.get('/getUserFiles/:id', function (req, res) {
 app.use(fileUpload());
 
 app.post('/upload', function (req, res) {
+    console.log("---- -- Upload AJAX-- ----");
+    console.log(req);
+    console.log("---- --  REQ BODY  -- ----")
+    console.log(req.body);
+    console.log("---- --BODY ID TEST-- ----")
+    console.log(JSON.parse(req.body).id);
+});
 
-    console.log("GOT POST");
+app.post('/upload/:id', function (req, res) {
 
-    var form = new formidable.IncomingForm();
-    form.uploadDir = path.join(__dirname, '/userfiles');
-    form.keepExtensions = true;
-    //form.type = multipart;
-    form.on('file', function (field, file) {
-        //fs.rename(file.path, path.join(form.uploadDir, file.name));
-        console.log(field);
-        console.log(file);
-    });
-    /*
-    if (!req.files)
-        return res.status(400).send('No files were uploaded.');
+    console.log("Upload File Endpoint");
+    console.log(res);
 
     let myFile = req.files.myFile; //Name of input field
 
     //var fileId = dbSaveFile(userid, myFile.name.myFile.filetype);
 
-    myFile.mv("userfiles/"+myFile.name, function (err) { //move (mv()) file to userfiles
+    myFile.mv("userfiles/" + myFile.name, function (err) { //move (mv()) file to userfiles
         if (err)
             return res.status(500).send(err);
-        res.send('File uploaded!');
-    });*/
+        res.status(201).send('File uploaded!');
+    });
 });
 
 // ---- DATABASE ----
