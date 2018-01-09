@@ -1,21 +1,17 @@
 //jshint esversion:6
+var user = 1;
 function upload() {
-    console.log("Moin");
-   var data = new FormData(); // das ist unser Daten-Objekt ...
-   data.append('file', this.files[0]); // ... an die wir unsere Datei anhängen
-   console.log(data);
-   $.ajax({
-      url: 'http://localhost:1337/upload', // Wohin soll die Datei geschickt werden?
-      data: data,          // Das ist unser Datenobjekt.
-      type: 'POST',         // HTTP-Methode, hier: POST
-      processData: false,
-      contentType: false,
-      // und wenn alles erfolgreich verlaufen ist, schreibe eine Meldung
-      // in das Response-Div
-      success: function() { $("#responses").append("Datei erfolgreich hochgeladen");
+  var jsonobjekt = {"id": user, "shareWith": [], "fileSize": 0};
+  var xmlhttp = new XMLHttpRequest();
+  xmlhttp.open("POST",window.location.href+"upload", true);
+  xmlhttp.setRequestHeader("Content-type", "application/json");
+  xmlhttp.onreadystatechange=function(){
+    if(http.readyState==4 && http.status==201){
+      console.log(http.responseText);
+    }
+  };
+  xmlhttp.send(jsonobjekt);
 
-      }
-   });
 }
 
 var files = new Vue({
