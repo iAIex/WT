@@ -4,6 +4,7 @@ const fileUpload = require('express-fileupload');
 const app = require('express')();
 const http = require('http').Server(app);
 const mysql = require('mysql');
+const bodyParser = require('body-parser')
 var pendingUploads = [];
 
 //Listening on Port 1337
@@ -14,7 +15,7 @@ http.listen(1337, function () {
 // ---- ROUTING ----
 app.get('/', function (req, res) {
     console.log("Root Requested by " + req.ip);
-    res.sendFile(__dirname + '/static/dummy.html');
+    res.sendFile(__dirname + '/static/index.html');
 });
 
 app.use('/', express.static(__dirname + '/static'));
@@ -54,14 +55,13 @@ app.get('/getUserFiles/:id', function (req, res) {
 
 // ---- FILE UPLOAD ----
 app.use(fileUpload());
+app.use(bodyParser.json());
 
 app.post('/upload', function (req, res) {
     console.log("---- -- Upload AJAX-- ----");
-    console.log(req);
+    console.log("Request by " + req.ip)
     console.log("---- --  REQ BODY  -- ----")
     console.log(req.body);
-    console.log("---- --BODY ID TEST-- ----")
-    console.log(JSON.parse(req.body).id);
 });
 
 app.post('/upload/:id', function (req, res) {
