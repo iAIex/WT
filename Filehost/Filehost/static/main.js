@@ -95,7 +95,7 @@ function getMyFiles()
    else
    {
       xmlhttp = new XMLHttpRequest();
-      xmlhttp.open("GET",window.location.href+"getUserFiles"+userId, true);
+      xmlhttp.open("GET",window.location.href+"getUserFiles/"+userId, true);
       xmlhttp.onreadystatechange=function()
         {
            if(xmlhttp.readyState==4 && xmlhttp.status!=200){
@@ -123,7 +123,7 @@ function getSharedFiles()
   else
   {
      xmlhttp = new XMLHttpRequest();
-     xmlhttp.open("GET",window.location.href+"getSharedFiles"+userId, true);
+     xmlhttp.open("GET",window.location.href+"getSharedFiles/"+userId, true);
      xmlhttp.onreadystatechange=function()
      {
            if(xmlhttp.readyState==4 &&  xmlhttp.status!=200)

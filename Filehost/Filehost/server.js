@@ -110,15 +110,14 @@ function dbGetUserFiles(callback, userid) {
         } else {
             let tempData = [];
             for (let i = 0; i < result.length; i++) { //builds object to be sent to client, removes duplicates in filename
-                console.log(tempData);
                 if (arrContainsObj(result[i], tempData)) {
-                    tempData[tempData.length - 1].name.push(result[i].name);
+                    tempData[tempData.length - 1].name.push(result[i].name+"");
                 } else {
                     let tempObj = {};
-                    tempObj.filename = result[i].filename;
-                    tempObj.upload_time = result[i].upload_time;
+                    tempObj.filename = result[i].filename+"";
+                    tempObj.upload_time = result[i].upload_time+"";
                     tempObj.name = [];
-                    tempObj.name.push(result[i].name);
+                    tempObj.name.push(result[i].name+"");
                     tempData.push(tempObj);
                 }
             }
