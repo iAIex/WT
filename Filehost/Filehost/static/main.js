@@ -28,7 +28,7 @@ function uploadFiles(result){
 
   var xmlhttp=new XMLHttpRequest();
   xmlhttp.open("POST", window.location.href+"upload/"+ result, true);
-  xmlhttp.setRequestHeader("Content-type", "application/json");
+  xmlhttp.setRequestHeader("Content-type", "application/binary");
   xmlhttp.onreadystatechange=function(){
     if(xmlhttp.readyState==4 && xmlhttp.status==201){
       console.log(xmlhttp.responseText);
