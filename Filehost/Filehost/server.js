@@ -4,8 +4,7 @@ const fileUpload = require('express-fileupload');
 const app = require('express')();
 const http = require('http').Server(app);
 const mysql = require('mysql');
-const bodyParser = require('body-parser')
-var pendingUploads = [];
+const bodyParser = require('body-parser');
 
 //Listening on Port 1337
 http.listen(1337, function () {
@@ -21,32 +20,36 @@ app.get('/', function (req, res) {
 app.use('/', express.static(__dirname + '/static'));
 
 app.get('/getSharedFiles/:id', function (req, res) { //AJAX endpoint for getting sharedFiles by userId
-    console.log("Shared files for userid "+req.params.id+" requested by " + req.ip);
+    console.log("---- -- /getSharedFiles/id -- ----");
+    console.log("Request for userid "+req.params.id+" requested by " + req.ip);
     let callback = function (err, result) { //handles "return" values of SQL query
         if (err) {
-            console.log("Error in endpoint /getSharedFiles: " + err);
+            console.log("Error in endpoint /getSharedFiles/id: " + err);
             res.writeHead(400, { "Content-Type": "text/plain" }); //Error 400: Bad Request
             res.end(""+err);
             return;
         } else {
             res.writeHead(200, { "Content-Type": "application/json" });
             res.end(result);
+            console.log("Request finnished!");
         }
     };
     dbGetSharedFiles(callback,req.params.id);
 });
 
 app.get('/getUserFiles/:id', function (req, res) {
-    console.log("User files for userid "+req.params.id+" requested by " + req.ip);
+    console.log("---- -- /getUserFiles/id -- ----");
+    console.log("Request for userid "+req.params.id+" by " + req.ip);
     let callback = function (err, result) { //handles "return" values of SQL query
         if (err) {
-            console.log("Error in endpoint /getUserFiles: " + err);
+            console.log("Error in endpoint /getUserFiles/id: " + err);
             res.writeHead(400, { "Content-Type": "text/plain" }); //Error 400: Bad Request
             res.end("" + err);
             return;
         } else {
             res.writeHead(200, { "Content-Type": "application/json" });
             res.end(result);
+            console.log("Request finnished!");
         }
     };
     dbGetUserFiles(callback, req.params.id);
@@ -58,32 +61,36 @@ app.use(fileUpload());
 app.use(bodyParser.json());
 
 app.post('/upload', function (req, res) {
-    console.log("---- -- Upload AJAX-- ----");
-    console.log("Request by " + req.ip)
-    console.log("---- --  REQ BODY  -- ----")
-    console.log(req.body);
-    dbAddUpload(req.body.id)
+    console.log("---- -- /upload -- ----");
+    console.log("Request for userid " + req.body.id + " by " + req.ip);
+    dbAddUpload(req.body.id,req.body.shareWith, req.body.fileSize)
         .then(function (result) {
+            return dbAddShareEntries(result.fileid, result.shareWith);
+        })
+        .then(function (result) {
+            console.log(result);
             res.writeHead(201, { "Content-Type": "application/json" });
             res.end(JSON.stringify({ "UploadID": result }));
+            console.log("Request finnished!");
         })
-        .catch(function(err) { res.status(400).send(err)});
+        .catch(function (err) {
+            res.status(400).send(err);
+            console.log("Request failed!")
+        });
 });
 
 app.post('/upload/:id', function (req, res) {
 
-    console.log("Upload File Endpoint");
+    console.log("---- -- /upload/id -- ----");
     console.log(res);
-
+    /*
     let myFile = req.files.myFile; //Name of input field
-
-    //var fileId = dbSaveFile(userid, myFile.name.myFile.filetype);
 
     myFile.mv("userfiles/" + myFile.name, function (err) { //move (mv()) file to userfiles
         if (err)
             return res.status(500).send(err);
         res.status(201).send('File uploaded!');
-    });
+    });*/
 });
 
 // ---- DATABASE ----
@@ -142,19 +149,37 @@ function dbGetSharedFiles(callback,userid) {
     });
 }
 
-function dbAddUpload(id) {
+function dbAddUpload(userid,shareWith,fileSize) {
     return new Promise(function (resolve, reject) {
-        let tempQuery = "INSERT INTO `wtf`.`files` (`owner`) VALUES ('"+id+"');";
+        let tempQuery = "INSERT INTO `wtf`.`files` (`owner`) VALUES ('" + userid + "');";
         db.query(tempQuery, function (err, result) {
             if (err) {
                 console.log("Error in query: " + err);
                 reject("Error in request");
             } else {
-                console.log("dbAddUpload added entry with ID " + result.insertId + " for user " + id);
-                resolve(result.insertId);
+                console.log("dbAddUpload added entry with ID " + result.insertId + " for user " + userid);
+                resolve({ "userid":userid, "fileid": result.insertId, "shareWith": shareWith });
             }
         });
     });
+}
+
+function dbAddShareEntries(fileid, shareArray) {
+    /*if (shareArray !== 0) {
+        for (let i = 0; i < shareArray.length; i++){
+            console.log(shareArray[i]);
+            let tempQuery = "INSERT INTO `wtf`.`shares` (`user_id`, `file_id`) VALUES ('" + userid + "', '" + shareArray[i] + "');";
+            db.query(tempQuery, function (err, result) {
+                if (err) {
+                    console.log("Error in query: " + err);
+                    //reject("Error in request");
+                } else {
+                    console.log("dbAddShareEntries added share for file " + fileid + " for user " + shareArray[i]);
+                }
+            });
+        }
+    }*/
+    return fileid;
 }
 
 // ---- HELPER FUNCTIONS ----
