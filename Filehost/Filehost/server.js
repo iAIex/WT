@@ -1,6 +1,7 @@
 'use strict';
 const express = require('express');
-const fileUpload = require('express-fileupload');
+//const fileUpload = require('express-fileupload');
+const saveFile = require('save-file');
 const app = require('express')();
 const http = require('http').Server(app);
 const mysql = require('mysql');
@@ -81,15 +82,17 @@ app.post('/upload', function (req, res) {
 app.post('/upload/:id', function (req, res) {
 
     console.log("---- -- /upload/id -- ----");
-    console.log("Request to upload fileid " + req.params.id);
+    console.log(req);
+    //console.log("Request to upload fileid " + req.params.id);
 
-    let myFile = req.files.myFile; //Name of input field
+    /*let myFile = req.files.myFile; //Name of input field
 
     myFile.mv("userfiles/" + myFile.name, function (err) { //move (mv()) file to userfiles
         if (err)
             return res.status(500).send(err);
         res.status(201).send('File uploaded!');
-    });
+
+    });*/
 });
 
 // ---- DATABASE ----
