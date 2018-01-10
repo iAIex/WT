@@ -13,19 +13,39 @@ function upload() {
   };
   xmlhttp.send(JSON.stringify(jsonobjekt));
 }
-function uploadFiles(result){
-  var fileid= new Blob ([document.getElementById("uploadFile").files[0]],{type:'text/plain'});
-  /*var filereader = new FileReader();
-  filereader.readAsArrayBuffer(fileid);
-  filereader.onload=function(){
-    var hans=[];
-    hans=filereader.result.slice(0);
-    console.log(hans);
-  };
-  filereader.onerror = function(err){
-    console.log("Error "+err);
-  };*/
 
+function init() {
+	document.getElementById('uploadForm').onsubmit=function() {
+		document.getElementById('uploadForm').target = 'upload_target'; //'upload_target' is the name of the iframe
+	}
+}
+window.onload=init;
+/*
+function uploadFiles(result){
+  document.getElementById('uploadForm').submit;
+var form = document.getElementById('HANS');
+var formData = new FormData(form);
+var xhr = new XMLHttpRequest();
+xhr.open('POST', window.location.href+"upload/5", true);
+xhr.send(formData);
+  var blob = new Blob;
+  blob=(document.getElementById("uploadFile").files[0]);
+  var tempForm = new FormData();
+  tempForm.append('myFile',blob);
+
+  var xmlhttp=new XMLHttpRequest();
+  xmlhttp.open("POST", window.location.href+"upload/5", true);
+  xmlhttp.setRequestHeader("Content-type", "multipart/form-data; boundary=---------------------------237211699217316");
+  xmlhttp.onreadystatechange=function(){
+    if(xmlhttp.readyState==4 && xmlhttp.status==201){
+      console.log(xmlhttp.responseText);
+    }
+  };
+  xmlhttp.send(formData);
+}*/
+
+function uploadFilesEXPERIMENTAL(result){
+  var fileid= new Blob ([document.getElementById("uploadFile").files[0]],{type:'text/plain'});
   var xmlhttp=new XMLHttpRequest();
   xmlhttp.open("POST", window.location.href+"upload/"+ result, true);
   xmlhttp.setRequestHeader("Content-type", "application/binary");

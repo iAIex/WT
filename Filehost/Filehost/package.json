@@ -9,6 +9,7 @@
     "express-fileupload": "^0.3.0",
     "formidable": "^1.1.1",
     "mysql": "^2.15.0",
+    "raw-body": "^2.3.2",
     "save-file": "^1.2.0"
   }
 }

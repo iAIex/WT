@@ -1,11 +1,12 @@
 'use strict';
 const express = require('express');
-//const fileUpload = require('express-fileupload');
+const fileUpload = require('express-fileupload');
 const saveFile = require('save-file');
 const app = require('express')();
 const http = require('http').Server(app);
 const mysql = require('mysql');
 const bodyParser = require('body-parser');
+const getRawBody = require('raw-body');
 
 //Listening on Port 1337
 http.listen(1337, function () {
@@ -15,7 +16,7 @@ http.listen(1337, function () {
 // ---- ROUTING ----
 app.get('/', function (req, res) {
     console.log("Root Requested by " + req.ip);
-    res.sendFile(__dirname + '/static/dummy.html');
+    res.sendFile(__dirname + '/static/index.html');
 });
 
 app.use('/', express.static(__dirname + '/static'));
@@ -79,13 +80,14 @@ app.post('/upload', function (req, res) {
         });
 });
 
-app.post('/upload/:id', function (req, res) {
 
+app.post('/upload/:id', function (req, res) {
     console.log("---- -- /upload/id -- ----");
     console.log(req);
-    //console.log("Request to upload fileid " + req.params.id);
+    res.status(201).send('File uploaded!');
+    /*console.log("Request to upload fileid " + req.params.id);
 
-    /*let myFile = req.files.myFile; //Name of input field
+    let myFile = req.files.myFile; //Name of input field
 
     myFile.mv("userfiles/" + myFile.name, function (err) { //move (mv()) file to userfiles
         if (err)
@@ -93,6 +95,13 @@ app.post('/upload/:id', function (req, res) {
         res.status(201).send('File uploaded!');
 
     });*/
+});
+
+app.post('/upload/experimental/:id', function (req, res) { //EXPERIMENTAL - DO NOT USE!
+    console.log("---- -- /upload/id -- ----");
+    getRawBody(req).then(function (buf) {
+        saveFile(buf, "userfiles\test.bmp");
+    });
 });
 
 // ---- DATABASE ----
