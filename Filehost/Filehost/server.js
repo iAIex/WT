@@ -14,7 +14,7 @@ http.listen(1337, function () {
 // ---- ROUTING ----
 app.get('/', function (req, res) {
     console.log("Root Requested by " + req.ip);
-    res.sendFile(__dirname + '/static/index.html');
+    res.sendFile(__dirname + '/static/dummy.html');
 });
 
 app.use('/', express.static(__dirname + '/static'));
@@ -81,15 +81,15 @@ app.post('/upload', function (req, res) {
 app.post('/upload/:id', function (req, res) {
 
     console.log("---- -- /upload/id -- ----");
-    console.log(res);
-    /*
+    console.log("Request to upload fileid " + req.params.id);
+
     let myFile = req.files.myFile; //Name of input field
 
     myFile.mv("userfiles/" + myFile.name, function (err) { //move (mv()) file to userfiles
         if (err)
             return res.status(500).send(err);
         res.status(201).send('File uploaded!');
-    });*/
+    });
 });
 
 // ---- DATABASE ----
