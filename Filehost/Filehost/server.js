@@ -68,7 +68,6 @@ app.post('/upload', function (req, res) {
             return dbAddShareEntries(result.fileid, result.shareWith);
         })
         .then(function (result) {
-            console.log(result);
             res.writeHead(201, { "Content-Type": "application/json" });
             res.end(JSON.stringify({ "UploadID": result }));
             console.log("Request finnished!");
@@ -165,20 +164,19 @@ function dbAddUpload(userid,shareWith,fileSize) {
 }
 
 function dbAddShareEntries(fileid, shareArray) {
-    /*if (shareArray !== 0) {
+    if (shareArray.length !== 0) {
         for (let i = 0; i < shareArray.length; i++){
-            console.log(shareArray[i]);
-            let tempQuery = "INSERT INTO `wtf`.`shares` (`user_id`, `file_id`) VALUES ('" + userid + "', '" + shareArray[i] + "');";
+            let tempQuery = "INSERT INTO `wtf`.`shares` (`user_id`, `file_id`) VALUES ('" + shareArray[i] + "', '" + fileid + "');";
             db.query(tempQuery, function (err, result) {
                 if (err) {
                     console.log("Error in query: " + err);
-                    //reject("Error in request");
+                    reject("Error in request");
                 } else {
                     console.log("dbAddShareEntries added share for file " + fileid + " for user " + shareArray[i]);
                 }
             });
         }
-    }*/
+    }
     return fileid;
 }
 
