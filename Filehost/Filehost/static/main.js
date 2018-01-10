@@ -7,10 +7,34 @@ function upload() {
   xmlhttp.setRequestHeader("Content-type", "application/json");
   xmlhttp.onreadystatechange=function(){
     if(xmlhttp.readyState==4 && xmlhttp.status==201){
-      console.log(xmlhttp.responseText);
+      console.log(JSON.parse(xmlhttp.responseText).UploadID);
+      uploadFiles(xmlhttp.responseText);
     }
   };
   xmlhttp.send(JSON.stringify(jsonobjekt));
+}
+function uploadFiles(result){
+  var fileid= new Blob ([document.getElementById("uploadFile").files[0]],{type:'text/plain'});
+  /*var filereader = new FileReader();
+  filereader.readAsArrayBuffer(fileid);
+  filereader.onload=function(){
+    var hans=[];
+    hans=filereader.result.slice(0);
+    console.log(hans);
+  };
+  filereader.onerror = function(err){
+    console.log("Error "+err);
+  };*/
+
+  var xmlhttp=new XMLHttpRequest();
+  xmlhttp.open("POST", window.location.href+"upload/"+ result, true);
+  xmlhttp.setRequestHeader("Content-type", "application/json");
+  xmlhttp.onreadystatechange=function(){
+    if(xmlhttp.readyState==4 && xmlhttp.status==201){
+      console.log(xmlhttp.responseText);
+    }
+  };
+  xmlhttp.send(fileid);
 }
 
 var files = new Vue({
@@ -67,16 +91,14 @@ function sharedFiles(json){
       var temp = {};
       temp.name = json[i].filename;
       temp.datum = json[i].upload_time;
-      var datum = json[i].upload_time.split("T")[0].split("-");//Hilfsobjekt
-      temp.datum="";
+      var datum = json[i].upload_time.split("T")[0].split("-");
+      temp.datum="";//Hilfsobjekt
       for(var k=(datum.length-1); k>=0; k--)
       {
-        if(k===0)
-        {
+        if(k===0){
           temp.datum = temp.datum+datum[k];
         }
-        else
-        {
+        else{
           temp.datum = temp.datum+datum[k]+".";
         }
       }
