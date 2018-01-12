@@ -1,7 +1,7 @@
 //jshint esversion:6;
 var user = 1;
 function upload() {
-  var jsonobjekt = {"id": user, "shareWith": [], "fileSize": 0};
+  var jsonobjekt = {"id": user, "shareWith": [], "fileSize": 0, "fileName": "test.jpg"}; 
   var xmlhttp = new XMLHttpRequest();
   xmlhttp.open("POST",window.location.href+"upload", true);
   xmlhttp.setRequestHeader("Content-type", "application/json");
