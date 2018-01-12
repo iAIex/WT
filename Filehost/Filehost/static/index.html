@@ -5,7 +5,6 @@
     <script src="vue.js"></script>
     <script src="jquery-3.2.1.js"></script>
     <!--<script src="jquery-3.2.1.min.js"></script>-->
-    <!--<script type="text/javascript" src="js/plugins/moment/min/moment-with-locales.min.js"></script>-->
     <link rel="stylesheet" href="style.css" type="text/css">
     <title>WTF - Webtechnologies Filesharing</title>
 </head>
@@ -13,13 +12,13 @@
   <header>
     <h3>WTF - Web Technologies Filesharing</h3>
   </header>
-  <form ref='uploadForm'
-    id='uploadForm'
+  <form ref="uploadForm"
+    id="uploadForm"
     action='http://localhost:1337/upload/5'
-    method='post'
+    method="post"
     encType="multipart/form-data">
       <input type="file" name="myFile" />
-      <input type='submit' value='Upload!' />
+      <input type="submit" value="Upload!" />
   </form>
   <iframe id="upload_target" name="upload_target" src="" style="width:0;height:0;border:0px solid #fff;display:none"></iframe>
   <div id="responses">

@@ -1,4 +1,4 @@
-//jshint esversion:6
+//jshint esversion:6;
 var user = 1;
 function upload() {
   var jsonobjekt = {"id": user, "shareWith": [], "fileSize": 0};
@@ -44,11 +44,11 @@ xhr.send(formData);
   xmlhttp.send(formData);
 }*/
 
-function uploadFilesEXPERIMENTAL(result){
+function uploadFiles(result){
   var fileid= new Blob ([document.getElementById("uploadFile").files[0]],{type:'text/plain'});
   var xmlhttp=new XMLHttpRequest();
-  xmlhttp.open("POST", window.location.href+"upload/"+ result, true);
-  xmlhttp.setRequestHeader("Content-type", "application/binary");
+  xmlhttp.open("PUT", window.location.href+"upload/"+ result, true);
+  xmlhttp.setRequestHeader("Content-type", "application/octet-stream");
   xmlhttp.onreadystatechange=function(){
     if(xmlhttp.readyState==4 && xmlhttp.status==201){
       console.log(xmlhttp.responseText);
@@ -74,6 +74,9 @@ function myFiles(json)
     {
       var temp = {};
       temp.name = json[i].filename;
+      var datum = new Date(json[i].upload_time);
+      temp.datum = datum.getDate()+"."+datum.getMonth()+"."+datum.getFullYear();
+      /**temp.datum = json[i].upload_time;
       var datum = json[i].upload_time.split("T")[0].split("-");//Hilfsobjekt
       temp.datum="";
       for(var k=(datum.length-1); k>=0; k--)
@@ -84,7 +87,7 @@ function myFiles(json)
         else{
           temp.datum = temp.datum+datum[k]+".";
         }
-      }
+      }*/
       if(json[i].name == 0){
         temp.teilenMit = "Niemandem";
       }else{
@@ -110,7 +113,9 @@ function sharedFiles(json){
     for(var i=0; i<json.length; i++){
       var temp = {};
       temp.name = json[i].filename;
-      temp.datum = json[i].upload_time;
+      var datum = new Date(json[i].upload_time);
+      temp.datum = datum.getDate()+"."+datum.getMonth()+"."+datum.getFullYear();
+    /**temp.datum = json[i].upload_time;
       var datum = json[i].upload_time.split("T")[0].split("-");
       temp.datum="";//Hilfsobjekt
       for(var k=(datum.length-1); k>=0; k--)
@@ -121,7 +126,7 @@ function sharedFiles(json){
         else{
           temp.datum = temp.datum+datum[k]+".";
         }
-      }
+      }*/
       temp.geteiltVon = json[i].name;
       files.sharedFiles.push(temp);
     }
@@ -138,6 +143,7 @@ function getMyFiles()
    {
       xmlhttp = new XMLHttpRequest();
       xmlhttp.open("GET",window.location.href+"getUserFiles/"+userId, true);
+      xmlhttp.setRequestHeader("Accept", "application/json, text/plain");
       xmlhttp.onreadystatechange=function()
         {
            if(xmlhttp.readyState==4 && xmlhttp.status!=200){
@@ -166,6 +172,7 @@ function getSharedFiles()
   {
      xmlhttp = new XMLHttpRequest();
      xmlhttp.open("GET",window.location.href+"getSharedFiles/"+userId, true);
+     xmlhttp.setRequestHeader("Accept", "application/json, text/plain");
      xmlhttp.onreadystatechange=function()
      {
            if(xmlhttp.readyState==4 &&  xmlhttp.status!=200)
