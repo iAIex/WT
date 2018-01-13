@@ -10,6 +10,7 @@
 <body>
   <div id="moin" style="height:9em;width:16em;background-color:green;color:white">FILES HERE</div>
   <script>
+    var ulid=undefined;
     var daFiles=false;
     document.addEventListener("dragover",function(e){
       e = e || event;
@@ -23,23 +24,27 @@
       e = e || event;
       e.preventDefault();
       daFiles = e.dataTransfer.files;
-      console.log("Drop Event auf:")
-      console.log(e.target);
-      console.log("Die Dateien:")
       console.log(daFiles);
-      console.log("Es ist doch easy!");
-      e.target.innerHTML="Patrick ist ein noob";
-
-      var fileid= new Blob ([daFiles[0]],{type:'text/plain'});
-      var xmlhttp=new XMLHttpRequest();
-      xmlhttp.open("POST", window.location.href+"upload/2", true);
-      xmlhttp.setRequestHeader("Content-type", "application/octet-stream");
+      var jsonobjekt = {"id": 2, "shareWith": [], "fileSize": 0, "fileName": daFiles[0].name};
+      var xmlhttp = new XMLHttpRequest();
+      xmlhttp.open("POST",window.location.href+"upload", true);
+      xmlhttp.setRequestHeader("Content-type", "application/json");
       xmlhttp.onreadystatechange=function(){
         if(xmlhttp.readyState==4 && xmlhttp.status==201){
-          console.log(xmlhttp.responseText);
+          ulid=JSON.parse(xmlhttp.responseText).UploadID;
+          var fileid= new Blob ([daFiles[0]],{type:'text/plain'});
+          var xmlhttp2=new XMLHttpRequest();
+          xmlhttp.open("PUT", window.location.href+"upload/"+ulid, true);
+          xmlhttp.setRequestHeader("Content-type", "application/octet-stream");
+          xmlhttp.onreadystatechange=function(){
+            if(xmlhttp.readyState==4 && xmlhttp.status==201){
+              console.log(xmlhttp.responseText);
+            }
+          };
+          xmlhttp.send(fileid);
         }
       };
-      xmlhttp.send(fileid);
+      xmlhttp.send(JSON.stringify(jsonobjekt));
     },false);
   </script>
 </body>

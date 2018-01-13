@@ -1,13 +1,13 @@
 {
-  "name": "filehost",
-  "version": "0.0.0",
+  "name": "wtf_web_technologies_filehost",
+  "version": "0.3.4",
   "main": "server.js",
   "author": "A. Gebhardt, P. Weiss, M. Schreder",
-  "license": "Custom",
+  "license": "CC-BY-4.0",
+  "repository": "github:iAIex/WT",
   "dependencies": {
     "express": "^4.16.2",
     "express-fileupload": "^0.3.0",
-    "formidable": "^1.1.1",
     "mysql": "^2.15.0",
     "raw-body": "^2.3.2",
     "save-file": "^1.2.0"
