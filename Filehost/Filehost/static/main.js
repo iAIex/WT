@@ -1,7 +1,50 @@
-//jshint esversion:6;
+
+/*****************************************************************************
+Hilfsfunktion
+****************************************************************************/
+function arrContainsObj(array, obj) {
+  for(var i= 0; i<array.length; i++){
+    if(array[i].name.includes(obj.name)){
+      return true;
+    }
+  }
+  return false;
+}
+
+/*****************************************************************************
+Drop
+***************************************************************************/
+
+var daFiles=false;
+document.addEventListener("dragover",function(e){
+  e = e || event;
+  e.preventDefault();
+},false);
+document.addEventListener("drop",function(e){
+  e = e || event;
+  e.preventDefault();
+},false);
+document.getElementById("moin").addEventListener("drop",function(e){
+  e = e || event;
+  e.preventDefault();
+  daFiles = e.dataTransfer.files;
+
+  for(var i=0; i<daFiles.length; i++)
+  {
+      if(!arrContainsObj(upload.filesToUpload, daFiles[i]))
+      {
+        upload.filesToUpload.push(daFiles[i]);
+    }
+  }
+
+
+});
+/****************************************************************************
+File upload
+****************************************************************************/
 var user = 1;
 function upload() {
-  var jsonobjekt = {"id": user, "shareWith": [], "fileSize": 0, "fileName": "test.jpg"}; 
+  var jsonobjekt = {"id": user, "shareWith": [], "fileSize": 0, "fileName": "test.jpg"};
   var xmlhttp = new XMLHttpRequest();
   xmlhttp.open("POST",window.location.href+"upload", true);
   xmlhttp.setRequestHeader("Content-type", "application/json");
@@ -14,55 +57,31 @@ function upload() {
   xmlhttp.send(JSON.stringify(jsonobjekt));
 }
 
-function init() {
-	document.getElementById('uploadForm').onsubmit=function() {
-		document.getElementById('uploadForm').target = 'upload_target'; //'upload_target' is the name of the iframe
-	}
-}
-window.onload=init;
-/*
-function uploadFiles(result){
-  document.getElementById('uploadForm').submit;
-var form = document.getElementById('HANS');
-var formData = new FormData(form);
-var xhr = new XMLHttpRequest();
-xhr.open('POST', window.location.href+"upload/5", true);
-xhr.send(formData);
-  var blob = new Blob;
-  blob=(document.getElementById("uploadFile").files[0]);
-  var tempForm = new FormData();
-  tempForm.append('myFile',blob);
-
-  var xmlhttp=new XMLHttpRequest();
-  xmlhttp.open("POST", window.location.href+"upload/5", true);
-  xmlhttp.setRequestHeader("Content-type", "multipart/form-data; boundary=---------------------------237211699217316");
-  xmlhttp.onreadystatechange=function(){
-    if(xmlhttp.readyState==4 && xmlhttp.status==201){
-      console.log(xmlhttp.responseText);
-    }
-  };
-  xmlhttp.send(formData);
-}*/
-
-function uploadFiles(result){
-  var fileid= new Blob ([document.getElementById("uploadFile").files[0]],{type:'text/plain'});
-  var xmlhttp=new XMLHttpRequest();
-  xmlhttp.open("PUT", window.location.href+"upload/"+ result, true);
-  xmlhttp.setRequestHeader("Content-type", "application/octet-stream");
-  xmlhttp.onreadystatechange=function(){
-    if(xmlhttp.readyState==4 && xmlhttp.status==201){
-      console.log(xmlhttp.responseText);
-    }
-  };
-  xmlhttp.send(fileid);
-}
+/**var fileid= new Blob ([daFiles[0]],{type:'text/plain'});
+var xmlhttp=new XMLHttpRequest();
+xmlhttp.open("POST", window.location.href+"upload/2", true);
+xmlhttp.setRequestHeader("Content-type", "application/octet-stream");
+xmlhttp.onreadystatechange=function(){
+  if(xmlhttp.readyState==4 && xmlhttp.status==201){
+    console.log(xmlhttp.responseText);
+  }
+};
+xmlhttp.send(fileid);
+},false);*/
 
 var files = new Vue({
   el: "#files",
   data: {
     myFiles:[],
 
-    sharedFiles:[]
+    sharedFiles:[],
+  }
+});
+
+var upload = new Vue({
+  el:'#fileList',
+  data:{
+    filesToUpload:[]
   }
 });
 
@@ -76,18 +95,6 @@ function myFiles(json)
       temp.name = json[i].filename;
       var datum = new Date(json[i].upload_time);
       temp.datum = datum.getDate()+"."+datum.getMonth()+"."+datum.getFullYear();
-      /**temp.datum = json[i].upload_time;
-      var datum = json[i].upload_time.split("T")[0].split("-");//Hilfsobjekt
-      temp.datum="";
-      for(var k=(datum.length-1); k>=0; k--)
-      {
-        if(k===0){
-          temp.datum = temp.datum+datum[k];
-        }
-        else{
-          temp.datum = temp.datum+datum[k]+".";
-        }
-      }*/
       if(json[i].name == 0){
         temp.teilenMit = "Niemandem";
       }else{
@@ -115,18 +122,6 @@ function sharedFiles(json){
       temp.name = json[i].filename;
       var datum = new Date(json[i].upload_time);
       temp.datum = datum.getDate()+"."+datum.getMonth()+"."+datum.getFullYear();
-    /**temp.datum = json[i].upload_time;
-      var datum = json[i].upload_time.split("T")[0].split("-");
-      temp.datum="";//Hilfsobjekt
-      for(var k=(datum.length-1); k>=0; k--)
-      {
-        if(k===0){
-          temp.datum = temp.datum+datum[k];
-        }
-        else{
-          temp.datum = temp.datum+datum[k]+".";
-        }
-      }*/
       temp.geteiltVon = json[i].name;
       files.sharedFiles.push(temp);
     }

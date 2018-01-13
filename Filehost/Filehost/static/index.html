@@ -1,11 +1,11 @@
 <!Doctype html>
-<html>
+<html lang="de">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <!--<script src="vue.min.js"></script>-->
     <script src="vue.js"></script>
-    <script src="jquery-3.2.1.js"></script>
-    <script src="dropzone.js"></script>
-    <!--<script src="jquery-3.2.1.min.js"></script>-->
     <link rel="stylesheet" href="style.css" type="text/css">
     <title>WTF - Webtechnologies Filesharing</title>
 </head>
@@ -13,29 +13,18 @@
   <header>
     <h3>WTF - Web Technologies Filesharing</h3>
   </header>
-  <!--<form ref="uploadForm"
-    id="uploadForm"
-    action='http://localhost:1337/upload/5'
-    method="post"
-    encType="multipart/form-data">
-      <input type="file" name="myFile" />
-      <input type="submit" value="Upload!" />
-  </form>
-  <iframe id="upload_target" name="upload_target" src="" style="width:0;height:0;border:0px solid #fff;display:none"></iframe>-->
-<div id="dropzone">
-  <form action="http://localhost:1337/upload/5"
-        class="dropzone"
-        id="uploadForm"
-        enctype="multipart/form-data"
-        method="post">
-
-        <div class="dz-message needsclick">
-          "Drop your file here."
-        </div>
-        <input type="submit" value="Upload!">
-</form>
-</div>
-
+<section>
+  <div id="moin">
+    <p id="text"> FILES HERE</p>
+    <output id="fileList">
+      <ul  v-for="files in filesToUpload">
+        <li>
+          {{files.name}}
+        </li>
+      </ul>
+    </output>
+  </div>
+</section>
 
 <section>
 <div id="files">
