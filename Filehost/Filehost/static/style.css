@@ -3,8 +3,16 @@ header{
   background-color: green;
 }
 
-
-
+#moin{
+  background-color:green;
+  color:white;
+  height:9em;
+  width:16em;
+}
+#text{
+  text-align: center;
+  vertical-align: middle;
+}
 table
 {
   border-collapse: collapse;

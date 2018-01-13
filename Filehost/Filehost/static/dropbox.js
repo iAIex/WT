@@ -1,1 +1,0 @@
-var myDropzone = new Dropzone
