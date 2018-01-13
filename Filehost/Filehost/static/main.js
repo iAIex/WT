@@ -1,7 +1,20 @@
 
 /*****************************************************************************
+Hilfsfunktion
+****************************************************************************/
+function arrContainsObj(array, obj) {
+  for(var i= 0; i<array.length; i++){
+    if(array[i].name.includes(obj.name)){
+      return true;
+    }
+  }
+  return false;
+}
+
+/*****************************************************************************
 Drop
 ***************************************************************************/
+
 var daFiles=false;
 document.addEventListener("dragover",function(e){
   e = e || event;
@@ -10,11 +23,6 @@ document.addEventListener("dragover",function(e){
 document.addEventListener("drop",function(e){
   e = e || event;
   e.preventDefault();
-  /**var output=[];
-  for(var i=0, f; f=Files[i]; i++){
-    output.push('<li>', escape(f.name), '(', f.type || 'n/a',')',
-  f.lastModifiedDate.toLocaleDateString(),'</li>');
-}*/
 },false);
 document.getElementById("moin").addEventListener("drop",function(e){
   e = e || event;
@@ -23,15 +31,13 @@ document.getElementById("moin").addEventListener("drop",function(e){
 
   for(var i=0; i<daFiles.length; i++)
   {
-    for(var j=0;j<upload.filesToUpload.length;j++)
-    {
-      if(upload.filesToUpload[j].name.indexOf(daFiles[i]) === -1)
+      if(!arrContainsObj(upload.filesToUpload, daFiles[i]))
       {
         upload.filesToUpload.push(daFiles[i]);
-        console.log(daFiles[i]);
-      }
     }
   }
+
+
 });
 /****************************************************************************
 File upload
