@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<!--Proof of concept by iALex-->
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Fileuplaod - Drag and Drop</title>
+</head>
+<body>
+  <div id="moin" style="height:9em;width:16em;background-color:green;color:white">FILES HERE</div>
+  <script>
+    var daFiles=false;
+    document.addEventListener("dragover",function(e){
+      e = e || event;
+      e.preventDefault();
+    },false);
+    document.addEventListener("drop",function(e){
+      e = e || event;
+      e.preventDefault();
+    },false);
+    document.getElementById("moin").addEventListener("drop",function(e){
+      e = e || event;
+      e.preventDefault();
+      daFiles = e.dataTransfer.files;
+      console.log("Drop Event auf:")
+      console.log(e.target);
+      console.log("Die Dateien:")
+      console.log(daFiles);
+      console.log("Es ist doch easy!");
+      e.target.innerHTML="Patrick ist ein noob";
+
+      var fileid= new Blob ([daFiles[0]],{type:'text/plain'});
+      var xmlhttp=new XMLHttpRequest();
+      xmlhttp.open("POST", window.location.href+"upload/2", true);
+      xmlhttp.setRequestHeader("Content-type", "application/octet-stream");
+      xmlhttp.onreadystatechange=function(){
+        if(xmlhttp.readyState==4 && xmlhttp.status==201){
+          console.log(xmlhttp.responseText);
+        }
+      };
+      xmlhttp.send(fileid);
+    },false);
+  </script>
+</body>
+</html>
