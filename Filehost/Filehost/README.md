@@ -2,37 +2,37 @@
 
 A node based filehosting webservice
 
-##Built With
+## Built With
 * [Visual Studio 2017](https://www.visualstudio.com/de/downloads/)
 * [Atom](https://atom.io/)
 
-##Versioning
+## Versioning
 Versioning is still in beta you could say. We plan on versioning like this:
-*Milestones are numbered 1.0.0
-*Functional additions are numbered 0.1.0
-*Bugfixes and improvements of existing features are numbered 0.0.1
+* Milestones are numbered 1.0.0
+* Functional additions are numbered 0.1.0
+* Bugfixes and improvements of existing features are numbered 0.0.1
 
-##Authors
+## Authors
 * **Patrick Weiß** - *Frontend* - [Paddy24041998](https://github.com/paddy24041998)
-* **Michael Schreder** - *Authentification* - [Senpai96](https://github.com/senpai96)
+* **Michael Schreder** - *Authentication* - [Senpai96](https://github.com/senpai96)
 * **Alexander Gebhardt** - *Backend* - [iAIex](https://github.com/iAIex)
 
-##License
+## License
 This project is licensed under the Creative Commons License [CC-BY-4.0](https://creativecommons.org/licenses/by/4.0/legalcode)
 
-##Acknowledgments
+## Acknowledgments
 This project is based on [Node.js](https://nodejs.org/) on the server side. It implements multiple node packages which are listed here:
-*[express](https://expressjs.com/)
-*[express-fileupload](https://github.com/richardgirges/express-fileupload)
-*[mysql](https://github.com/mysqljs/mysql)
-*[raw-body](https://github.com/stream-utils/raw-body)
-*[save-file](https://github.com/dfcreative/save-file)
+* [express](https://expressjs.com/)
+* [express-fileupload](https://github.com/richardgirges/express-fileupload)
+* [mysql](https://github.com/mysqljs/mysql)
+* [raw-body](https://github.com/stream-utils/raw-body)
+* [save-file](https://github.com/dfcreative/save-file)
 
-As database engine MySQL Comunity Server 5.7 was used
-*[MySQL Community Server 5.7](https://dev.mysql.com/downloads/mysql/)
+As database engine MySQL Community Server 5.7 was used
+* [MySQL Community Server 5.7](https://dev.mysql.com/downloads/mysql/)
 
 Additionally the following toolkits were used for the frontend:
-*[Vue.js](https://vuejs.org/)
+* [Vue.js](https://vuejs.org/)
 
 For authentication the google sign-in was used
-*[Google Identity Platform](https://developers.google.com/identity/)
+* [Google Identity Platform](https://developers.google.com/identity/)
