@@ -31,7 +31,6 @@ app.get('/getSharedFiles/:id', function (req, res) { //AJAX endpoint for getting
                 console.log("Error in endpoint /getSharedFiles/id: " + err);
                 res.writeHead(400, { "Content-Type": "text/plain" }); //Error 400: Bad Request
                 res.end("" + err);
-                return;
             } else {
                 res.writeHead(200, { "Content-Type": "application/json" });
                 res.end(result);
@@ -93,10 +92,10 @@ app.post('/upload', function (req, res) {
                 console.log("Request finnished!\n");
             })
             .catch(function (err) {
+                console.log("Error in endpoint /upload: " + err);
+                console.log("Request failed!\n");
                 res.writeHead(400, { "Content-Type": "text/plain" }); //Error 400: Bad Request
                 res.end("Invalid Request");
-                console.log("Error in endpoint /upload: " + err);
-                console.log("Request failed!\n")
         });
     } else {
         console.log("Error in endpoint /upload Invalid request content-type header " + req.headers["content-type"]+"\n");
@@ -157,7 +156,7 @@ app.put('/upload/:id', function (req, res) {
 app.use(function (req, res) {
     console.log("---- -- 404 Handler -- ----");
     console.log("File " + req.originalUrl+" requested by " + req.ip+"\n");
-    res.sendFile(__dirname + '/static/404.html');
+    res.sendFile(__dirname + '/static/404/4041.html');
 });
 
 // ---- DATABASE ----
@@ -262,7 +261,7 @@ function arrContainsObj(obj, array) { //checks if obj is already in array based 
 }
 
 function getFileExtension(filename) {
-    if (filename.length==undefined) {
+    if (filename==undefined) {
         console.log("/!\\ Helper get Filename Extension: input was empty, returning extension nope")
         return "nope";
     }
