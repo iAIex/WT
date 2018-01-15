@@ -153,11 +153,20 @@ app.put('/upload/:id', function (req, res) {
     }
 });
 
+// ---- FILE DOWNLOAD ----
+app.get('/downloadFile/:id', function (req, res) {
+    console.log("---- -- /downlaodFIle/id -- ----");
+    console.log("Request to download file " + req.params.id + " by " + req.ip);
+    res.download('/path/to/file.ext', 'newname.ext');
+});
+
+// ---- 404 Handling ----
 var count404 = 0;
 app.use(function (req, res) {
     console.log("---- -- 404 Handler -- ----");
-    console.log("File " + req.originalUrl+" requested by " + req.ip+"\n");
-    res.sendFile(__dirname + '/static/404/404'+(count404++%2)+'.html');
+    console.log("File " + req.originalUrl + " requested by " + req.ip);
+    res.sendFile(__dirname + '/static/404/404' + (count404++ % 2) + '.html');
+    console.log("Number of 404s so far: " + count404 + "\n");
 });
 
 // ---- DATABASE ----
