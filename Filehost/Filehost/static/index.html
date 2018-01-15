@@ -15,18 +15,20 @@
   <header>
     <h3>WTF - Web Technologies Filesharing</h3>
   </header>
-<section>
-  <div id="moin">
-    <p id="text"> FILES HERE</p>
-    <output id="fileList">
-      <ul  v-for="files in filesToUpload">
-        <li>
-          {{files.name}}
-        </li>
-      </ul>
-    </output>
-  </div>
-</section>
+  <section>
+    <div id="moin">
+      <p id="text"> FILES HERE</p>
+      <output id="fileList">
+        <ul>
+          <li v-for="files in filesToUpload" v-on:click="deleteFile(this)">
+            {{files.name}}
+          </li>
+        </ul>
+      </output>
+    </div>
+    <button type="button" id="xxx" onclick="uploadJson()">Upload</button>
+  </section>
+
 
 <section>
 <div id="files">
