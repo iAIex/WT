@@ -8,9 +8,11 @@ const mysql = require('mysql');
 const bodyParser = require('body-parser');
 const getRawBody = require('raw-body');
 
-//Listening on Port 1337
-http.listen(1337, function () {
-    console.log("Server up on 1337\n->Time to party<-");
+const port = 1337;
+
+// ---- LISTENING ----
+http.listen(port, function () {
+    console.log("Server up on "+port+"\n->Time to party<-");
 });
 
 // ---- ROUTING ----
@@ -19,8 +21,6 @@ app.get('/', function (req, res) {
     console.log("Root Requested by " + req.ip);
     res.sendFile(__dirname + '/static/noLibBullshit.html');
 });
-
-app.use('/', express.static(__dirname + '/static'));
 
 app.get('/getSharedFiles/:id', function (req, res) { //AJAX endpoint for getting sharedFiles by userId
     console.log("---- -- /getSharedFiles/id -- ----");
@@ -79,7 +79,7 @@ var pendingUploads = {}; //Keeps track of pending uploads to reduce load on data
 app.post('/upload', function (req, res) {
     console.log("---- -- /upload -- ----");
     console.log("Request for userid " + req.body.id + " by " + req.ip);
-    if (req.headers["content-type"] === "application/json") { //Checks for correct accept header    
+    if (req.headers["content-type"] === "application/json") { //Checks for correct accept header
         dbAddUpload(req.body.id,req.body.shareWith, req.body.fileSize, req.body.fileName)
             .then(function (result) {
                 return dbAddShareEntries(result.fileid, result.shareWith);
@@ -155,10 +155,23 @@ app.put('/upload/:id', function (req, res) {
 
 // ---- FILE DOWNLOAD ----
 app.get('/downloadFile/:id', function (req, res) {
-    console.log("---- -- /downlaodFIle/id -- ----");
+    console.log("---- -- /downloadFile/id -- ----");
     console.log("Request to download file " + req.params.id + " by " + req.ip);
-    res.download('/path/to/file.ext', 'newname.ext');
+    dbGetUpload(req.params.id)
+        .then(function (result) {
+            res.download(__dirname + '/userfiles/' + req.params.id, result);
+            console.log("Send file "+result+"\nRequest finished!\n");
+        })
+        .catch(function (err) {
+            console.log("Error in endpoint /downloadFile/id: " + err);
+            res.writeHead(404, { "Content-Type": "text/plain" }); //Error 404: Not found
+            res.end("Requested file not found!");
+            console.log("Request failed!\n");
+        });
 });
+
+
+app.use('/', express.static(__dirname + '/static')); //Sends static files
 
 // ---- 404 Handling ----
 var count404 = 0;
@@ -185,7 +198,7 @@ db.connect(function (err) {
 });
 
 function dbGetUserFiles(callback, userid) {
-    let tempQuery = "SELECT filename,upload_time,name FROM wtf.files LEFT JOIN wtf.shares ON wtf.files.id = wtf.shares.file_id LEFT JOIN wtf.users ON wtf.shares.user_id = wtf.users.id WHERE owner = "+userid+" ORDER BY wtf.files.id;";
+    let tempQuery = "SELECT filename,upload_time,name FROM wtf.files LEFT JOIN wtf.shares ON wtf.files.id = wtf.shares.file_id LEFT JOIN wtf.users ON wtf.shares.user_id = wtf.users.id WHERE owner = "+db.escape(userid)+" ORDER BY wtf.files.id;";
     db.query(tempQuery, function (err, result) {
         if (err) {
             console.log("Error in query: " + err);
@@ -213,7 +226,7 @@ function dbGetUserFiles(callback, userid) {
 }
 
 function dbGetSharedFiles(callback,userid) {
-    let tempQuery = "SELECT filename,upload_time,name,files.id  FROM wtf.shares JOIN wtf.files ON wtf.shares.file_id = wtf.files.id JOIN wtf.users ON wtf.files.owner = wtf.users.id WHERE user_id = "+userid+";";
+    let tempQuery = "SELECT filename,upload_time,name,files.id  FROM wtf.shares JOIN wtf.files ON wtf.shares.file_id = wtf.files.id JOIN wtf.users ON wtf.files.owner = wtf.users.id WHERE user_id = " + db.escape(userid)+";";
     db.query(tempQuery, function (err, result) {
         if (err) {
             console.log("Error in query: " + err);
@@ -259,6 +272,25 @@ function dbAddShareEntries(fileid, shareArray) {
     return fileid;
 }
 
+function dbGetUpload(fileId) {
+    return new Promise(function (resolve, reject) {
+        let tempQuery = "SELECT filename FROM wtf.files WHERE id ="+db.escape(fileId)+";";
+        db.query(tempQuery, function (err, result) {
+            if (err) {
+                console.log("Error in query: " + err);
+                reject("Error in request");
+            } else {
+                if (result.length == 0) {
+                    reject("No entry found for ID " + fileId);
+                } else {
+                    console.log("dbGetUpload retrieved filename " + result[0].filename + " for fileid " + fileId);
+                    resolve(result[0].filename);
+                }
+            }
+        });
+    });
+}
+
 // ---- HELPER FUNCTIONS ----
 
 function arrContainsObj(obj, array) { //checks if obj is already in array based on obj.filename, returns boolean
@@ -270,7 +302,7 @@ function arrContainsObj(obj, array) { //checks if obj is already in array based 
     return false;
 }
 
-function getFileExtension(filename) {
+function getFileExtension(filename) { //Currently not in use
     if (filename==undefined) {
         console.log("/!\\ Helper get Filename Extension: input was empty, returning extension nope")
         return "nope";
