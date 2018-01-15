@@ -7,6 +7,7 @@ header{
   background-color:green;
   color:white;
   height:9em;
+  vertical-align: middle;
   width:16em;
 }
 #text{

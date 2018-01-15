@@ -1,20 +1,31 @@
-
 /*****************************************************************************
 Hilfsfunktion
 ****************************************************************************/
-function arrContainsObj(array, obj) {
-  for(var i= 0; i<array.length; i++){
-    if(array[i].name.includes(obj.name)){
+function arrContainsObj(array, obj)
+{
+  for(var i= 0; i<array.length; i++)
+  {
+    if(array[i].name.includes(obj.name))
+    {
       return true;
     }
   }
   return false;
 }
 
+function getUserId()
+{
+  return document.getElementById("inpUserId").value;
+}
+
+function deleteFile(fileId)
+{
+    console.log(fileId);
+}
+
 /*****************************************************************************
 Drop
-***************************************************************************/
-
+*****************************************************************************/
 var daFiles=false;
 document.addEventListener("dragover",function(e){
   e = e || event;
@@ -28,47 +39,59 @@ document.getElementById("moin").addEventListener("drop",function(e){
   e = e || event;
   e.preventDefault();
   daFiles = e.dataTransfer.files;
-
   for(var i=0; i<daFiles.length; i++)
   {
       if(!arrContainsObj(upload.filesToUpload, daFiles[i]))
       {
         upload.filesToUpload.push(daFiles[i]);
-    }
+      }
   }
-
-
-});
+},false);
 /****************************************************************************
 File upload
 ****************************************************************************/
 var user = 1;
-function upload() {
-  var jsonobjekt = {"id": user, "shareWith": [], "fileSize": 0, "fileName": "test.jpg"};
-  var xmlhttp = new XMLHttpRequest();
-  xmlhttp.open("POST",window.location.href+"upload", true);
-  xmlhttp.setRequestHeader("Content-type", "application/json");
-  xmlhttp.onreadystatechange=function(){
-    if(xmlhttp.readyState==4 && xmlhttp.status==201){
-      console.log(JSON.parse(xmlhttp.responseText).UploadID);
-      uploadFiles(xmlhttp.responseText);
-    }
-  };
-  xmlhttp.send(JSON.stringify(jsonobjekt));
+function uploadJson()
+{
+  if(daFiles == 0){
+    console.log("No Files");
+  }else
+  {
+    var jsonobjekt = {"id": user, "shareWith": [], "fileSize": 0, "fileName": "test.jpg"};
+    var xmlhttp = new XMLHttpRequest();
+    xmlhttp.open("POST",window.location.href+"upload", true);
+    xmlhttp.setRequestHeader("Content-type", "application/json");
+    xmlhttp.onreadystatechange=function()
+    {
+      if(xmlhttp.readyState==4 && xmlhttp.status==201)
+      {
+        console.log(JSON.parse(xmlhttp.responseText).UploadID);
+        uploadBinary(JSON.parse(xmlhttp.responseText).UploadID);
+      }
+    };
+    xmlhttp.send(JSON.stringify(jsonobjekt));
+  }
 }
 
-/**var fileid= new Blob ([daFiles[0]],{type:'text/plain'});
-var xmlhttp=new XMLHttpRequest();
-xmlhttp.open("POST", window.location.href+"upload/2", true);
-xmlhttp.setRequestHeader("Content-type", "application/octet-stream");
-xmlhttp.onreadystatechange=function(){
-  if(xmlhttp.readyState==4 && xmlhttp.status==201){
-    console.log(xmlhttp.responseText);
+function uploadBinary(fileId)
+  {
+    var fileid= new Blob ([daFiles[0]],{type:'text/plain'});
+    var xmlhttp=new XMLHttpRequest();
+    xmlhttp.open("PUT", window.location.href+"upload/"+fileId, true);
+    xmlhttp.setRequestHeader("Content-type", "application/octet-stream");
+    xmlhttp.onreadystatechange=function()
+    {
+      if(xmlhttp.readyState==4 && xmlhttp.status==201)
+      {
+        console.log(xmlhttp.responseText);
+      }
+      xmlhttp.send(fileid);
+    };
   }
-};
-xmlhttp.send(fileid);
-},false);*/
 
+/*****************************************************************************
+Vue
+******************************************************************************/
 var files = new Vue({
   el: "#files",
   data: {
@@ -82,9 +105,16 @@ var upload = new Vue({
   el:'#fileList',
   data:{
     filesToUpload:[]
+  },
+  methods: {
+    delete:{
+
+    }
   }
 });
-
+/****************************************************************************
+Auflisten der Files
+******************************************************************************/
 var maxPers=4; //Max numbers of names to show in shared with collumn
 function myFiles(json)
 {
@@ -181,9 +211,4 @@ function getSharedFiles()
      };
      xmlhttp.send();
    }
-}
-
-
-function getUserId(){
-  return document.getElementById("inpUserId").value;
 }
