@@ -153,10 +153,11 @@ app.put('/upload/:id', function (req, res) {
     }
 });
 
+var count404 = 0;
 app.use(function (req, res) {
     console.log("---- -- 404 Handler -- ----");
     console.log("File " + req.originalUrl+" requested by " + req.ip+"\n");
-    res.sendFile(__dirname + '/static/404/4041.html');
+    res.sendFile(__dirname + '/static/404/404'+(count404++%2)+'.html');
 });
 
 // ---- DATABASE ----
