@@ -133,7 +133,7 @@ app.put('/upload/:id', function (req, res) {
     if (req.headers["content-type"] === "application/octet-stream") {
         getRawBody(req)
             .then(function (buf) {
-                return saveFile(buf, "userfiles/" + req.params.id + "." + getFileExtension(pendingUploads[req.params.id]));
+                return saveFile(buf, "userfiles/" + req.params.id);
             })
             .then(function () {
                 delete pendingUploads[req.params.id];
