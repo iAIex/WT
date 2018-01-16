@@ -8,7 +8,8 @@ const mysql = require('mysql');
 const bodyParser = require('body-parser');
 const getRawBody = require('raw-body');
 
-const port = 1337;
+const mainPageName = "index";
+const port = 80; // Listening Port of the app
 
 // ---- LISTENING ----
 http.listen(port, function () {
@@ -19,54 +20,51 @@ http.listen(port, function () {
 app.get('/', function (req, res) {
     console.log("---- -- / -- ----");
     console.log("Root Requested by " + req.ip);
-    res.sendFile(__dirname + '/static/noLibBullshit.html');
+    res.sendFile(__dirname + "/static/"+mainPageName+".html");
 });
 
-app.get('/getSharedFiles/:id', function (req, res) { //AJAX endpoint for getting sharedFiles by userId
+app.get('/getSharedFiles/:id', function (req, res) { //AJAX endpoint for getting sharedFiles by userid
     console.log("---- -- /getSharedFiles/id -- ----");
     console.log("Request for userid " + req.params.id + " requested by " + req.ip);
-    if (req.headers.accept === "application/json, text/plain") { //Checks for correct accept header
-        let callback = function (err, result) { //handles "return" values of SQL query
-            if (err) {
-                console.log("Error in endpoint /getSharedFiles/id: " + err);
-                res.writeHead(400, { "Content-Type": "text/plain" }); //Error 400: Bad Request
-                res.end("" + err);
-            } else {
-                res.writeHead(200, { "Content-Type": "application/json" });
-                res.end(result);
-                console.log("Request finnished!\n");
-            }
-        };
-        dbGetSharedFiles(callback, req.params.id);
-    } else {
-        console.log("Error in endpoint /getSharedFiles/id: Invalid request accept header " + req.headers.accept+"\n");
-        res.writeHead(400, { "Content-Type": "text/plain" }); //Error 400: Bad Request
-        res.end("Invalid Request");
-    }
+    checkHeader(req.headers.accept, "application/json, text/plain")
+        .then(function () {
+            return authUser();
+        })
+        .then(function () {
+            return dbGetSharedFiles(req.params.id);
+        })
+        .then(function (json) {
+            res.writeHead(200, { "Content-Type": "application/json" });
+            res.end(json);
+            console.log("Request finnished!\n");            
+        })
+        .catch(function () {
+            console.log("Error in endpoint /getSharedFiles/id: "+err+"\n");
+            res.writeHead(400, { "Content-Type": "text/plain" }); //Error 400: Bad Request
+            res.end("Invalid Request");
+     })
 });
 
 app.get('/getUserFiles/:id', function (req, res) {
     console.log("---- -- /getUserFiles/id -- ----");
     console.log("Request for userid " + req.params.id + " by " + req.ip);
-    if (req.headers.accept === "application/json, text/plain") { //Checks for correct accept header
-        let callback = function (err, result) { //handles "return" values of SQL query
-            if (err) {
-                console.log("Error in endpoint /getUserFiles/id: " + err);
-                res.writeHead(400, { "Content-Type": "text/plain" }); //Error 400: Bad Request
-                res.end("" + err);
-                return;
-            } else {
-                res.writeHead(200, { "Content-Type": "application/json" });
-                res.end(result);
-                console.log("Request finnished!\n");
-            }
-        };
-        dbGetUserFiles(callback, req.params.id);
-    } else {
-        console.log("Error in endpoint /getUserFiles/id: Invalid request accept header " + req.headers.accept+"\n");
-        res.writeHead(400, { "Content-Type": "text/plain" }); //Error 400: Bad Request
-        res.end("Invalid Request");
-    }
+    checkHeader(req.headers.accept, "application/json, text/plain")
+        .then(function () {
+            return authUser();
+        })
+        .then(function () {
+            return dbGetUserFiles(req.params.id);
+        })
+        .then(function (json) {
+            res.writeHead(200, { "Content-Type": "application/json" });
+            res.end(json);
+            console.log("Request finnished!\n");
+        })
+        .catch(function (err) {
+            console.log("Error in endpoint /getUserFiles/id: " + err);
+            res.writeHead(400, { "Content-Type": "text/plain" }); //Error 400: Bad Request
+            res.end("Invalid Request");
+        })
 });
 
 
@@ -79,31 +77,31 @@ var pendingUploads = {}; //Keeps track of pending uploads to reduce load on data
 app.post('/upload', function (req, res) {
     console.log("---- -- /upload -- ----");
     console.log("Request for userid " + req.body.id + " by " + req.ip);
-    if (req.headers["content-type"] === "application/json") { //Checks for correct accept header
-        dbAddUpload(req.body.id,req.body.shareWith, req.body.fileSize, req.body.fileName)
-            .then(function (result) {
-                return dbAddShareEntries(result.fileid, result.shareWith);
-            })
-            .then(function (result) {
-                console.log("Pending Uploads now:");
-                console.log(pendingUploads);
-                res.writeHead(201, { "Content-Type": "application/json" });
-                res.end(JSON.stringify({ "UploadID": result }));
-                console.log("Request finnished!\n");
-            })
-            .catch(function (err) {
-                console.log("Error in endpoint /upload: " + err);
-                console.log("Request failed!\n");
-                res.writeHead(400, { "Content-Type": "text/plain" }); //Error 400: Bad Request
-                res.end("Invalid Request");
-        });
-    } else {
-        console.log("Error in endpoint /upload Invalid request content-type header " + req.headers["content-type"]+"\n");
-        res.writeHead(400, { "Content-Type": "text/plain" }); //Error 400: Bad Request
-        res.end("Invalid Request");
-    }
+    checkHeader(req.headers["content-type"], "application/json")
+        .then(function () {
+            return authUser();
+        })
+        .then(function () {
+            return dbAddUpload(req.body.id, req.body.fileSize, req.body.fileName);
+        })
+        .then(function (result) {
+            return dbAddShareEntries(result, req.body.shareWith);
+        })
+        .then(function (uploadId) {
+            console.log("UI"+uploadId);
+            console.log("Pending Uploads now:");
+            console.log(pendingUploads);
+            res.writeHead(201, { "Content-Type": "application/json" });
+            res.end(JSON.stringify({ "UploadID": uploadId }));
+            console.log("Request finnished!\n");
+        })
+        .catch(function (err) {
+            console.log("Error in endpoint /upload: " + err);
+            console.log("Request failed!\n");
+            res.writeHead(400, { "Content-Type": "text/plain" }); //Error 400: Bad Request
+            res.end("Invalid Request");
+    });
 });
-
 
 app.post('/upload/deprecated/:id', function (req, res) { //DEPRECATED - DO NOT USE
     console.log("---- -- /deprecated/upload/id -- ----");
@@ -125,39 +123,40 @@ app.post('/upload/deprecated/:id', function (req, res) { //DEPRECATED - DO NOT U
 app.put('/upload/:id', function (req, res) {
     console.log("---- -- /upload/id -- ----");
     console.log("Request to upload file with ID " + req.params.id + " by " + req.ip);
-    if (pendingUploads[req.params.id] == undefined) {
-        console.log("Error in endpoint /upload/id: Invalid fileId " + req.params.id);
-        res.writeHead(400, { "Content-Type": "text/plain" }); //Error 400: Bad Request
-        res.end("Invalid Request");
-    }
-    if (req.headers["content-type"] === "application/octet-stream") {
-        getRawBody(req)
-            .then(function (buf) {
-                return saveFile(buf, "userfiles/" + req.params.id);
-            })
-            .then(function () {
-                delete pendingUploads[req.params.id];
-                console.log("Pending Uploads now:");
-                console.log(pendingUploads);
-                console.log("Upload finished!\n");
-            })
-            .catch(function (err) {
-                console.log(err);
-                res.writeHead(500, { "Content-Type": "text/plain" }); //Error 500: Internal Server error
-                res.end("That went wrong...");
-            });
-    } else {
-        console.log("Error in endpoint /upload/id: Invalid request content-type header " + req.headers["content-type"]+"\n");
-        res.writeHead(400, { "Content-Type": "text/plain" }); //Error 400: Bad Request
-        res.end("Invalid Request");
-    }
+    validateUploadId(req.params.id)
+        .then(function () {
+            return checkHeader(req.headers["content-type"], "application/octet-stream");
+        })
+        .then(function () {
+            return authUser();
+        })
+        .then(function () {
+            return getRawBody(req)
+        })
+        .then(function (buf) {
+            return saveFile(buf, "userfiles/" + req.params.id);
+        })
+        .then(function () {
+            delete pendingUploads[req.params.id];
+            console.log("Pending Uploads now:");
+            console.log(pendingUploads);
+            console.log("Upload finished!\n");
+        })
+        .catch(function (err) {
+            console.log("Error in endpoint /upload/id: " + err);
+            res.writeHead(500, { "Content-Type": "text/plain" }); //Error 500: Internal Server error
+            res.end("That went wrong...");
+    });
 });
 
 // ---- FILE DOWNLOAD ----
 app.get('/downloadFile/:id', function (req, res) {
     console.log("---- -- /downloadFile/id -- ----");
     console.log("Request to download file " + req.params.id + " by " + req.ip);
-    dbGetUpload(req.params.id)
+    authUser()
+        .then(function () {
+            return dbGetUpload(req.params.id);
+        })
         .then(function (result) {
             res.download(__dirname + '/userfiles/' + req.params.id, result);
             console.log("Send file "+result+"\nRequest finished!\n");
@@ -167,7 +166,7 @@ app.get('/downloadFile/:id', function (req, res) {
             res.writeHead(404, { "Content-Type": "text/plain" }); //Error 404: Not found
             res.end("Requested file not found!");
             console.log("Request failed!\n");
-        });
+    });
 });
 
 
@@ -197,79 +196,80 @@ db.connect(function (err) {
     else {console.log("MySQL connected")}
 });
 
-function dbGetUserFiles(callback, userid) {
-    let tempQuery = "SELECT filename,upload_time,name FROM wtf.files LEFT JOIN wtf.shares ON wtf.files.id = wtf.shares.file_id LEFT JOIN wtf.users ON wtf.shares.user_id = wtf.users.id WHERE owner = "+db.escape(userid)+" ORDER BY wtf.files.id;";
-    db.query(tempQuery, function (err, result) {
-        if (err) {
-            console.log("Error in query: " + err);
-            callback("Query failed", null); //"returns" errors to endpoint
-        } else {
-            console.log(result);
-            let tempData = [];
-            for (let i = 0; i < result.length; i++) { //builds object to be sent to client, removes duplicates in filename
-                if (arrContainsObj(result[i], tempData)) {
-                    tempData[tempData.length - 1].name.push(result[i].name+"");
-                } else {
-                    let tempObj = {};
-                    tempObj.filename = result[i].filename+"";
-                    tempObj.upload_time = result[i].upload_time;
-                    tempObj.name = [];
-                    tempObj.name.push(result[i].name+"");
-                    tempData.push(tempObj);
+function dbGetUserFiles(userid) {
+    return new Promise(function (resolve, reject) {
+        let tempQuery = "SELECT filename,upload_time,name FROM wtf.files LEFT JOIN wtf.shares ON wtf.files.id = wtf.shares.file_id LEFT JOIN wtf.users ON wtf.shares.user_id = wtf.users.id WHERE owner = " + db.escape(userid) + " ORDER BY wtf.files.id;";
+        db.query(tempQuery, function (err, result) {
+            if (err) {
+                reject("Error in query: " + err);
+            } else {
+                let tempData = [];
+                for (let i = 0; i < result.length; i++) { //builds object to be sent to client, removes duplicates in filename
+                    if (arrContainsObj(result[i], tempData)) {
+                        tempData[tempData.length - 1].name.push(result[i].name + "");
+                    } else {
+                        let tempObj = {};
+                        tempObj.filename = result[i].filename + "";
+                        tempObj.upload_time = result[i].upload_time;
+                        tempObj.name = [];
+                        tempObj.name.push(result[i].name + "");
+                        tempData.push(tempObj);
+                    }
                 }
+                let json = JSON.stringify(tempData);
+                console.log("dbGetUserFiles for userid " + userid + " resulted in:\n" + json);
+                resolve(json);
             }
-            let json = JSON.stringify(tempData);
-            console.log("dbGetUserFiles for userid " + userid + " resulted in:\n" + json);
-            callback(null, json); //"returns" result to endpoint
-        }
+        });
     });
 }
 
-function dbGetSharedFiles(callback,userid) {
-    let tempQuery = "SELECT filename,upload_time,name,files.id  FROM wtf.shares JOIN wtf.files ON wtf.shares.file_id = wtf.files.id JOIN wtf.users ON wtf.files.owner = wtf.users.id WHERE user_id = " + db.escape(userid)+";";
-    db.query(tempQuery, function (err, result) {
-        if (err) {
-            console.log("Error in query: " + err);
-            callback("Query failed", null); //"returns" errors to endpoint
-        } else {
-            let json = JSON.stringify(result);
-            console.log("dbGetSharedFiles for userid " + userid + " resulted in:\n" + json);
-            callback(null, json); //"returns" result to endpoint
-        }
+function dbGetSharedFiles(userid) {
+    return new Promise(function (resolve, reject) {
+        let tempQuery = "SELECT filename,upload_time,name,files.id  FROM wtf.shares JOIN wtf.files ON wtf.shares.file_id = wtf.files.id JOIN wtf.users ON wtf.files.owner = wtf.users.id WHERE user_id = " + db.escape(userid) + ";";
+        db.query(tempQuery, function (err, result) {
+            if (err) {
+                reject("Error in query: " + err);
+            } else {
+                let json = JSON.stringify(result);
+                console.log("dbGetSharedFiles for userid " + userid + " resulted in:\n" + json);
+                resolve(json);
+            }
+        });
     });
 }
 
-function dbAddUpload(userid,shareWith,fileSize,fileName) {
+function dbAddUpload(userid, fileSize, fileName) {
     return new Promise(function (resolve, reject) {
         let tempQuery = "INSERT INTO `wtf`.`files` (`owner`, `filename`) VALUES ('" + userid + "', '" + fileName + "');";
         db.query(tempQuery, function (err, result) {
             if (err) {
-                console.log("Error in query: " + err);
-                reject("Error in request");
+                reject("Error in query: " + err);
             } else {
                 console.log("dbAddUpload added entry with ID " + result.insertId + " for user " + userid);
                 pendingUploads[result.insertId] = fileName;
-                resolve({ "userid":userid, "fileid": result.insertId, "shareWith": shareWith });
+                resolve(result.insertId);
             }
         });
     });
 }
 
 function dbAddShareEntries(fileid, shareArray) {
-    if (shareArray.length !== 0) {
-        for (let i = 0; i < shareArray.length; i++){
-            let tempQuery = "INSERT INTO `wtf`.`shares` (`user_id`, `file_id`) VALUES ('" + shareArray[i] + "', '" + fileid + "');";
-            db.query(tempQuery, function (err, result) {
-                if (err) {
-                    console.log("Error in query: " + err);
-                    reject("Error in request");
-                } else {
-                    console.log("dbAddShareEntries added share for file " + fileid + " for user " + shareArray[i]);
-                }
-            });
+    return new Promise(function (resolve, reject) {
+        if (shareArray.length !== 0) {
+            for (let i = 0; i < shareArray.length; i++) {
+                let tempQuery = "INSERT INTO `wtf`.`shares` (`user_id`, `file_id`) VALUES ('" + shareArray[i] + "', '" + fileid + "');";
+                db.query(tempQuery, function (err, result) {
+                    if (err) {
+                        reject("Error in query: " + err);
+                    } else {
+                        console.log("dbAddShareEntries added share for file " + fileid + " for user " + shareArray[i]);
+                    }
+                });
+            }
         }
-    }
-    return fileid;
+        resolve(fileid);
+    });
 }
 
 function dbGetUpload(fileId) {
@@ -277,8 +277,7 @@ function dbGetUpload(fileId) {
         let tempQuery = "SELECT filename FROM wtf.files WHERE id ="+db.escape(fileId)+";";
         db.query(tempQuery, function (err, result) {
             if (err) {
-                console.log("Error in query: " + err);
-                reject("Error in request");
+                reject("Error in query: " + err);
             } else {
                 if (result.length == 0) {
                     reject("No entry found for ID " + fileId);
@@ -314,4 +313,32 @@ function getFileExtension(filename) { //Currently not in use
     } else {
         return tempFilename[tempFilename.length - 1];
     }
+}
+
+function authUser(userid, userToken, fileId) { //resolves if user is authorized
+    return new Promise(function (resolve, reject) {
+        console.log("Checking identity of user " + userid);
+        console.log("CURRENTLY NO AUTHENTICATION ON SEVRER SIDE");
+        resolve(true);
+    });
+}
+
+function checkHeader(header, expectedHeader) { //checks for correct header, resolve if valid
+    return new Promise(function (resolve, reject) {
+        if (header === expectedHeader) {
+            resolve(true);
+        } else {
+            reject("Header missmatch");
+        }
+    });
+}
+
+function validateUploadId(uploadId) {
+    return new Promise(function (resolve, reject) {
+        if (pendingUploads[uploadId] == undefined) {
+            reject("UploadId not listed in pendingUplaods");
+        } else {
+            resolve(true);
+        }
+    })
 }
