@@ -1,6 +1,36 @@
 <!Doctype html>
 <html itemscope itemtype="http://schema.org/Article">
 <head>
+  <script src="https://unpkg.com/vue"></script>
+  <style>
+  body{
+    background-color: green;
+  }
+  .headline{
+    text-align: center;
+  }
+  .item{
+    text-align: center;
+    justify-content: flex-end;
+    align-self: center;
+  }
+  .container{
+    justify-content: flex-end;
+    flex-direction: column;
+    display: flex;
+
+  }
+  button{
+  color: black;
+  font-weight: bold;
+  font-size: 250%;
+
+  font-weight: bold;
+  background-color: white;
+  border: none;
+  border-radius: 10px;
+  }
+  </style>
   <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js">
   </script>
   <script src="https://apis.google.com/js/client:platform.js?onload=start" async defer>
@@ -22,20 +52,49 @@
 <body>
   <p>WTF</p>
     <p>Web Technologies Filesharing</p>
+
+        <button id="logoutButton">Google Logout</button>
+
+    <script>
+
+
+        $('#logoutButton').click(function signOut() {
+            var auth2 = gapi.auth2.getAuthInstance();
+            auth2.signOut().then(function () {
+              console.log('User signed out.');
+            });
+            location.reload();
+                $('#logoutButton').attr('style', 'display: block');
+        });
+
+    </script>
+
     <button id="signinButton">Sign in with Google</button>
+
+    <button id="registerButton">Upload Files</button>
+
     <script>
       $('#signinButton').click(function() {
         // signInCallback defined in step 6.
         auth2.grantOfflineAccess().then(signInCallback);
       });
-    </script>
 
-    <script>
+      $('#registerButton').click(function() {
+        // signInCallback defined in step 6.
+        auth2.grantOfflineAccess().then(signInCallback);
+
+      });
+
+
 function signInCallback(authResult) {
   if (authResult['code']) {
 
     // Hide the sign-in button now that the user is authorized, for example:
     $('#signinButton').attr('style', 'display: none');
+
+    $('#registerButton').attr('style', 'display: none');
+
+    $('#logoutButton').attr('style', 'display: block');
 
     // Send the code to the server
     $.ajax({
@@ -57,16 +116,6 @@ function signInCallback(authResult) {
     // There was an error.
   }
 }
-</script>
-
-<a href="#" onclick="signOut(), location.reload();">Sign out</a>
-<script>
-  function signOut() {
-    var auth2 = gapi.auth2.getAuthInstance();
-    auth2.signOut().then(function () {
-      console.log('User signed out.');
-    });
-  }
 </script>
 </body>
 </html>
