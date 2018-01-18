@@ -18,7 +18,7 @@ Versioning is still in beta you could say. We plan on versioning like this:
 * **Alexander Gebhardt** - *Backend* - [iAIex](https://github.com/iAIex)
 
 ## License
-This project is licensed under the Creative Commons License [CC-BY-4.0](https://creativecommons.org/licenses/by/4.0/legalcode)
+This project is currently not licensed under any special license. If you want to use any of the code found in this repo for your own projects please contact me [iAIex](https://github.com/iAIex)
 
 ## Acknowledgments
 This project is based on [Node.js](https://nodejs.org/) on the server side. It implements multiple node packages which are listed here:

@@ -1,12 +1,12 @@
 'use strict';
 const express = require('express');
-const fileUpload = require('express-fileupload');
-const saveFile = require('save-file');
 const app = require('express')();
+const fileUpload = require('express-fileupload');
 const http = require('http').Server(app);
 const mysql = require('mysql');
 const bodyParser = require('body-parser');
 const getRawBody = require('raw-body');
+const saveFile = require('save-file');
 const fs = require('fs');
 const coloredText = require('chalk');
 const chalk = new coloredText.constructor({ level: 3 });
@@ -17,7 +17,7 @@ const success = chalk.hex('#38ef32');
 const warn = chalk.hex('#ffd505');
 const error = chalk.hex('#ff3705');
 
-const mainPageName = "noLibBullshit"; //Page that is send to client when requesting root
+const mainPageName = "index"; //Page that is send to client when requesting root
 const port = 80; // Listening Port of the app
 
 // ---- LISTENING ----
@@ -70,7 +70,7 @@ app.get('/getUserFiles/:id', function (req, res) {
             console.log(success("Request finnished!\n"));
         })
         .catch(function (err) {
-            console.log(error("Error in endpoint /getUserFiles/id: " + err));
+            console.log(error("Error in endpoint /getUserFiles/id: " + err+"\n"));
             res.writeHead(400, { "Content-Type": "text/plain" }); //Error 400: Bad Request
             res.end("Invalid Request");
     })
@@ -178,7 +178,7 @@ app.get('/downloadFile/:id', function (req, res) {
     });
 });
 
-app.post('/ckeckIds/', function (req, res) {
+app.post('/ckeckIds', function (req, res) {
     console.log(heading("---- -- /ckeckIds/ -- ----"));
     console.log(info("Request to check ids " + req.body.ids + " by " + req.ip));
     let tempNames = [];
@@ -190,6 +190,33 @@ app.post('/ckeckIds/', function (req, res) {
     res.writeHead(200, { "Content-Type": "application/json" });
     res.end(JSON.stringify({ "ValidIds": tempNames }));
     console.log(success("Request finnished!\n"));
+});
+
+app.post('/delete', function (req, res) {
+    console.log(heading("---- -- /delete -- ----"));
+    console.log(info("Request to delete file " + req.params.id + " by " + req.ip));
+    checkHeader(req.headers["content-type"], "application/json")
+        .then(function () {
+            return authUser(undefined, undefined, req.body.delId);
+        })
+        .then(function () {
+            return checkIfExists(req.body.delId);
+        })
+        .then(function () {
+            deleteFile(req.body.delId);
+        })
+        .then(function () {
+
+            res.writeHead(200, { "Content-Type": "text/plain" });
+            res.end("File Deleted");
+            console.log(success("Request finnished!\n"));
+        })
+        .catch(function (err) {
+            console.log(error("Error in endpoint /delete: " + err));
+            res.writeHead(404, { "Content-Type": "text/plain" }); //Error 404: Not found
+            res.end("Requested file not found!");
+            console.log(error("Request failed!\n"));
+        })
 });
 
 
@@ -215,13 +242,13 @@ var db = mysql.createConnection({
 });
 
 db.connect(function (err) {
-    if (err) { console.log(error("Database connection failed!\n" + err)); return}
+    if (err) { console.log(error("Database connection failed!\n" + err)); return }
     else {console.log(success("MySQL connected"))}
 });
 
 function dbGetUserFiles(userid) {
     return new Promise(function (resolve, reject) {
-        let tempQuery = "SELECT filename,upload_time,name FROM wtf.files LEFT JOIN wtf.shares ON wtf.files.id = wtf.shares.file_id LEFT JOIN wtf.users ON wtf.shares.user_id = wtf.users.id WHERE owner = " + db.escape(userid) + " ORDER BY wtf.files.id;";
+        let tempQuery = "SELECT files.id,filename,upload_time,name FROM wtf.files LEFT JOIN wtf.shares ON wtf.files.id = wtf.shares.file_id LEFT JOIN wtf.users ON wtf.shares.user_id = wtf.users.id WHERE owner = " + db.escape(userid) + " ORDER BY wtf.files.id;";
         db.query(tempQuery, function (err, result) {
             if (err) {
                 reject("Error in query: " + err);
@@ -229,13 +256,14 @@ function dbGetUserFiles(userid) {
                 let tempData = [];
                 for (let i = 0; i < result.length; i++) { //builds object to be sent to client, removes duplicates in filename
                     if (arrContainsObj(result[i], tempData)) {
-                        tempData[tempData.length - 1].name.push(result[i].name + "");
+                        if (result[i].name !== null) {tempData[tempData.length - 1].name.push(result[i].name); }
                     } else {
                         let tempObj = {};
-                        tempObj.filename = result[i].filename + "";
+                        tempObj.ID = result[i].id;
+                        tempObj.filename = result[i].filename;
                         tempObj.upload_time = result[i].upload_time;
                         tempObj.name = [];
-                        tempObj.name.push(result[i].name + "");
+                        tempObj.name.push(result[i].name);
                         tempData.push(tempObj);
                     }
                 }
@@ -324,6 +352,41 @@ function dbCheckUsername(name) { //checks if user with exists by name
     });
 }
 
+function dbCheckFilePermission(userid, fileid) { //checks wether user is allowed to access file or not
+    return new Promise(function (resolve, reject) {
+        function dbCheckIfOwn(userid, fileid) {
+            return new Promise(function (resolve, reject) {
+                console.log(info("Checking permission of user " + userid + " for fileId " + fileid));
+                let tempQuery = "SELECT filename FROM wtf.files WHERE id=" + db.escape(fileid) + " AND owner=" + db.escape(userid) + ";";
+                db.query(tempQuery, function (err, result) { //checks if user is owner of file
+                    if (err) {
+                        reject(false);
+                    } else {
+                        if (result.length === 0) {
+                            reject(false);
+                        } else {
+                            resolve(true);
+                        }
+                    }
+                });
+            });
+        }
+        function dbCheckIfShared(userid, fileid) {
+            return new Promise(function (resolve, reject) {
+                resolve(true);
+            });
+        }
+        dbCheckIfOwn(userid, fileid)
+            .then(function () { console.log(success("Access granted"));resolve(true) })
+            .catch(function () {
+                dbCheckIfShared(userid, fileid)
+                    .then(function () { console.log(success("Access granted")); resolve(true) })
+                    .catch(function () { console.log(error("Access denied")); reject(false) });
+
+            });
+    });
+}
+
 // ---- HELPER FUNCTIONS ----
 
 function arrContainsObj(obj, array) { //checks if obj is already in array based on obj.filename, returns boolean
@@ -355,8 +418,8 @@ function authUser(userid, userToken, fileId) { //resolves if user is authorized
         resolve(true);
         // TODO Implement authentication @Senpai96 - Michael Schreder
             //resolve if usertoken matches user and fileId is not defined
-            //if fileId is given call function checkFilePermission(userid,fileid) and resolve if it return true
-            //Reject with descriptive error message if usertoken is invalid or checkFilePermission returns false
+            //if fileId is given call function dbcheckFilePermission(userid,fileid) and resolve if dbcheckFilePermission(userid,fileid) resolves
+            //Reject with descriptive error message if usertoken is invalid or dbcheckFilePermission returns false
     });
 }
 
@@ -380,7 +443,7 @@ function validateUploadId(uploadId) {
     });
 }
 
-function checkIfExists(path) {
+function checkIfExists(path) { //check if file exists aand resolves with path if file exists
     return new Promise(function (resolve, reject) {
         if (fs.existsSync(path)) {
             resolve(path);
@@ -390,12 +453,15 @@ function checkIfExists(path) {
     });
 }
 
-function checkFilePermission(userid, fileid) {
-    console.log(info("Checking permission of user " + userid + " for fileId "+fileid));
-    console.log(warn("CURRENTLY NO PERMISSION CHECK"));
-    return true;//TODO
-}
-
-function deleteFile(path) {
-    fs.unlink
+function deleteFile(fileId) {
+    return new Promise(function (resolve, reject) {
+        console.log("Deleting File " + fileId);
+        fs.unlink(__dirname + '/userfiles/' + fileId, function (err) {
+            if (err) {
+                reject("File could not be deleted");
+            } else {
+                resolve("File deleted");
+            }
+        });
+    });
 }

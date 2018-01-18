@@ -3,7 +3,7 @@
   "version": "0.3.4",
   "main": "server.js",
   "author": "A. Gebhardt, P. Weiss, M. Schreder",
-  "license": "CC-BY-4.0",
+  "license": "UNLICENSED",
   "repository": "github:iAIex/WT",
   "dependencies": {
     "chalk": "^2.3.0",
