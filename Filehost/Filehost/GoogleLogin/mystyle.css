@@ -4,9 +4,6 @@ p {
   font-size: 70px;
 
 }
-.container {
-  position: relative;
-}
 .center {
     position: absolute;
     left: 0;
@@ -16,10 +13,31 @@ p {
     font-size: 100px;
     color: WHITE;
 }
-.g-signin2{
-  width: 100%;
-}
 
-.g-signin2 > div{
-  margin: 0 auto;
+body{
+  background-color: green;
+}
+.headline{
+  text-align: center;
+}
+.item{
+  text-align: center;
+  justify-content: flex-end;
+  align-self: center;
+}
+.container{
+  justify-content: flex-end;
+  flex-direction: column;
+  display: flex;
+
+}
+button{
+color: black;
+font-weight: bold;
+font-size: 250%;
+
+font-weight: bold;
+background-color: white;
+border: none;
+border-radius: 10px;
 }
