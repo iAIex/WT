@@ -17,16 +17,10 @@ function getUserId()
 {
   return document.getElementById("inpUserId").value;
 }
-
-function deleteFile(fileId)
-{
-    console.log(fileId);
-}
-
 /*****************************************************************************
 Drop
 *****************************************************************************/
-var daFiles=false;
+var daFiles=[];
 document.addEventListener("dragover",function(e){
   e = e || event;
   e.preventDefault();
@@ -47,17 +41,54 @@ document.getElementById("moin").addEventListener("drop",function(e){
       }
   }
 },false);
+
+/***************************************************************************
+Share With
+****************************************************************************/
+//var callb=document.getElementById('yyy').addEventListener('keypress', function(e)
+var callb = function(e)
+{
+  var leer=false;
+  if(e.which === 13)
+  {
+    e.preventDefault();
+    this.vshares.push(document.getElementById('yyy').value);
+    document.getElementById('yyy').value="";
+    getSharedPeople(document.getElementById('yyy').value);
+  }
+};
+
+function getSharedPeople(document.getElementById('yyy').value)
+{
+     var name={"ids": share.vshares[0].document.getElementById('yyy').value};
+     xmlhttp = new XMLHttpRequest();
+     xmlhttp.open("POST",window.location.href+"checkIds", true);
+     xmlhttp.setRequestHeader("Content-type", "application/json");
+     xmlhttp.onreadystatechange=function()
+     {
+           if(xmlhttp.readyState==4 &&  xmlhttp.status!=201)
+           {
+             console.log(xmlhttp.responseText);
+           }
+           else if(xmlhttp.readyState==4 && xmlhttp.status==201)
+           {
+              console.log(JSON.parse(xmlhttp.responseText));
+           }
+      };
+     xmlhttp.send(JSON.stringify(name));
+}
 /****************************************************************************
 File upload
 ****************************************************************************/
 var user = 1;
 function uploadJson()
 {
-  if(daFiles == 0){
+  if(upload.filesToUpload == 0){
     console.log("No Files");
+    alert("Put some Files in there");
   }else
   {
-    var jsonobjekt = {"id": user, "shareWith": [], "fileSize": 0, "fileName": "test.jpg"};
+    var jsonobjekt = {"id": user, "shareWith": [], "fileSize": 0, "fileName": daFiles[0].name};
     var xmlhttp = new XMLHttpRequest();
     xmlhttp.open("POST",window.location.href+"upload", true);
     xmlhttp.setRequestHeader("Content-type", "application/json");
@@ -73,20 +104,23 @@ function uploadJson()
   }
 }
 
-function uploadBinary(fileId)
+function uploadBinary(uploadId)
   {
-    var fileid= new Blob ([daFiles[0]],{type:'text/plain'});
-    var xmlhttp=new XMLHttpRequest();
-    xmlhttp.open("PUT", window.location.href+"upload/"+fileId, true);
-    xmlhttp.setRequestHeader("Content-type", "application/octet-stream");
-    xmlhttp.onreadystatechange=function()
+    console.log(window.location.href+"upload/"+uploadId);
+    console.log(upload.filesToUpload[0]);
+    var fileid=new Blob ([upload.filesToUpload[0]],{type:'text/plain'});
+    console.log(fileid.size);
+    var xmlhttp2=new XMLHttpRequest();
+    xmlhttp2.open("PUT", window.location.href+"upload/"+uploadId, true);
+    xmlhttp2.setRequestHeader("Content-type", "application/octet-stream");
+    xmlhttp2.onreadystatechange=function()
     {
-      if(xmlhttp.readyState==4 && xmlhttp.status==201)
+      if(xmlhttp2.readyState==4 && xmlhttp2.status==201)
       {
-        console.log(xmlhttp.responseText);
+        console.log(xmlhttp2.responseText);
       }
-      xmlhttp.send(fileid);
     };
+    xmlhttp2.send(fileid);
   }
 
 /*****************************************************************************
@@ -107,11 +141,51 @@ var upload = new Vue({
     filesToUpload:[]
   },
   methods: {
-    delete:{
-
+    deleteFile: function(files){
+      this.filesToUpload.splice(files, 1);
     }
   }
 });
+
+var share = new Vue({
+  el:'#shares',
+  data:{
+    vshares:[]
+  /*},
+  mehtods:{
+    addSharer: function(item){
+      this.vshares.push(document.getElementById("shares").value);
+      document.getElementById("shares").value="";
+    }*/
+  },
+  methods: {
+    inpc: callb
+  }
+});
+
+/*****************************************************************************
+Send fileId to delete the file
+******************************************************************************/
+function getDeletedFiles(deleteFileId)
+{
+     var delId={"id": deleteFileId};
+     xmlhttp = new XMLHttpRequest();
+     xmlhttp.open("POST",window.location.href+"delete"+delId, true);
+     xmlhttp.setRequestHeader("Content-type", "application/json");
+     xmlhttp.onreadystatechange=function()
+     {
+           if(xmlhttp.readyState==4 &&  xmlhttp.status!=201)
+           {
+             console.log(xmlhttp.responseText);
+           }
+           else if(xmlhttp.readyState==4 && xmlhttp.status==201)
+           {
+
+              console.log(JSON.parse(xmlhttp.responseText));
+           }
+      };
+     xmlhttp.send(JSON.stringify(delId));
+}
 /****************************************************************************
 Auflisten der Files
 ******************************************************************************/
@@ -171,12 +245,14 @@ function getMyFiles()
       xmlhttp.setRequestHeader("Accept", "application/json, text/plain");
       xmlhttp.onreadystatechange=function()
         {
-           if(xmlhttp.readyState==4 && xmlhttp.status!=200){
+           if(xmlhttp.readyState==4 && xmlhttp.status!=200)
+           {
              console.log(xmlhttp.responseText);
            }
            else if (xmlhttp.readyState==4 && xmlhttp.status==200)
            {
               myFiles(JSON.parse(xmlhttp.responseText));
+              getDeletedFiles(JSON.parse(xmlhttp.responseText));
            }
 
          };
@@ -192,7 +268,6 @@ function getSharedFiles()
     console.log("userId is undefined");
     return;
   }
-
   else
   {
      xmlhttp = new XMLHttpRequest();
@@ -208,7 +283,7 @@ function getSharedFiles()
            {
               sharedFiles(JSON.parse(xmlhttp.responseText));
            }
-     };
+      };
      xmlhttp.send();
    }
 }

@@ -6,6 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <!--<script src="vue.min.js"></script>-->
     <script src="vue.js"></script>
+    <!--<script src="font-awesome.min.js"></script>-->
     <link rel="stylesheet" href="style.css" type="text/css">
     <title>WTF - Webtechnologies Filesharing</title>
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
@@ -20,13 +21,21 @@
       <p id="text"> FILES HERE</p>
       <output id="fileList">
         <ul>
-          <li v-for="files in filesToUpload" v-on:click="deleteFile(this)">
+          <li v-for="files in filesToUpload" @click="deleteFile(files)">
             {{files.name}}
           </li>
         </ul>
       </output>
     </div>
-    <button type="button" id="xxx" onclick="uploadJson()">Upload</button>
+  <div id="shares">
+    <input v-on:keypress="inpc" id="yyy" type="text">
+    <ul>
+      <li v-for="shares in vshares">
+      {{shares}}
+      </li>
+    </ul>
+  </div>
+    <button type="button" id="xxx" onclick=" getSharedPeople()">Upload</button>
   </section>
 
 
@@ -38,11 +47,13 @@
     <th>Name</th>
     <th>Datum</th>
     <th>Teilen mit</th>
+    <th></th>
     </tr>
     <tr v-for="files in myFiles">
       <td>{{ files.name }}</td>
       <td>{{files.datum}}</td>
       <td>{{files.teilenMit}}</td>
+      <td><button type="button" onclick="getDeletedFiles()"></button></td>
     </tr>
   </table>
 <br>
