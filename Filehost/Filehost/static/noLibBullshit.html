@@ -46,7 +46,21 @@
       };
       xmlhttp.send(JSON.stringify(jsonobjekt));
     },false);
+
+function deleteFile(id){
+  let tempObj={"delId":id};
+  let xmlhttp = new XMLHttpRequest();
+  xmlhttp.open("POST",window.location.href+"delete", true);
+  xmlhttp.setRequestHeader("Content-type", "application/json");
+  xmlhttp.onreadystatechange=function(){
+    if(xmlhttp.readyState==4 && xmlhttp.status==201){
+      ulid=JSON.parse(xmlhttp.responseText);
+    }
+  };
+  xmlhttp.send(JSON.stringify(tempObj));
+}
+
   </script>
-  <a href="downloadFIle/1">Download</a>
+  <a href="downloadFIle/13">Download</a>
 </body>
 </html>

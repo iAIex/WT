@@ -17,7 +17,7 @@ const success = chalk.hex('#38ef32');
 const warn = chalk.hex('#ffd505');
 const error = chalk.hex('#ff3705');
 
-const mainPageName = "index"; //Page that is send to client when requesting root
+const mainPageName = "noLibBullshit"; //Page that is send to client when requesting root
 const port = 80; // Listening Port of the app
 
 // ---- LISTENING ----
@@ -28,7 +28,7 @@ http.listen(port, function () {
 // ---- ROUTING ----
 app.get('/', function (req, res) {
     console.log(heading("---- -- / -- ----"));
-    console.log(info("Root Requested by " + req.ip));
+    console.log(info("Root Requested by " + req.ip+"\n"));
     res.sendFile(__dirname + "/static/"+mainPageName+".html");
 });
 
@@ -168,7 +168,7 @@ app.get('/downloadFile/:id', function (req, res) {
         })
         .then((filename) => {
             res.download(__dirname + '/userfiles/' + req.params.id, filename);
-            console.log(success("Send file "+result+"\nRequest finished!\n"));
+            console.log(success("Send file "+filename+"\nRequest finished!\n"));
         })
         .catch((err) => {
             console.log(error("Error in endpoint /downloadFile/id: " + err));
@@ -208,8 +208,14 @@ app.post('/delete', function (req, res) {
         .then(() => {
             return checkIfExists(__dirname + '/userfiles/'+req.body.delId);
         })
-        .then((path) => {
-            return deleteFile(path);
+        .then(() => {
+            return dbDeleteShares(req.body.delId);
+        })
+        .then(() => {
+            return dbDeleteFile(req.body.delId);
+        })
+        .then(() => {
+            return deleteFile(req.body.delId);
         })
         .then(() => {
             res.writeHead(200, { "Content-Type": "text/plain" });
@@ -402,6 +408,34 @@ function dbCheckFilePermission(userid, fileid) { //checks wether user is allowed
                     .catch(function () { console.log(error("Access denied")); reject(false) });
 
             });
+    });
+}
+
+function dbDeleteShares(fileId) { // deletes all shares for given fileId
+    return new Promise(function (resolve, reject) {
+        let tempQuery = "DELETE FROM `wtf`.`shares` WHERE `file_id` = "+db.escape(fileId)+";";
+        db.query(tempQuery, function (err, result) {
+            if (err) {
+                reject("Error in query: " + err);
+            } else {
+                console.log(info("Deleted " + result.affectedRows + " shares for file " + fileId));
+                resolve("Shares deleted");
+            }
+        });
+    });
+}
+
+function dbDeleteFile(fileId) { // deletes all shares for given fileId
+    return new Promise(function (resolve, reject) {
+        let tempQuery = "DELETE FROM `wtf`.`files` WHERE `id` = " + db.escape(fileId) + ";";
+        db.query(tempQuery, function (err, result) {
+            if (err) {
+                reject("Error in query: " + err);
+            } else {
+                console.log(info("Deleted db entry for fileId " + fileId));
+                resolve("File deleted");
+            }
+        });
     });
 }
 
