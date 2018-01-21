@@ -56,6 +56,7 @@
       function onSignIn(googleUser) {
     var profile = googleUser.getBasicProfile();
       var id_token = googleUser.getAuthResponse().id_token;
+      var Email = profile.getEmail();
     console.log('ID: ' + profile.getId());
     console.log('Name: ' + profile.getName());
     console.log('Email: ' + profile.getEmail());
@@ -67,6 +68,7 @@
     console.log('Signed in as: ' + xhr.responseText);
   };
   xhr.send('idtoken=' + id_token);
+  xhr.send('Email=' + Email)
   }
 
   function signOut() {
