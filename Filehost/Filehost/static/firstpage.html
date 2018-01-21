@@ -1,0 +1,131 @@
+<!Doctype html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <!--<script src="vue.min.js"></script>-->
+  <script src="vue.js"></script>
+  <!--<script src="font-awesome.min.js"></script>-->
+  <link rel="stylesheet" href="style.css" type="text/css">
+  <title>WTF - Webtechnologies Filesharing</title>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
+  <script src="https://apis.google.com/js/platform.js" async defer></script>
+  <meta name="google-signin-client_id" content="942241099204-ld96kktb5mljtuioh0spgejr16ejptof.apps.googleusercontent.com">
+  <script src="https://unpkg.com/vue"></script>
+  <style>
+  body{
+    background-color: green;
+  }
+  .headline{
+    text-align: center;
+  }
+  .item{
+    text-align: center;
+    justify-content: flex-end;
+    align-self: center;
+  }
+  .container{
+    justify-content: flex-end;
+    flex-direction: column;
+    display: flex;
+
+  }
+
+  button{
+  color: black;
+  font-weight: bold;
+  font-size: 250%;
+
+  font-weight: bold;
+  background-color: white;
+  border: none;
+  border-radius: 10px;
+  }
+
+.abcRioButton.abcRioButtonLightBlue {
+   margin: 0 auto;
+ }
+
+  </style>
+</head>
+<body>
+
+  <script>
+      function onSignIn(googleUser) {
+    var profile = googleUser.getBasicProfile();
+      var id_token = googleUser.getAuthResponse().id_token;
+      var Email = profile.getEmail();
+    console.log('ID: ' + profile.getId());
+    console.log('Name: ' + profile.getName());
+    console.log('Email: ' + profile.getEmail());
+
+    var xhr = new XMLHttpRequest();
+  xhr.open('POST', 'http://localhost');
+  xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+  xhr.onload = function() {
+    console.log('Signed in as: ' + xhr.responseText);
+  };
+  xhr.send('idtoken=' + id_token);
+  xhr.send('Email=' + Email)
+  }
+
+  function signOut() {
+    var auth2 = gapi.auth2.getAuthInstance();
+    auth2.signOut().then(function () {
+      console.log('User signed out.');
+    });
+  }
+  </script>
+
+  <script>
+
+  var auth2;
+  var googleUser;
+
+  var appStart = function() {
+    gapi.load('auth2', initSigninV2);
+  };
+
+  var initSigninV2 = function() {
+  auth2 = gapi.auth2.init({
+      client_id: '942241099204-ld96kktb5mljtuioh0spgejr16ejptof.apps.googleusercontent.com',
+      scope: 'profile'
+  });
+  auth2.isSignedIn.listen(signinChanged);
+  auth2.currentUser.listen(userChanged);
+
+  if (auth2.isSignedIn.get() == true) {
+  console.log('User is signed in');
+}else {
+  console.log('User is not signed in');
+    }
+}
+  </script>
+
+  <a href="#" onclick="signOut();">Sign out</a>
+
+  <div class="headline">
+    <h1>WTF</h1>
+    <h2>Web Technologies Filesharing</h2>
+</div>
+<div class="container">
+    <div class="item">
+    <form action="Seite 2.html">
+    <button type="submit" onclick="function()">
+    Upload File</button>
+  </form>
+<!--    <br>
+    <br>
+    <form action="Seite 3.html">
+    <button type="submit">
+    Mit Google anmelden</button>
+  </form> !-->
+</div>
+  </div>
+<p> </p>
+    <div class="g-signin2" data-onsuccess="onSignIn" data-width="300" data-height="50" data-longtitle="true"></div>
+
+  <script src="https://apis.google.com/js/platform.js?onload=renderButton" async defer></script>
+</body>

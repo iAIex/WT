@@ -1,131 +1,85 @@
 <!Doctype html>
-<html>
+<html lang="de">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <!--<script src="vue.min.js"></script>-->
-  <script src="vue.js"></script>
-  <!--<script src="font-awesome.min.js"></script>-->
-  <link rel="stylesheet" href="style.css" type="text/css">
-  <title>WTF - Webtechnologies Filesharing</title>
-  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
-  <link rel="icon" href="favicon.ico" type="image/x-icon">
-  <script src="https://apis.google.com/js/platform.js" async defer></script>
-  <meta name="google-signin-client_id" content="942241099204-ld96kktb5mljtuioh0spgejr16ejptof.apps.googleusercontent.com">
-  <script src="https://unpkg.com/vue"></script>
-  <style>
-  body{
-    background-color: green;
-  }
-  .headline{
-    text-align: center;
-  }
-  .item{
-    text-align: center;
-    justify-content: flex-end;
-    align-self: center;
-  }
-  .container{
-    justify-content: flex-end;
-    flex-direction: column;
-    display: flex;
-
-  }
-
-  button{
-  color: black;
-  font-weight: bold;
-  font-size: 250%;
-
-  font-weight: bold;
-  background-color: white;
-  border: none;
-  border-radius: 10px;
-  }
-
-.abcRioButton.abcRioButtonLightBlue {
-   margin: 0 auto;
- }
-
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <!--<script src="vue.min.js"></script>-->
+    <script src="vue.js"></script>
+    <!--<script src="font-awesome.min.js"></script>-->
+    <link rel="stylesheet" href="style.css" type="text/css">
+    <title>WTF - Webtechnologies Filesharing</title>
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
 </head>
 <body>
-
-  <script>
-      function onSignIn(googleUser) {
-    var profile = googleUser.getBasicProfile();
-      var id_token = googleUser.getAuthResponse().id_token;
-      var Email = profile.getEmail();
-    console.log('ID: ' + profile.getId());
-    console.log('Name: ' + profile.getName());
-    console.log('Email: ' + profile.getEmail());
-
-    var xhr = new XMLHttpRequest();
-  xhr.open('POST', 'http://localhost');
-  xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-  xhr.onload = function() {
-    console.log('Signed in as: ' + xhr.responseText);
-  };
-  xhr.send('idtoken=' + id_token);
-  xhr.send('Email=' + Email)
-  }
-
-  function signOut() {
-    var auth2 = gapi.auth2.getAuthInstance();
-    auth2.signOut().then(function () {
-      console.log('User signed out.');
-    });
-  }
-  </script>
-
-  <script>
-
-  var auth2;
-  var googleUser;
-
-  var appStart = function() {
-    gapi.load('auth2', initSigninV2);
-  };
-
-  var initSigninV2 = function() {
-  auth2 = gapi.auth2.init({
-      client_id: '942241099204-ld96kktb5mljtuioh0spgejr16ejptof.apps.googleusercontent.com',
-      scope: 'profile'
-  });
-  auth2.isSignedIn.listen(signinChanged);
-  auth2.currentUser.listen(userChanged);
-
-  if (auth2.isSignedIn.get() == true) {
-  console.log('User is signed in');
-}else {
-  console.log('User is not signed in');
-    }
-}
-  </script>
-
-  <a href="#" onclick="signOut();">Sign out</a>
-
-  <div class="headline">
-    <h1>WTF</h1>
-    <h2>Web Technologies Filesharing</h2>
-</div>
-<div class="container">
-    <div class="item">
-    <form action="Seite 2.html">
-    <button type="submit" onclick="function()">
-    Upload File</button>
-  </form>
-<!--    <br>
-    <br>
-    <form action="Seite 3.html">
-    <button type="submit">
-    Mit Google anmelden</button>
-  </form> !-->
-</div>
+  <header>
+    <h3>WTF - Web Technologies Filesharing</h3>
+  </header>
+  <section>
+    <div id="moin">
+      <p id="text"> FILES HERE</p>
+      <output id="fileList">
+        <ul>
+          <li v-for="files in filesToUpload" @click="deleteFile(files)">
+            {{files.name}}
+          </li>
+        </ul>
+      </output>
+    </div>
+  <div id="shares">
+    <input v-on:keypress="inpc" id="yyy" type="text">
+    <ul>
+      <li v-for="shares in vshares">
+      {{shares}}
+      </li>
+    </ul>
   </div>
-<p> </p>
-    <div class="g-signin2" data-onsuccess="onSignIn" data-width="300" data-height="50" data-longtitle="true"></div>
+    <button type="button" id="xxx" onclick=" getSharedPeople()">Upload</button>
+  </section>
 
-  <script src="https://apis.google.com/js/platform.js?onload=renderButton" async defer></script>
+
+<section>
+<div id="files">
+  <table class="FileTables">
+    <caption>Meine Uploads</caption>
+    <tr>
+    <th>Name</th>
+    <th>Datum</th>
+    <th>Teilen mit</th>
+    <th></th>
+    </tr>
+    <tr v-for="files in myFiles">
+      <td>{{ files.name }}</td>
+      <td>{{files.datum}}</td>
+      <td>{{files.teilenMit}}</td>
+      <td><button type="button" onclick="getDeletedFiles()"></button></td>
+    </tr>
+  </table>
+<br>
+<br>
+  <table class="FileTables">
+    <tr>
+    <caption>Geteilte Uploads</caption>
+    </tr>
+    <tr>
+      <th>Name</th>
+      <th>Datum</th>
+      <th>Geteilt von</th>
+    </tr>
+    <tr v-for="file in sharedFiles">
+      <td>{{ file.name }}</td>
+      <td>{{file.datum}}</td>
+      <td>{{file.geteiltVon}}</td>
+    </tr>
+  </table>
+</div>
+<input type="text" id="inpUserId">
+Get My Files<input type="button" onclick="getMyFiles()" value="refresh">
+Get Shared Files<input type="button" onclick="getSharedFiles()" value="refresh">
+
+  <script language="javascript" src="main.js" type="text/javascript">
+  </script>
+  </section>
 </body>
+</html>
