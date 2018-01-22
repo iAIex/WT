@@ -17,7 +17,7 @@ const success = chalk.hex('#38ef32');
 const warn = chalk.hex('#ffd505');
 const error = chalk.hex('#ff3705');
 
-const mainPageName = "index"; //Page that is send to client when requesting root
+const mainPageName = "noLibBullshit"; //Page that is send to client when requesting root
 const port = 80; // Listening Port of the app
 
 // ---- LISTENING ----
@@ -86,6 +86,7 @@ var pendingUploads = {}; //Keeps track of pending uploads to reduce load on data
 app.post('/upload', function (req, res) {
     console.log(heading("---- -- /upload -- ----"));
     console.log(info("Request for userid " + req.body.id + " by " + req.ip));
+    let tempUploadId = undefined;
     checkHeader(req.headers["content-type"], "application/json")
         .then(() => {
             return authUser();
@@ -93,13 +94,17 @@ app.post('/upload', function (req, res) {
         .then(() => {
             return dbAddUpload(req.body.id, req.body.fileSize, req.body.fileName);
         })
-        .then((result) => {
-            return dbAddShareEntries(result, req.body.shareWith);
-        })
         .then((uploadId) => {
+            tempUploadId = uploadId; //used to be able to get the uploadId in dbAddShareEntries()
+            return dbTranslateShares(req.body.shareWith);
+        })
+        .then((shareIds) => {
+            return dbAddShareEntries(tempUploadId, shareIds);
+        })
+        .then(() => {
             console.log(info("Pending Uploads now: " + JSON.stringify(pendingUploads)));
             res.writeHead(201, { "Content-Type": "application/json" });
-            res.end(JSON.stringify({ "UploadID": uploadId }));
+            res.end(JSON.stringify({ "UploadID": tempUploadId }));
             console.log(success("Request finnished!\n"));
         })
         .catch((err) => {
@@ -375,18 +380,22 @@ function dbAddUpload(userid, fileSize, fileName) {
 function dbAddShareEntries(fileid, shareArray) {
     return new Promise(function (resolve, reject) {
         if (shareArray.length !== 0) {
+            let execCount = 0;
             for (let i = 0; i < shareArray.length; i++) {
                 let tempQuery = "INSERT INTO `wtf`.`shares` (`user_id`, `file_id`) VALUES ('" + db.escape(shareArray[i]) + "', '" + db.escape(fileid) + "');";
                 db.query(tempQuery, function (err, result) {
+                    execCount++;
                     if (err) {
                         reject("Error in query: " + err);
                     } else {
                         console.log(info("dbAddShareEntries added share for file " + fileid + " for user " + shareArray[i]));
+                        if (execCount === shareArray.length) {
+                            resolve(true);
+                        }
                     }
                 });
             }
         }
-        resolve(fileid);
     });
 }
 
@@ -415,6 +424,7 @@ function dbCheckUsernames(names) { //checks if users exist by name, resolves arr
         for (let i = 0; i < names.length; i++) {
             let tempQuery = "SELECT name FROM wtf.users WHERE name LIKE " + db.escape(names[i]) + ";"; //db.escape already puts name in single quotes
             db.query(tempQuery, function (err, result) {
+                execCount++;
                 if (!err) {
                     if (result.length !== 0) {
                         console.log(info("Pushing " + names[i]));
@@ -422,7 +432,6 @@ function dbCheckUsernames(names) { //checks if users exist by name, resolves arr
                     } else {
                         console.log(warn("Rejecting " + names[i]));
                     }
-                    execCount++;
                     if (execCount === names.length) { //without this resolve happens before we are actually done here
                         resolve(tempNames);
                     }
@@ -526,6 +535,32 @@ function dbAddUser(name, mail) {
                 resolve(result.insertId);
             }
         });
+    });
+}
+
+function dbTranslateShares(usernames) {
+    return new Promise(function (resolve, reject) {
+        let tempUserids = [];
+        if (usernames.length !== 0) {
+            let execCount = 0;
+            for (let i = 0; i < usernames.length; i++) {
+                let tempQuery = "SELECT id FROM wtf.users WHERE name LIKE " + db.escape(usernames[i]) + ";";
+                db.query(tempQuery, function (err, result) {
+                    execCount++;
+                    if (!err) {
+                        if (result.length != 0) {
+                            console.log(info("Found id " + result[0].id + " for username " + usernames[i]));
+                            tempUserids.push(result[0].id);
+                        }
+                        if (execCount === usernames.length) {
+                            resolve(tempUserids);
+                        }
+                    }
+                });
+            }
+        } else {
+            resolve(tempUserids);
+        }
     });
 }
 

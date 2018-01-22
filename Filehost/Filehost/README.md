@@ -4,8 +4,8 @@ A node based filehosting webservice
 
 ## Authors
 * **Patrick Weiß** - *Frontend and Styling* - [Paddy24041998](https://github.com/paddy24041998)
-* **Michael Schreder** - *Authentication and Deploment* - [Senpai96](https://github.com/senpai96)
-* **Alexander Gebhardt** - *Backend and Database* - [iAIex](https://github.com/iAIex)
+* **Michael Schreder** - *Rudementary Authentication* - [Senpai96](https://github.com/senpai96)
+* **Alexander Gebhardt** - *Backend, Database and Deployment* - [iAIex](https://github.com/iAIex)
 
 ## Built With
 * [Visual Studio 2017](https://www.visualstudio.com/de/downloads/)
