@@ -17,7 +17,7 @@ const success = chalk.hex('#38ef32');
 const warn = chalk.hex('#ffd505');
 const error = chalk.hex('#ff3705');
 
-const mainPageName = "noLibBullshit"; //Page that is send to client when requesting root
+const mainPageName = "index"; //Page that is send to client when requesting root
 const port = 80; // Listening Port of the app
 
 // ---- LISTENING ----
@@ -230,6 +230,62 @@ app.post('/delete', function (req, res) {
         })
 });
 
+app.post('/signIn', function (req, res) { //checks user token, responds with id if known user, responds with 0 if new user
+    console.log(heading("---- -- /signIn -- ----"));
+    console.log(info("Request to sign in user with mail "+req.body.mail+" from " + req.ip));
+    checkHeader(req.headers["content-type"], "application/json")
+        .then(() => {
+            return dbGetUserId(req.body.mail);
+        })
+        .then((userid) => {
+            res.writeHead(200, { "Content-Type": "application/json" });
+            res.end(JSON.stringify(userid));
+            console.log(success("Request finnished!\n"));
+        })
+        .catch((err) => {
+            console.log(error("Error in endpoint /signIn: " + err));
+            res.writeHead(500, { "Content-Type": "text/plain" }); //Error 500: Internal Server Error
+            res.end("Internal error");
+            console.log(error("Request failed!\n"));
+        })
+});
+
+app.post('/createUser', function (req, res) { //checks user token, responds with id if known user, responds with 0 if new user
+    console.log(heading("---- -- /cerateUser -- ----"));
+    console.log(info("Request to create user " + req.body.name + " with mail " + req.body.mail + " from " + req.ip));
+    checkHeader(req.headers["content-type"], "application/json")
+        .then(() => {
+            return dbCheckUserNames([req.body.name]);
+        })
+        .then((result) => {
+            console.log(result)
+            if (result[0] != undefined) {
+                res.writeHead(200, { "Content-Type": "application/json" });
+                res.end(JSON.stringify({ "Userid": 0 })); // respond with id 0 if name is already taken
+                console.log(warn("Name " + req.body.name + " already taken"));
+            } else {
+                dbAddUser(req.body.name, req.body.mail)
+                    .then((id) => {
+                        res.writeHead(200, { "Content-Type": "application/json" });
+                        res.end(JSON.stringify({ "Userid": id }));
+                        console.log(success("Request finnished!\n"));
+                    })
+                    .catch((err) => {
+                        console.log(error("Error in endpoint /createUser: " + err));
+                        res.writeHead(500, { "Content-Type": "text/plain" }); //Error 500: Internal Server Error
+                        res.end("Internal error");
+                        console.log(error("Request failed!\n"));
+                    });
+            }
+        })
+        .catch((err) => {
+            console.log(error("Error in endpoint /createUser: " + err));
+            res.writeHead(500, { "Content-Type": "text/plain" }); //Error 500: Internal Server Error
+            res.end("Internal error");
+            console.log(error("Request failed!\n"));
+        })
+});
+
 
 app.use('/', express.static(__dirname + '/static')); //Sends static files
 
@@ -320,7 +376,7 @@ function dbAddShareEntries(fileid, shareArray) {
     return new Promise(function (resolve, reject) {
         if (shareArray.length !== 0) {
             for (let i = 0; i < shareArray.length; i++) {
-                let tempQuery = "INSERT INTO `wtf`.`shares` (`user_id`, `file_id`) VALUES ('" + shareArray[i] + "', '" + fileid + "');";
+                let tempQuery = "INSERT INTO `wtf`.`shares` (`user_id`, `file_id`) VALUES ('" + db.escape(shareArray[i]) + "', '" + db.escape(fileid) + "');";
                 db.query(tempQuery, function (err, result) {
                     if (err) {
                         reject("Error in query: " + err);
@@ -434,6 +490,40 @@ function dbDeleteFile(fileId) { // deletes all shares for given fileId
             } else {
                 console.log(info("Deleted db entry for fileId " + fileId));
                 resolve("File deleted");
+            }
+        });
+    });
+}
+
+function dbGetUserId(mail) {
+    return new Promise(function (resolve, reject) {
+        let tempQuery = "SELECT name FROM wtf.users WHERE mail LIKE " + db.escape(mail) + ";";
+        db.query(tempQuery, function (err, result) {
+            if (err) {
+                reject("Error in query: " + err);
+            } else {
+                if (result.length == 0) {
+                    console.log(info("No user with mail " + mail));
+                    reject({ "Userid": 0 });
+                } else {
+                    console.log(info("dbGetUserId found ID " + result[0].id + " for mail " + mail));
+                    resolve({ "Userid": result[0].id });
+                }
+            }
+        });
+    });
+}
+
+function dbAddUser(name, mail) {
+    return new Promise(function (resolve, reject) {
+        let tempQuery = "INSERT INTO `wtf`.`users` (`name`, `mail`) VALUES (" + db.escape(name) + ", " + db.escape(mail) + ");";
+        console.log("Query " + tempQuery);
+        db.query(tempQuery, function (err, result) {
+            if (err) {
+                reject("Error in query: " + err);
+            } else {
+                console.log(info("dbAddUser added user "+name+" with id " + result.insertId));
+                resolve(result.insertId);
             }
         });
     });
