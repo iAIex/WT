@@ -50,10 +50,10 @@
     <th></th>
     </tr>
     <tr v-for="files in myFiles">
-      <td>{{ files.name }}</td>
+      <td href="downloadFIle/">{{ files.name }}</td>
       <td>{{files.datum}}</td>
       <td>{{files.teilenMit}}</td>
-      <td><button type="button" onclick="getDeletedFiles()"></button></td>
+      <td><button type="button" id="lll" onclick="getDeletedFiles(); getMyFiles()"></button></td>
     </tr>
   </table>
 <br>
