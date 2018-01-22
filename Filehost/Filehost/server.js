@@ -17,7 +17,7 @@ const success = chalk.hex('#38ef32');
 const warn = chalk.hex('#ffd505');
 const error = chalk.hex('#ff3705');
 
-const mainPageName = "noLibBullshit"; //Page that is send to client when requesting root
+const mainPageName = "index"; //Page that is send to client when requesting root
 const port = 80; // Listening Port of the app
 
 // ---- LISTENING ----
@@ -89,7 +89,7 @@ app.post('/upload', function (req, res) {
     let tempUploadId = undefined;
     checkHeader(req.headers["content-type"], "application/json")
         .then(() => {
-            return authUser();
+            return authUser(req.body.id);
         })
         .then(() => {
             return dbAddUpload(req.body.id, req.body.fileSize, req.body.fileName);
@@ -140,7 +140,7 @@ app.put('/upload/:id', function (req, res) {
             return checkHeader(req.headers["content-type"], "application/octet-stream");
         })
         .then(() => {
-            return authUser();
+            return authUser(req.params.id);
         })
         .then(() => {
             return getRawBody(req)
@@ -381,6 +381,7 @@ function dbAddShareEntries(fileid, shareArray) {
     return new Promise(function (resolve, reject) {
         if (shareArray.length !== 0) {
             let execCount = 0;
+            console.log(execCount);
             for (let i = 0; i < shareArray.length; i++) {
                 let tempQuery = "INSERT INTO `wtf`.`shares` (`user_id`, `file_id`) VALUES ('" + db.escape(shareArray[i]) + "', '" + db.escape(fileid) + "');";
                 db.query(tempQuery, function (err, result) {
@@ -395,6 +396,8 @@ function dbAddShareEntries(fileid, shareArray) {
                     }
                 });
             }
+        } else {
+            resolve(true);
         }
     });
 }
