@@ -18,7 +18,7 @@ const warn = chalk.hex('#ffd505');
 const error = chalk.hex('#ff3705');
 
 const mainPageName = "index"; //Page that is send to client when requesting root
-const port = 80; // Listening Port of the app
+const port = 1337; // Listening Port of the app
 
 // ---- LISTENING ----
 http.listen(port, function () {
@@ -26,7 +26,7 @@ http.listen(port, function () {
 });
 
 // ---- ROUTING ----
-app.get('/', function (req, res) {
+app.get('/', function (req, res) { //sending root
     console.log(heading("---- -- / -- ----"));
     console.log(info("Root Requested by " + req.ip+"\n"));
     res.sendFile(__dirname + "/static/"+mainPageName+".html");
@@ -37,7 +37,7 @@ app.get('/getSharedFiles/:id', function (req, res) { //AJAX endpoint for getting
     console.log(info("Request for userid " + req.params.id + " requested by " + req.ip));
     checkHeader(req.headers.accept, "application/json, text/plain")
         .then(() => {
-            return authUser();
+            return authUser(req.params.id);
         })
         .then(() => {
             return dbGetSharedFiles(req.params.id);
@@ -51,15 +51,15 @@ app.get('/getSharedFiles/:id', function (req, res) { //AJAX endpoint for getting
             console.log(eror("Error in endpoint /getSharedFiles/id: "+err+"\n"));
             res.writeHead(400, { "Content-Type": "text/plain" }); //Error 400: Bad Request
             res.end("Invalid Request");
-     })
+    })
 });
 
-app.get('/getUserFiles/:id', function (req, res) {
+app.get('/getUserFiles/:id', function (req, res) { //get all files uploaded by given userid
     console.log(heading("---- -- /getUserFiles/id -- ----"));
     console.log(info("Request for userid " + req.params.id + " by " + req.ip));
     checkHeader(req.headers.accept, "application/json, text/plain")
         .then(() => {
-            return authUser();
+            return authUser(req.params.id);
         })
         .then(() => {
             return dbGetUserFiles(req.params.id);
@@ -83,13 +83,16 @@ app.use(bodyParser.json());
 
 var pendingUploads = {}; //Keeps track of pending uploads to reduce load on database
 
-app.post('/upload', function (req, res) {
+app.post('/upload', function (req, res) { //metadata upload that returns uploadId to client
     console.log(heading("---- -- /upload -- ----"));
     console.log(info("Request for userid " + req.body.id + " by " + req.ip));
-    let tempUploadId = undefined;
+    let tempUploadId = undefined; //used to be able to get the uploadId in dbAddShareEntries()
     checkHeader(req.headers["content-type"], "application/json")
         .then(() => {
             return authUser(req.body.id);
+        })
+        .then(() => {
+            return dbCheckDubFilename(req.body.fileName, req.body.id);
         })
         .then(() => {
             return dbAddUpload(req.body.id, req.body.fileSize, req.body.fileName);
@@ -115,24 +118,7 @@ app.post('/upload', function (req, res) {
     });
 });
 
-app.post('/upload/deprecated/:id', function (req, res) { //DEPRECATED - DO NOT USE
-    console.log(warn("---- -- /deprecated/upload/id -- ----"));
-    console.log(warn(req));
-    res.writeHead(301, { "Location": "/upload/" }); //Error 301: Moved Permanently
-    res.end("Deprecated Endpoint - Moved to URL/upload/");
-    /*console.log("Request to upload fileid " + req.params.id);
-
-    let myFile = req.files.myFile; //Name of input field
-
-    myFile.mv("userfiles/" + myFile.name, function (err) { //move (mv()) file to userfiles
-        if (err)
-            return res.status(500).send(err);
-        res.status(201).send('File uploaded!');
-
-    });*/
-});
-
-app.put('/upload/:id', function (req, res) {
+app.put('/upload/:id', function (req, res) { //upload for the file content in binary using the given uploadId
     console.log(heading("---- -- /upload/id -- ----"));
     console.log(info("Request to upload file with ID " + req.params.id + " by " + req.ip));
     validateUploadId(req.params.id)
@@ -161,7 +147,7 @@ app.put('/upload/:id', function (req, res) {
 });
 
 // ---- FILE DOWNLOAD ----
-app.get('/downloadFile/:id', function (req, res) {
+app.get('/downloadFile/:id', function (req, res) { //endpoint for downloading file with given id
     console.log(heading("---- -- /downloadFile/id -- ----"));
     console.log(info("Request to download file " + req.params.id + " by " + req.ip));
     authUser()
@@ -183,27 +169,29 @@ app.get('/downloadFile/:id', function (req, res) {
     });
 });
 
-app.post('/checkIds', function (req, res) {
+app.post('/checkIds', function (req, res) { //returns all valid usernames in input array as array
     console.log(heading("---- -- /ckeckIds -- ----"));
     console.log(info("Request to check ids " + req.body.ids + " by " + req.ip));
-    let tempNames = [];
     if (req.body.ids != undefined) {
         dbCheckUsernames(req.body.ids)
             .then((resArr) => {
-                console.log(resArr);
                 res.writeHead(200, { "Content-Type": "application/json" });
                 res.end(JSON.stringify({ "ValidIds": resArr }));
                 console.log(success("Request finnished!\n"));
             })
             .catch((err) => {
                 res.writeHead(200, { "Content-Type": "application/json" });
-                res.end(JSON.stringify({ "ValidNames": [] }));
+                res.end(JSON.stringify({ "ValidIds": [] }));
                 console.log(error("Request failed!\n"));
-        });
+            });
+    } else {
+        console.log(eror("Error in endpoint /ckeckIds: ids were undefined\n"));
+        res.writeHead(400, { "Content-Type": "text/plain" }); //Error 400: Bad Request
+        res.end("Invalid Request");
     }
 });
 
-app.post('/delete', function (req, res) {
+app.post('/delete', function (req, res) { //deletes file with given id
     console.log(heading("---- -- /delete -- ----"));
     console.log(info("Request to delete file " + req.params.id + " by " + req.ip));
     checkHeader(req.headers["content-type"], "application/json")
@@ -232,7 +220,7 @@ app.post('/delete', function (req, res) {
             res.writeHead(404, { "Content-Type": "text/plain" }); //Error 404: Not found
             res.end("Requested file not found!");
             console.log(error("Request failed!\n"));
-        })
+    })
 });
 
 app.post('/signIn', function (req, res) { //checks user token, responds with id if known user, responds with 0 if new user
@@ -252,7 +240,7 @@ app.post('/signIn', function (req, res) { //checks user token, responds with id 
             res.writeHead(500, { "Content-Type": "text/plain" }); //Error 500: Internal Server Error
             res.end("Internal error");
             console.log(error("Request failed!\n"));
-        })
+    })
 });
 
 app.post('/createUser', function (req, res) { //checks user token, responds with id if known user, responds with 0 if new user
@@ -263,7 +251,6 @@ app.post('/createUser', function (req, res) { //checks user token, responds with
             return dbCheckUserNames([req.body.name]);
         })
         .then((result) => {
-            console.log(result)
             if (result[0] != undefined) {
                 res.writeHead(200, { "Content-Type": "application/json" });
                 res.end(JSON.stringify({ "Userid": 0 })); // respond with id 0 if name is already taken
@@ -280,7 +267,7 @@ app.post('/createUser', function (req, res) { //checks user token, responds with
                         res.writeHead(500, { "Content-Type": "text/plain" }); //Error 500: Internal Server Error
                         res.end("Internal error");
                         console.log(error("Request failed!\n"));
-                    });
+                });
             }
         })
         .catch((err) => {
@@ -288,7 +275,7 @@ app.post('/createUser', function (req, res) { //checks user token, responds with
             res.writeHead(500, { "Content-Type": "text/plain" }); //Error 500: Internal Server Error
             res.end("Internal error");
             console.log(error("Request failed!\n"));
-        })
+    })
 });
 
 
@@ -296,7 +283,7 @@ app.use('/', express.static(__dirname + '/static')); //Sends static files
 
 // ---- 404 Handling ----
 var count404 = 0;
-app.use(function (req, res) {
+app.use(function (req, res) { //sends 404 pages
     console.log(heading("---- -- 404 Handler -- ----"));
     console.log(info("File " + req.originalUrl + " requested by " + req.ip));
     res.sendFile(__dirname + '/static/404/404' + (count404++ % 2) + '.html');
@@ -307,18 +294,18 @@ app.use(function (req, res) {
 
 //ALTER TABLE tablename AUTO_INCREMENT = 1; for resetting AI
 
-var db = mysql.createConnection({
+var db = mysql.createConnection({ //configuring db parameters
     host: "localhost",
     user: "User1",
     password: "ibims1user"
 });
 
-db.connect(function (err) {
+db.connect(function (err) { //opening connection to database
     if (err) { console.log(error("Database connection failed!\n" + err)); return }
     else {console.log(success("MySQL connected"))}
 });
 
-function dbGetUserFiles(userid) {
+function dbGetUserFiles(userid) { // resolves to array of all files of given user
     return new Promise(function (resolve, reject) {
         let tempQuery = "SELECT files.id,filename,upload_time,name FROM wtf.files LEFT JOIN wtf.shares ON wtf.files.id = wtf.shares.file_id LEFT JOIN wtf.users ON wtf.shares.user_id = wtf.users.id WHERE owner = " + db.escape(userid) + " ORDER BY wtf.files.id;";
         db.query(tempQuery, function (err, result) {
@@ -347,7 +334,7 @@ function dbGetUserFiles(userid) {
     });
 }
 
-function dbGetSharedFiles(userid) {
+function dbGetSharedFiles(userid) { // resolves to array of all files shared with given user
     return new Promise(function (resolve, reject) {
         let tempQuery = "SELECT filename,upload_time,name,files.id  FROM wtf.shares JOIN wtf.files ON wtf.shares.file_id = wtf.files.id JOIN wtf.users ON wtf.files.owner = wtf.users.id WHERE user_id = " + db.escape(userid) + ";";
         db.query(tempQuery, function (err, result) {
@@ -362,7 +349,7 @@ function dbGetSharedFiles(userid) {
     });
 }
 
-function dbAddUpload(userid, fileSize, fileName) {
+function dbAddUpload(userid, fileSize, fileName) { //resolves to fileid used for upload later on
     return new Promise(function (resolve, reject) {
         let tempQuery = "INSERT INTO `wtf`.`files` (`owner`, `filename`) VALUES ('" + userid + "', '" + fileName + "');";
         db.query(tempQuery, function (err, result) {
@@ -377,11 +364,10 @@ function dbAddUpload(userid, fileSize, fileName) {
     });
 }
 
-function dbAddShareEntries(fileid, shareArray) {
+function dbAddShareEntries(fileid, shareArray) { //Adds shares for given fileid
     return new Promise(function (resolve, reject) {
         if (shareArray.length !== 0) {
             let execCount = 0;
-            console.log(execCount);
             for (let i = 0; i < shareArray.length; i++) {
                 let tempQuery = "INSERT INTO `wtf`.`shares` (`user_id`, `file_id`) VALUES ('" + db.escape(shareArray[i]) + "', '" + db.escape(fileid) + "');";
                 db.query(tempQuery, function (err, result) {
@@ -402,7 +388,7 @@ function dbAddShareEntries(fileid, shareArray) {
     });
 }
 
-function dbGetUpload(fileId) {
+function dbGetUpload(fileId) { //return filename of file with given id
     return new Promise(function (resolve, reject) {
         let tempQuery = "SELECT filename FROM wtf.files WHERE id ="+db.escape(fileId)+";";
         db.query(tempQuery, function (err, result) {
@@ -472,9 +458,9 @@ function dbCheckFilePermission(userid, fileid) { //checks wether user is allowed
             .then(function () { console.log(success("Access granted"));resolve(true) })
             .catch(function () {
                 dbCheckIfShared(userid, fileid)
-                    .then(function () { console.log(success("Access granted")); resolve(true) })
-                    .catch(function () { console.log(error("Access denied")); reject(false) });
-
+                    .then(function () {console.log(success("Access granted")); resolve(true)})
+                    .catch(function () {console.log(error("Access denied")); reject(false)
+                });
             });
     });
 }
@@ -493,7 +479,7 @@ function dbDeleteShares(fileId) { // deletes all shares for given fileId
     });
 }
 
-function dbDeleteFile(fileId) { // deletes all shares for given fileId
+function dbDeleteFile(fileId) { // deletes file entry for given fileId
     return new Promise(function (resolve, reject) {
         let tempQuery = "DELETE FROM `wtf`.`files` WHERE `id` = " + db.escape(fileId) + ";";
         db.query(tempQuery, function (err, result) {
@@ -507,7 +493,7 @@ function dbDeleteFile(fileId) { // deletes all shares for given fileId
     });
 }
 
-function dbGetUserId(mail) {
+function dbGetUserId(mail) { //gets id of user with given email adress
     return new Promise(function (resolve, reject) {
         let tempQuery = "SELECT name FROM wtf.users WHERE mail LIKE " + db.escape(mail) + ";";
         db.query(tempQuery, function (err, result) {
@@ -526,10 +512,9 @@ function dbGetUserId(mail) {
     });
 }
 
-function dbAddUser(name, mail) {
+function dbAddUser(name, mail) { //adds new user with given name and email adress
     return new Promise(function (resolve, reject) {
         let tempQuery = "INSERT INTO `wtf`.`users` (`name`, `mail`) VALUES (" + db.escape(name) + ", " + db.escape(mail) + ");";
-        console.log("Query " + tempQuery);
         db.query(tempQuery, function (err, result) {
             if (err) {
                 reject("Error in query: " + err);
@@ -541,7 +526,7 @@ function dbAddUser(name, mail) {
     });
 }
 
-function dbTranslateShares(usernames) {
+function dbTranslateShares(usernames) { //ranslates array of usernames to array of userids
     return new Promise(function (resolve, reject) {
         let tempUserids = [];
         if (usernames.length !== 0) {
@@ -564,6 +549,23 @@ function dbTranslateShares(usernames) {
         } else {
             resolve(tempUserids);
         }
+    });
+}
+
+function dbCheckDubFilename(filename,userid) { //checks if file with given name has already been uploaded by same user
+    return new Promise(function (resolve, reject) {
+        let tempQuery = "SELECT id FROM wtf.files WHERE owner="+db.escape(userid)+" AND filename LIKE "+db.escape(filename)+";";
+        db.query(tempQuery, function (err, result) {
+            if (err) {
+                reject("Error in query: " + err);
+            } else {
+                if (result[0] == undefined) {
+                    resolve(true);
+                } else {
+                    reject("Filename already taken");
+                }
+            }
+        });
     });
 }
 
@@ -594,8 +596,18 @@ function getFileExtension(filename) { //Currently not in use
 function authUser(userid, userToken, fileId) { //resolves if user is authorized
     return new Promise(function (resolve, reject) {
         console.log(info("Checking identity of user " + userid));
-        console.log(warn("CURRENTLY NO AUTHENTICATION ON SEVRER SIDE"));
-        resolve(true);
+        console.log(warn("CURRENTLY NO GOOGLE AUTHENTICATION ON SEVRER SIDE"));
+        if (fileId != undefined) {
+            dbCheckFilePermission(userid, fileId)
+                .then(() => {
+                    resolve(true);
+                })
+                .catch(() => {
+                    reject(false);
+                })
+        } else {
+            resolve(true);
+        }
         // TODO Implement authentication @Senpai96 - Michael Schreder
             //resolve if usertoken matches user and fileId is not defined
             //if fileId is given call function dbcheckFilePermission(userid,fileid) and resolve if dbcheckFilePermission(userid,fileid) resolves
@@ -613,7 +625,7 @@ function checkHeader(header, expectedHeader) { //checks for correct header, reso
     });
 }
 
-function validateUploadId(uploadId) {
+function validateUploadId(uploadId) { //checks if upload with given id is actually queued for upload
     return new Promise(function (resolve, reject) {
         if (pendingUploads[uploadId] == undefined) {
             reject("UploadId " + uploadId + " not listed in pendingUplaods");
@@ -633,9 +645,9 @@ function checkIfExists(path) { //check if file exists aand resolves with path if
     });
 }
 
-function deleteFile(fileId) {
+function deleteFile(fileId) { //deletes file from disk based on fileid
     return new Promise(function (resolve, reject) {
-        console.log("Deleting File " + fileId);
+        console.log(info("Deleting File " + fileId));
         fs.unlink(__dirname + '/userfiles/' + fileId, function (err) {
             if (err) {
                 reject("File could not be deleted");
