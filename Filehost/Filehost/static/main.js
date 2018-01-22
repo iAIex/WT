@@ -46,7 +46,8 @@ document.getElementById("moin").addEventListener("drop",function(e){
 Share With
 ****************************************************************************/
 //var callb=document.getElementById('yyy').addEventListener('keypress', function(e)
-var callb = function(e)
+
+var deletes = function(e)
 {
   var leer=false;
   if(e.which === 13)
@@ -54,29 +55,52 @@ var callb = function(e)
     e.preventDefault();
     this.vshares.push(document.getElementById('yyy').value);
     document.getElementById('yyy').value="";
-    getSharedPeople(document.getElementById('yyy').value);
+
   }
 };
 
-function getSharedPeople(document.getElementById('yyy').value)
+function getSharedPeople()
 {
-     var name={"ids": share.vshares[0].document.getElementById('yyy').value};
-     xmlhttp = new XMLHttpRequest();
+    if(share.vshares == 0)
+    {
+      uploadJson();
+    }else
+    {
+     var name={"ids": share.vshares};
+     var xmlhttp = new XMLHttpRequest();
      xmlhttp.open("POST",window.location.href+"checkIds", true);
      xmlhttp.setRequestHeader("Content-type", "application/json");
      xmlhttp.onreadystatechange=function()
      {
-           if(xmlhttp.readyState==4 &&  xmlhttp.status!=201)
+           if(xmlhttp.readyState==4 &&  xmlhttp.status!=200)
            {
              console.log(xmlhttp.responseText);
            }
-           else if(xmlhttp.readyState==4 && xmlhttp.status==201)
+           else if(xmlhttp.readyState==4 && xmlhttp.status==200)
            {
               console.log(JSON.parse(xmlhttp.responseText));
+              var response = JSON.parse(xmlhttp.responseText).ValidIds;
+              var tempLength=share.vshares.length;
+              share.vshares=[];
+              for(var m=0; m<response.length; m++)
+              {
+                share.vshares=response.slice(0);
+              }
+              console.log(tempLength);
+              if(tempLength !== share.vshares.length)
+              {
+                alert("Eingabe enthält ungültige Nuternamen!");
+              }
+              else
+              {
+                uploadJson();
+              }
            }
       };
      xmlhttp.send(JSON.stringify(name));
+   }
 }
+
 /****************************************************************************
 File upload
 ****************************************************************************/
@@ -88,7 +112,7 @@ function uploadJson()
     alert("Put some Files in there");
   }else
   {
-    var jsonobjekt = {"id": user, "shareWith": [], "fileSize": 0, "fileName": daFiles[0].name};
+    var jsonobjekt = {"id": user, "shareWith": share.vshares, "fileSize": daFiles[0].size, "fileName": daFiles[0].name};
     var xmlhttp = new XMLHttpRequest();
     xmlhttp.open("POST",window.location.href+"upload", true);
     xmlhttp.setRequestHeader("Content-type", "application/json");
@@ -96,6 +120,7 @@ function uploadJson()
     {
       if(xmlhttp.readyState==4 && xmlhttp.status==201)
       {
+        id=JSON.parse(xmlhttp.responseText).UploadID;
         console.log(JSON.parse(xmlhttp.responseText).UploadID);
         uploadBinary(JSON.parse(xmlhttp.responseText).UploadID);
       }
@@ -118,6 +143,7 @@ function uploadBinary(uploadId)
       if(xmlhttp2.readyState==4 && xmlhttp2.status==201)
       {
         console.log(xmlhttp2.responseText);
+        getMyFiles();
       }
     };
     xmlhttp2.send(fileid);
@@ -151,15 +177,12 @@ var share = new Vue({
   el:'#shares',
   data:{
     vshares:[]
-  /*},
-  mehtods:{
-    addSharer: function(item){
-      this.vshares.push(document.getElementById("shares").value);
-      document.getElementById("shares").value="";
-    }*/
   },
   methods: {
-    inpc: callb
+    inpc: deletes,
+    deleteNames: function(shares){
+      this.vshares.splice(shares, 1);
+    }
   }
 });
 
@@ -168,23 +191,24 @@ Send fileId to delete the file
 ******************************************************************************/
 function getDeletedFiles(deleteFileId)
 {
-     var delId={"id": deleteFileId};
-     xmlhttp = new XMLHttpRequest();
-     xmlhttp.open("POST",window.location.href+"delete"+delId, true);
-     xmlhttp.setRequestHeader("Content-type", "application/json");
-     xmlhttp.onreadystatechange=function()
+    console.log(deleteFileId);
+     var delId={"delId": deleteFileId};
+     var xmlhttp2 = new XMLHttpRequest();
+     xmlhttp2.open("POST",window.location.href+"delete", true);
+     xmlhttp2.setRequestHeader("Content-type", "application/json");
+     xmlhttp2.onreadystatechange=function()
      {
-           if(xmlhttp.readyState==4 &&  xmlhttp.status!=201)
+           if(xmlhttp2.readyState==4 &&  xmlhttp2.status!=200)
            {
-             console.log(xmlhttp.responseText);
+             console.log(xmlhttp2.responseText);
            }
-           else if(xmlhttp.readyState==4 && xmlhttp.status==201)
+           else if(xmlhttp2.readyState==4 && xmlhttp2.status==200)
            {
-
-              console.log(JSON.parse(xmlhttp.responseText));
+              console.log(xmlhttp2.responseText);
+              getMyFiles();
            }
       };
-     xmlhttp.send(JSON.stringify(delId));
+     xmlhttp2.send(JSON.stringify(delId));
 }
 /****************************************************************************
 Auflisten der Files
@@ -197,6 +221,7 @@ function myFiles(json)
     {
       var temp = {};
       temp.name = json[i].filename;
+      temp.id=json[i].ID;
       var datum = new Date(json[i].upload_time);
       temp.datum = datum.getDate()+"."+datum.getMonth()+"."+datum.getFullYear();
       if(json[i].name == 0){
@@ -224,6 +249,7 @@ function sharedFiles(json){
     for(var i=0; i<json.length; i++){
       var temp = {};
       temp.name = json[i].filename;
+      temp.id=json[i].id;
       var datum = new Date(json[i].upload_time);
       temp.datum = datum.getDate()+"."+datum.getMonth()+"."+datum.getFullYear();
       temp.geteiltVon = json[i].name;
@@ -252,7 +278,6 @@ function getMyFiles()
            else if (xmlhttp.readyState==4 && xmlhttp.status==200)
            {
               myFiles(JSON.parse(xmlhttp.responseText));
-              getDeletedFiles(JSON.parse(xmlhttp.responseText));
            }
 
          };

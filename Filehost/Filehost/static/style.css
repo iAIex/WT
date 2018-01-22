@@ -10,6 +10,17 @@ header{
   vertical-align: middle;
   width:16em;
 }
+#yyy
+{
+  background-color: white;
+  justify-content: center;
+}
+#xxx
+{
+  display: flex;
+  align-content: center;
+  widht: 50px;
+}
 #text{
   text-align: center;
   vertical-align: middle;

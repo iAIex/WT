@@ -30,7 +30,7 @@
   <div id="shares">
     <input v-on:keypress="inpc" id="yyy" type="text">
     <ul>
-      <li v-for="shares in vshares">
+      <li v-for="shares in vshares" @click="deleteNames(shares)">
       {{shares}}
       </li>
     </ul>
@@ -50,10 +50,10 @@
     <th></th>
     </tr>
     <tr v-for="files in myFiles">
-      <td>{{ files.name }}</td>
+      <td><a v-bind:href="'/downloadFile/' + files.id">{{ files.name }}</a></td>
       <td>{{files.datum}}</td>
       <td>{{files.teilenMit}}</td>
-      <td><button type="button" onclick="getDeletedFiles()"></button></td>
+      <td><button type="button" v-bind:id="files.id" onclick="getDeletedFiles(this.id)"></button></td>
     </tr>
   </table>
 <br>
@@ -68,7 +68,7 @@
       <th>Geteilt von</th>
     </tr>
     <tr v-for="file in sharedFiles">
-      <td>{{ file.name }}</td>
+      <td><a v-bind:href="'/downloadFile/'+ file.id">{{ file.name }}</a></td>
       <td>{{file.datum}}</td>
       <td>{{file.geteiltVon}}</td>
     </tr>
