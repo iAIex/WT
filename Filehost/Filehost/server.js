@@ -8,6 +8,11 @@ const bodyParser = require('body-parser');
 const getRawBody = require('raw-body');
 const saveFile = require('save-file');
 const fs = require('fs');
+
+const audiance = "942241099204-887hriil80dgus1ubdmd88r834sjuabd.apps.googleusercontent.com";
+const { OAuth2Client } = require('google-auth-library');
+var client = new OAuth2Client(audiance, '', '');
+
 const coloredText = require('chalk');
 const chalk = new coloredText.constructor({ level: 3 });
 
@@ -199,7 +204,7 @@ app.post('/delete', function (req, res) { //deletes file with given id
             return authUser(undefined, undefined, req.body.delId);
         })
         .then(() => {
-            return checkIfExists(__dirname + '/userfiles/'+req.body.delId);
+            return checkIfExists(__dirname + '/userfiles/' + req.body.delId);
         })
         .then(() => {
             return dbDeleteShares(req.body.delId);
@@ -220,13 +225,38 @@ app.post('/delete', function (req, res) { //deletes file with given id
             res.writeHead(404, { "Content-Type": "text/plain" }); //Error 404: Not found
             res.end("Requested file not found!");
             console.log(error("Request failed!\n"));
-    })
+        });
 });
 
 app.post('/signIn', function (req, res) { //checks user token, responds with id if known user, responds with 0 if new user
     console.log(heading("---- -- /signIn -- ----"));
-    console.log(info("Request to sign in user with mail "+req.body.mail+" from " + req.ip));
+    console.log(info("Request to sign in user from " + req.ip));
     checkHeader(req.headers["content-type"], "application/json")
+        .then(() => {
+            return authUser(undefined, undefined, req.body.delId);
+        })
+
+    var token = req.body.token;
+    
+
+    let verifyToken = new Promise(function (resolve, reject) {
+        client.verifyIdToken({ "idToken":token, "audiance":audiance })
+            .then((login) => {
+                resolve(login.payload.sub);
+            })
+            .catch((err) => {
+                console.log(err);
+                reject("FAIL HAHA");
+        });
+    });
+    res.writeHead(200, { "Content-Type": "text/plain" })
+    res.end("moin");
+});
+
+
+        
+
+    /*checkHeader(req.headers["content-type"], "application/json")
         .then(() => {
             return dbGetUserId(req.body.mail);
         })
@@ -240,8 +270,7 @@ app.post('/signIn', function (req, res) { //checks user token, responds with id 
             res.writeHead(500, { "Content-Type": "text/plain" }); //Error 500: Internal Server Error
             res.end("Internal error");
             console.log(error("Request failed!\n"));
-    })
-});
+    })*/
 
 app.post('/createUser', function (req, res) { //checks user token, responds with id if known user, responds with 0 if new user
     console.log(heading("---- -- /cerateUser -- ----"));
@@ -493,7 +522,7 @@ function dbDeleteFile(fileId) { // deletes file entry for given fileId
     });
 }
 
-function dbGetUserId(mail) { //gets id of user with given email adress
+function dbGetUserId(mail) { //gets id of user with given email adress DEPRECATED
     return new Promise(function (resolve, reject) {
         let tempQuery = "SELECT name FROM wtf.users WHERE mail LIKE " + db.escape(mail) + ";";
         db.query(tempQuery, function (err, result) {
@@ -512,9 +541,9 @@ function dbGetUserId(mail) { //gets id of user with given email adress
     });
 }
 
-function dbAddUser(name, mail) { //adds new user with given name and email adress
+function dbAddUser(name,userid) { //adds new user with given name and email adress
     return new Promise(function (resolve, reject) {
-        let tempQuery = "INSERT INTO `wtf`.`users` (`name`, `mail`) VALUES (" + db.escape(name) + ", " + db.escape(mail) + ");";
+        let tempQuery = "INSERT INTO `wtf`.`users` (`name`, `id`) VALUES (" + db.escape(name) + ", " + db.escape(userid) + ");";
         db.query(tempQuery, function (err, result) {
             if (err) {
                 reject("Error in query: " + err);
@@ -593,11 +622,24 @@ function getFileExtension(filename) { //Currently not in use
     }
 }
 
-function authUser(userid, userToken, fileId) { //resolves if user is authorized
+function authUser(userToken, fileId) { //resolves if user is authorized ########################################################################################################
     return new Promise(function (resolve, reject) {
         console.log(info("Checking identity of user " + userid));
         console.log(warn("CURRENTLY NO GOOGLE AUTHENTICATION ON SEVRER SIDE"));
-        if (fileId != undefined) {
+
+
+
+
+
+
+
+
+
+
+
+
+
+        /*if (fileId != undefined) {
             dbCheckFilePermission(userid, fileId)
                 .then(() => {
                     resolve(true);
@@ -607,11 +649,7 @@ function authUser(userid, userToken, fileId) { //resolves if user is authorized
                 })
         } else {
             resolve(true);
-        }
-        // TODO Implement authentication @Senpai96 - Michael Schreder
-            //resolve if usertoken matches user and fileId is not defined
-            //if fileId is given call function dbcheckFilePermission(userid,fileid) and resolve if dbcheckFilePermission(userid,fileid) resolves
-            //Reject with descriptive error message if usertoken is invalid or dbcheckFilePermission returns false
+        }*/
     });
 }
 
