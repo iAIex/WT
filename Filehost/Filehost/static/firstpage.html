@@ -12,7 +12,7 @@
   <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
   <link rel="icon" href="favicon.ico" type="image/x-icon">
   <script src="https://apis.google.com/js/platform.js" async defer></script>
-  <meta name="google-signin-client_id" content="942241099204-ld96kktb5mljtuioh0spgejr16ejptof.apps.googleusercontent.com">
+  <meta name="google-signin-client_id" content="942241099204-887hriil80dgus1ubdmd88r834sjuabd.apps.googleusercontent.com">
   <script src="https://unpkg.com/vue"></script>
   <style>
   body{
@@ -56,19 +56,17 @@
       function onSignIn(googleUser) {
     var profile = googleUser.getBasicProfile();
       var id_token = googleUser.getAuthResponse().id_token;
-      var Email = profile.getEmail();
     console.log('ID: ' + profile.getId());
     console.log('Name: ' + profile.getName());
     console.log('Email: ' + profile.getEmail());
 
     var xhr = new XMLHttpRequest();
-  xhr.open('POST', 'http://localhost');
+  xhr.open('POST', 'http://localhost:1337');
   xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
   xhr.onload = function() {
     console.log('Signed in as: ' + xhr.responseText);
   };
   xhr.send('idtoken=' + id_token);
-  xhr.send('Email=' + Email)
   }
 
   function signOut() {
@@ -90,7 +88,7 @@
 
   var initSigninV2 = function() {
   auth2 = gapi.auth2.init({
-      client_id: '942241099204-ld96kktb5mljtuioh0spgejr16ejptof.apps.googleusercontent.com',
+      client_id: '942241099204-887hriil80dgus1ubdmd88r834sjuabd.apps.googleusercontent.com',
       scope: 'profile'
   });
   auth2.isSignedIn.listen(signinChanged);
