@@ -382,3 +382,61 @@ function getSharedFiles()
      xmlhttp.send();
    }
 }
+
+/****************************************************************************
+Google Login
+******************************************************************************/
+
+function signOut() {
+	var auth2 = gapi.auth2.getAuthInstance();
+	auth2.signOut().then(function () {
+		console.log('User signed out.');
+	});
+}
+
+function onSignIn(googleUser) {
+var profile = googleUser.getBasicProfile();
+var id_token = googleUser.getAuthResponse().id_token;
+console.log('ID: ' + profile.getId());
+console.log('Name: ' + profile.getName());
+console.log('Email: ' + profile.getEmail());
+console.log(id_token);
+
+var xhr = new XMLHttpRequest();
+xhr.open('POST',window.location.href+"delete", true);
+xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+xhr.onload = function() {
+console.log('Signed in as: ' + xhr.responseText);
+};
+xhr.send('idtoken=' + id_token);
+
+}
+
+function signOut() {
+var auth2 = gapi.auth2.getAuthInstance();
+auth2.signOut().then(function () {
+console.log('User signed out.');
+});
+}
+
+var auth2;
+var googleUser;
+
+var appStart = function() {
+	gapi.load('auth2', initSigninV2);
+};
+
+var initSigninV2 = function() {
+auth2 = gapi.auth2.init({
+		client_id: '942241099204-887hriil80dgus1ubdmd88r834sjuabd.apps.googleusercontent.com',
+		scope: 'profile'
+});
+auth2.isSignedIn.listen(signinChanged);
+auth2.currentUser.listen(userChanged);
+
+if (auth2.isSignedIn.get() == true) {
+console.log('User is signed in');
+}else {
+console.log('User is not signed in');
+	}
+}

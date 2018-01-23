@@ -45,7 +45,7 @@ app.get('/getSharedFiles/:id', function (req, res) { //AJAX endpoint for getting
         .then((json) => {
             res.writeHead(200, { "Content-Type": "application/json" });
             res.end(json);
-            console.log(success("Request finnished!\n"));            
+            console.log(success("Request finnished!\n"));
         })
         .catch(() => {
             console.log(eror("Error in endpoint /getSharedFiles/id: "+err+"\n"));
@@ -286,7 +286,7 @@ var count404 = 0;
 app.use(function (req, res) { //sends 404 pages
     console.log(heading("---- -- 404 Handler -- ----"));
     console.log(info("File " + req.originalUrl + " requested by " + req.ip));
-    res.sendFile(__dirname + '/static/404/404' + (count404++ % 2) + '.html');
+    res.sendFile(__dirname + '/static/404/404' + (count404++ % 3) + '.html');
     console.log(warn("Number of 404s so far: " + count404 + "\n"));
 });
 
