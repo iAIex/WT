@@ -19,6 +19,11 @@
     <h3>WTF - Web Technologies Filesharing</h3>
   </header>
 
+  <section>
+    <div class="g-signin2" data-onsuccess="onSignIn" data-width="300" data-height="50" data-longtitle="true"></div>
+      <script src="https://apis.google.com/js/platform.js?onload=renderButton" async defer></script>
+    <a href="#" onclick="signOut();">Sign out</a>
+  </section>
 
   <section>
     <input type="text" id="inputMail">
@@ -47,7 +52,7 @@
   </div>
     <button type="button" id="xxx" onclick=" getSharedPeople()">Upload</button>
   </section>
-  <a href="#" onclick="signOut();">Sign out</a>
+
 
 <section>
 <div id="files">
@@ -93,8 +98,6 @@ Get Shared Files<input type="button" onclick="getSharedFiles()" value="refresh">
   </script>
   </section>
 
-      <div class="g-signin2" data-onsuccess="onSignIn" data-width="300" data-height="50" data-longtitle="true"></div>
-        <script src="https://apis.google.com/js/platform.js?onload=renderButton" async defer></script>
 
 </body>
 </html>
