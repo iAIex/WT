@@ -8,6 +8,11 @@ const bodyParser = require('body-parser');
 const getRawBody = require('raw-body');
 const saveFile = require('save-file');
 const fs = require('fs');
+
+const audiance = "942241099204-887hriil80dgus1ubdmd88r834sjuabd.apps.googleusercontent.com";
+const { OAuth2Client } = require('google-auth-library');
+var client = new OAuth2Client(audiance, '', '');
+
 const coloredText = require('chalk');
 const chalk = new coloredText.constructor({ level: 3 });
 
@@ -32,37 +37,37 @@ app.get('/', function (req, res) { //sending root
     res.sendFile(__dirname + "/static/"+mainPageName+".html");
 });
 
-app.get('/getSharedFiles/:id', function (req, res) { //AJAX endpoint for getting sharedFiles by userid
-    console.log(heading("---- -- /getSharedFiles/id -- ----"));
-    console.log(info("Request for userid " + req.params.id + " requested by " + req.ip));
-    checkHeader(req.headers.accept, "application/json, text/plain")
+app.post('/getSharedFiles', function (req, res) { //AJAX endpoint for getting sharedFiles by userid
+    console.log(heading("---- -- /getSharedFiles -- ----"));
+    console.log(info("Requested by " + req.ip));
+    checkHeader(req.headers["content-type"], "application/json")
         .then(() => {
-            return authUser(req.params.id);
+            return authUser(req.body.token);
         })
-        .then(() => {
-            return dbGetSharedFiles(req.params.id);
+        .then((userId) => {
+            return dbGetSharedFiles(userId);
         })
         .then((json) => {
             res.writeHead(200, { "Content-Type": "application/json" });
             res.end(json);
-            console.log(success("Request finnished!\n"));            
+            console.log(success("Request finnished!\n"));
         })
         .catch(() => {
-            console.log(eror("Error in endpoint /getSharedFiles/id: "+err+"\n"));
+            console.log(eror("Error in endpoint /getSharedFiles: " + err + "\n"));
             res.writeHead(400, { "Content-Type": "text/plain" }); //Error 400: Bad Request
             res.end("Invalid Request");
-    })
+      });
 });
 
-app.get('/getUserFiles/:id', function (req, res) { //get all files uploaded by given userid
-    console.log(heading("---- -- /getUserFiles/id -- ----"));
-    console.log(info("Request for userid " + req.params.id + " by " + req.ip));
-    checkHeader(req.headers.accept, "application/json, text/plain")
+app.post('/getUserFiles', function (req, res) { //get all files uploaded by given userid
+    console.log(heading("---- -- /getUserFiles -- ----"));
+    console.log(info("Requested by " + req.ip));
+    checkHeader(req.headers["content-type"], "application/json")
         .then(() => {
-            return authUser(req.params.id);
+            return authUser(req.body.token);
         })
-        .then(() => {
-            return dbGetUserFiles(req.params.id);
+        .then((userid) => {
+            return dbGetUserFiles(userid);
         })
         .then((json) => {
             res.writeHead(200, { "Content-Type": "application/json" });
@@ -70,10 +75,10 @@ app.get('/getUserFiles/:id', function (req, res) { //get all files uploaded by g
             console.log(success("Request finnished!\n"));
         })
         .catch((err) => {
-            console.log(error("Error in endpoint /getUserFiles/id: " + err+"\n"));
+            console.log(error("Error in endpoint /getUserFiles: " + err + "\n"));
             res.writeHead(400, { "Content-Type": "text/plain" }); //Error 400: Bad Request
             res.end("Invalid Request");
-    })
+      });
 });
 
 
@@ -186,7 +191,7 @@ app.post('/checkIds', function (req, res) { //returns all valid usernames in inp
                 res.writeHead(200, { "Content-Type": "application/json" });
                 res.end(JSON.stringify({ "ValidIds": [] }));
                 console.log(error("Request failed!\n"));
-            });
+        });
     } else {
         console.log(eror("Error in endpoint /ckeckIds: ids were undefined\n"));
         res.writeHead(400, { "Content-Type": "text/plain" }); //Error 400: Bad Request
@@ -202,7 +207,7 @@ app.post('/delete', function (req, res) { //deletes file with given id
             return authUser(undefined, undefined, req.body.delId);
         })
         .then(() => {
-            return checkIfExists(__dirname + '/userfiles/'+req.body.delId);
+            return checkIfExists(__dirname + '/userfiles/' + req.body.delId);
         })
         .then(() => {
             return dbDeleteShares(req.body.delId);
@@ -223,43 +228,52 @@ app.post('/delete', function (req, res) { //deletes file with given id
             res.writeHead(404, { "Content-Type": "text/plain" }); //Error 404: Not found
             res.end("Requested file not found!");
             console.log(error("Request failed!\n"));
-    })
+      });
 });
 
 app.post('/signIn', function (req, res) { //checks user token, responds with id if known user, responds with 0 if new user
     console.log(heading("---- -- /signIn -- ----"));
-    console.log(info("Request to sign in user with mail "+req.body.mail+" from " + req.ip));
+    console.log(info("Request to sign in user from " + req.ip));
     checkHeader(req.headers["content-type"], "application/json")
         .then(() => {
-            return dbGetUserId(req.body.mail);
+            return authUser(req.body.token);
         })
-        .then((userid) => {
+        .then((userId) => {
+            return dbCheckUserExists(userId);
+        })
+        .then((isUser) => {
             res.writeHead(200, { "Content-Type": "application/json" });
-            res.end(JSON.stringify(userid));
-            console.log(success("Request finnished!\n"));
+            res.end(JSON.stringify({ "isAuth": isUser }));
+            console.log(success("Request finished!\n"));
         })
         .catch((err) => {
             console.log(error("Error in endpoint /signIn: " + err));
             res.writeHead(500, { "Content-Type": "text/plain" }); //Error 500: Internal Server Error
-            res.end("Internal error");
+            res.end("Authentication error");
             console.log(error("Request failed!\n"));
-    })
+      });
 });
 
 app.post('/createUser', function (req, res) { //checks user token, responds with id if known user, responds with 0 if new user
-    console.log(heading("---- -- /cerateUser -- ----"));
-    console.log(info("Request to create user " + req.body.name + " with mail " + req.body.mail + " from " + req.ip));
+    console.log(heading("---- -- /createUser -- ----"));
+    console.log(info("Request to create user " + req.body.name + " from " + req.ip));
+    let tempUserid = undefined;
     checkHeader(req.headers["content-type"], "application/json")
         .then(() => {
-            return dbCheckUserNames([req.body.name]);
+            return authUser(req.body.token);
+        })
+        .then((userid) => {
+            tempUserid = userid;
+            return dbCheckUsernames([req.body.name]);
         })
         .then((result) => {
             if (result[0] != undefined) {
                 res.writeHead(200, { "Content-Type": "application/json" });
                 res.end(JSON.stringify({ "Userid": 0 })); // respond with id 0 if name is already taken
                 console.log(warn("Name " + req.body.name + " already taken"));
+                console.log(success("Request finnished!\n"));
             } else {
-                dbAddUser(req.body.name, req.body.mail)
+                dbAddUser(req.body.name, tempUserid)
                     .then((id) => {
                         res.writeHead(200, { "Content-Type": "application/json" });
                         res.end(JSON.stringify({ "Userid": id }));
@@ -419,10 +433,10 @@ function dbCheckUsernames(names) { //checks if users exist by name, resolves arr
                 execCount++;
                 if (!err) {
                     if (result.length !== 0) {
-                        console.log(info("Pushing " + names[i]));
+                        console.log(info("Name " + names[i] +" found in database"));
                         tempNames.push(names[i]);
                     } else {
-                        console.log(warn("Rejecting " + names[i]));
+                        console.log(warn("Name " + names[i] +" not in database"));
                     }
                     if (execCount === names.length) { //without this resolve happens before we are actually done here
                         resolve(tempNames);
@@ -496,33 +510,33 @@ function dbDeleteFile(fileId) { // deletes file entry for given fileId
     });
 }
 
-function dbGetUserId(mail) { //gets id of user with given email adress
+function dbCheckUserExists(userId) { //checks if user with given id is already in database
     return new Promise(function (resolve, reject) {
-        let tempQuery = "SELECT name FROM wtf.users WHERE mail LIKE " + db.escape(mail) + ";";
+        let tempQuery = "SELECT name FROM wtf.users WHERE id LIKE " + db.escape(userId) + ";";
         db.query(tempQuery, function (err, result) {
             if (err) {
                 reject("Error in query: " + err);
             } else {
                 if (result.length == 0) {
-                    console.log(info("No user with mail " + mail));
-                    reject({ "Userid": 0 });
+                    console.log(info("No user with this token"));
+                    resolve(false);
                 } else {
-                    console.log(info("dbGetUserId found ID " + result[0].id + " for mail " + mail));
-                    resolve({ "Userid": result[0].id });
+                    console.log(info("dbGetUserId found name " + result[0].name + " for id " + userId));
+                    resolve(true);
                 }
             }
         });
     });
 }
 
-function dbAddUser(name, mail) { //adds new user with given name and email adress
+function dbAddUser(name,userid) { //adds new user with given name and email adress
     return new Promise(function (resolve, reject) {
-        let tempQuery = "INSERT INTO `wtf`.`users` (`name`, `mail`) VALUES (" + db.escape(name) + ", " + db.escape(mail) + ");";
+        let tempQuery = "INSERT INTO `wtf`.`users` (`name`, `id`) VALUES (" + db.escape(name) + ", " + db.escape(userid) + ");";
         db.query(tempQuery, function (err, result) {
             if (err) {
                 reject("Error in query: " + err);
             } else {
-                console.log(info("dbAddUser added user "+name+" with id " + result.insertId));
+                console.log(info("dbAddUser added user " + name + " with id " + userid));
                 resolve(result.insertId);
             }
         });
@@ -610,25 +624,28 @@ function getFileExtension(filename) { //Currently not in use
     }
 }
 
-function authUser(userid, userToken, fileId) { //resolves if user is authorized
+function authUser(userToken, fileId) { //resolves if user is authorized
     return new Promise(function (resolve, reject) {
-        console.log(info("Checking identity of user " + userid));
-        console.log(warn("CURRENTLY NO GOOGLE AUTHENTICATION ON SEVRER SIDE"));
-        if (fileId != undefined) {
-            dbCheckFilePermission(userid, fileId)
-                .then(() => {
-                    resolve(true);
-                })
-                .catch(() => {
-                    reject(false);
-                })
-        } else {
-            resolve(true);
-        }
-        // TODO Implement authentication @Senpai96 - Michael Schreder
-            //resolve if usertoken matches user and fileId is not defined
-            //if fileId is given call function dbcheckFilePermission(userid,fileid) and resolve if dbcheckFilePermission(userid,fileid) resolves
-            //Reject with descriptive error message if usertoken is invalid or dbcheckFilePermission returns false
+        console.log(info("Checking identity of user"));
+        client.verifyIdToken({ "idToken": userToken, "audiance": audiance })
+            .then((login) => {
+                console.log(info("Authenticated user " + login.payload.sub + " successfully"));
+                if (fileId != undefined) {
+                    dbCheckFilePermission(login.payload.sub, fileId)
+                        .then(() => {
+                            resolve(login.payload.sub); //User allowed to access file
+                        })
+                        .catch(() => {
+                            console.log(warn("User " + login.payload.sub + " not allowed to access file " + fileId));
+                            reject("Fileaccess denied"); //User not allowed to access file
+                        })
+                } else {
+                    resolve(login.payload.sub); //User authenticated, no fileid given
+                }
+            })
+            .catch((err) => {
+                reject(err); //User could not be authenticated
+        });
     });
 }
 

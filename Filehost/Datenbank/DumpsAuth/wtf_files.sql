@@ -1,8 +1,8 @@
 -- MySQL dump 10.13  Distrib 5.7.17, for Win64 (x86_64)
 --
--- Host: 127.0.0.1    Database: wtf
+-- Host: localhost    Database: wtf
 -- ------------------------------------------------------
--- Server version	5.7.20-log
+-- Server version	5.7.20
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -24,16 +24,15 @@ DROP TABLE IF EXISTS `files`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `files` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `owner` int(10) unsigned DEFAULT NULL,
+  `owner` varchar(30) DEFAULT NULL,
   `size` float unsigned DEFAULT NULL,
   `upload_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `dl_count` int(10) unsigned DEFAULT '0',
   `filename` varchar(100) DEFAULT NULL,
-  `filetype` varchar(5) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `id_UNIQUE` (`id`),
-  KEY `id_idx` (`owner`),
-  CONSTRAINT `id` FOREIGN KEY (`owner`) REFERENCES `users` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+  KEY `owner_idx` (`owner`),
+  CONSTRAINT `owner` FOREIGN KEY (`owner`) REFERENCES `users` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -55,4 +54,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-01-22 10:53:36
+-- Dump completed on 2018-01-23 22:40:05
