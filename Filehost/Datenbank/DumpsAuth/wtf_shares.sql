@@ -1,8 +1,8 @@
 -- MySQL dump 10.13  Distrib 5.7.17, for Win64 (x86_64)
 --
--- Host: 127.0.0.1    Database: wtf
+-- Host: localhost    Database: wtf
 -- ------------------------------------------------------
--- Server version	5.7.20-log
+-- Server version	5.7.20
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -24,12 +24,12 @@ DROP TABLE IF EXISTS `shares`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `shares` (
   `key` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `user_id` int(10) unsigned DEFAULT NULL,
+  `user_id` varchar(30) DEFAULT NULL,
   `file_id` int(10) unsigned DEFAULT NULL,
   PRIMARY KEY (`key`),
   UNIQUE KEY `key_UNIQUE` (`key`),
-  KEY `id_idx` (`user_id`),
   KEY `id_idx1` (`file_id`),
+  KEY `user_id_idx` (`user_id`),
   CONSTRAINT `file_id` FOREIGN KEY (`file_id`) REFERENCES `files` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   CONSTRAINT `user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
@@ -53,4 +53,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-01-22 10:53:36
+-- Dump completed on 2018-01-23 22:40:06

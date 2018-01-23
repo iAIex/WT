@@ -235,7 +235,10 @@ app.post('/signIn', function (req, res) { //checks user token, responds with id 
         .then(() => {
             return authUser(req.body.token);
         })
-        .then((isAuth) => {
+        .then((userId) => {
+            return dbCheckUserExists(userId);
+        })
+        .then((isUser) => {
             res.writeHead(200, { "Content-Type": "application/json" });
             res.end(JSON.stringify({ "isAuth": isAuth }));
             console.log(success("Request finished!\n"));
@@ -498,19 +501,19 @@ function dbDeleteFile(fileId) { // deletes file entry for given fileId
     });
 }
 
-function dbGetUserId(mail) { //gets id of user with given email adress DEPRECATED
+function dbCheckUserExists(userId) { //checks if user with given id is already in database
     return new Promise(function (resolve, reject) {
-        let tempQuery = "SELECT name FROM wtf.users WHERE mail LIKE " + db.escape(mail) + ";";
+        let tempQuery = "SELECT name FROM wtf.users WHERE id LIKE " + db.escape(userId) + ";";
         db.query(tempQuery, function (err, result) {
             if (err) {
                 reject("Error in query: " + err);
             } else {
                 if (result.length == 0) {
-                    console.log(info("No user with mail " + mail));
-                    reject({ "Userid": 0 });
+                    console.log(info("No user with this token"));
+                    reject(false);
                 } else {
-                    console.log(info("dbGetUserId found ID " + result[0].id + " for mail " + mail));
-                    resolve({ "Userid": result[0].id });
+                    console.log(info("dbGetUserId found name " + result[0].name + " for id " + userId));
+                    resolve(true);
                 }
             }
         });
