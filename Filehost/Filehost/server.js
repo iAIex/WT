@@ -240,7 +240,7 @@ app.post('/signIn', function (req, res) { //checks user token, responds with id 
         })
         .then((isUser) => {
             res.writeHead(200, { "Content-Type": "application/json" });
-            res.end(JSON.stringify({ "isAuth": isAuth }));
+            res.end(JSON.stringify({ "isAuth": isUser }));
             console.log(success("Request finished!\n"));
         })
         .catch((err) => {
@@ -252,7 +252,7 @@ app.post('/signIn', function (req, res) { //checks user token, responds with id 
 });
 
 app.post('/createUser', function (req, res) { //checks user token, responds with id if known user, responds with 0 if new user
-    console.log(heading("---- -- /cerateUser -- ----"));
+    console.log(heading("---- -- /createUser -- ----"));
     console.log(info("Request to create user " + req.body.name + " with mail " + req.body.mail + " from " + req.ip));
     checkHeader(req.headers["content-type"], "application/json")
         .then(() => {
@@ -510,7 +510,7 @@ function dbCheckUserExists(userId) { //checks if user with given id is already i
             } else {
                 if (result.length == 0) {
                     console.log(info("No user with this token"));
-                    reject(false);
+                    resolve(false);
                 } else {
                     console.log(info("dbGetUserId found name " + result[0].name + " for id " + userId));
                     resolve(true);
@@ -606,7 +606,7 @@ function authUser(userToken, fileId) { //resolves if user is authorized ########
         console.log(info("Checking identity of user"));
         client.verifyIdToken({ "idToken": userToken, "audiance": audiance })
             .then((login) => {
-                console.log("Authenticated user" + login.payload.sub + " successfully");
+                console.log(info("Authenticated user " + login.payload.sub + " successfully"));
                 if (fileId != undefined) {
                     dbCheckFilePermission(login.payload.sub, fileId)
                         .then(() => {
