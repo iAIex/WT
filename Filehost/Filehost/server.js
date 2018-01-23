@@ -45,7 +45,7 @@ app.get('/getSharedFiles/:id', function (req, res) { //AJAX endpoint for getting
         .then((json) => {
             res.writeHead(200, { "Content-Type": "application/json" });
             res.end(json);
-            console.log(success("Request finnished!\n"));            
+            console.log(success("Request finnished!\n"));
         })
         .catch(() => {
             console.log(eror("Error in endpoint /getSharedFiles/id: "+err+"\n"));
