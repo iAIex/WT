@@ -18,68 +18,6 @@ function getUserId()
   return document.getElementById("inpUserId").value;
 }
 
-/*function setmail()
-{
-  window.sessionStorage.setItem("mail",document.getElementById("inputMail").value);
-}*/
-
-/*****************************************************************************
-LOGIN
-*****************************************************************************/
-function onSignIn(googleUser)
-{
-  var token = googleUser.getAuthResponse().id_token;
-  if(token==undefined)
-  {
-    alert("Bitte E-Mail angegeben!");
-  }
-  else
-  {
-    var xmlhttp=new XMLHttpRequest();
-    xmlhttp.open("POST", window.location.href+"signIn", true);
-    xmlhttp.setRequestHeader("Content-type", "application/json");
-    xmlhttp.onreadystatechange=function()
-    {
-        if(xmlhttp.readyState==4 && xmlhttp.status!=200)
-        {
-          console.log(xmlhttp.responseText);
-        }else
-        {
-          console.log(xmlhttp.responseText);
-        }
-    };
-    xmlhttp.send(JSON.stringify({"token":token}));
-  }
-}
-
-
-/*function email()
-{
-   var tempMail=window.sessionStorage.getItem("mail", document.getElementById("inputMail").value);
-   console.log(tempMail);
-   if(tempMail == undefined)
-   {
-     alert("Keine Email angegeben!");
-   } else
-   {
-   var xmlhttp = new XMLHttpRequest();
-   xmlhttp.open("POST",window.location.href+"signIn", true);
-   xmlhttp.setRequestHeader("Content-type", "application/json");
-   xmlhttp.onreadystatechange=function()
-   {
-         if(xmlhttp.readyState==4 &&  xmlhttp.status!=200)
-         {
-           console.log(xmlhttp.responseText);
-         }
-         else (xmlhttp.readyState==4 && xmlhttp.status==200)
-         {
-            console.log(xmlhttp.responseText);
-         }
-    };
-   xmlhttp.send(JSON.stringify({"mail": tempMail}));
-  }
-}*/
-
 /*****************************************************************************
 Drop
 *****************************************************************************/
@@ -383,8 +321,48 @@ function getSharedFiles()
    }
 }
 
+/*****************************************************************************
+Sign In
+*****************************************************************************/
+function onSignIn(googleUser)
+{
+  var token = googleUser.getAuthResponse().id_token;
+
+
+  if(token==undefined)
+  {
+    alert("Invalid Google Account or Password!");
+  }
+  else
+  {
+    var xmlhttp=new XMLHttpRequest();
+    xmlhttp.open("POST", window.location.href+"signIn", true);
+    xmlhttp.setRequestHeader("Content-type", "application/json");
+    xmlhttp.onreadystatechange=function()
+    {
+        if(xmlhttp.readyState==4 && xmlhttp.status!=200)
+        {
+          console.log(xmlhttp.responseText);
+        }else
+        {
+          console.log(xmlhttp.responseText);
+          if(responseText==false)
+          {
+            prompt("Bitte Nutzernamen eingeben:");
+          }else
+          {
+          xmlhttp.send(JSON.stringify({"token":token}));
+
+          }
+        }
+
+    };
+  }
+}
+
+
 /****************************************************************************
-Google Login
+Sign Out
 ******************************************************************************/
 
 function signOut() {
@@ -394,32 +372,7 @@ function signOut() {
 	});
 }
 
-/*function onSignIn(googleUser) {
-var profile = googleUser.getBasicProfile();
-var id_token = googleUser.getAuthResponse().id_token;
-console.log('ID: ' + profile.getId());
-console.log('Name: ' + profile.getName());
-console.log('Email: ' + profile.getEmail());
-console.log(id_token);
-
-var xhr = new XMLHttpRequest();
-xhr.open('POST',window.location.href+"delete", true);
-xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-xhr.onload = function() {
-console.log('Signed in as: ' + xhr.responseText);
-};
-xhr.send('idtoken=' + id_token);
-
-}
-*/
-function signOut() {
-var auth2 = gapi.auth2.getAuthInstance();
-auth2.signOut().then(function () {
-console.log('User signed out.');
-});
-}
-
-var auth2;
+/*var auth2;
 var googleUser;
 
 var appStart = function() {
@@ -439,4 +392,4 @@ console.log('User is signed in');
 }else {
 console.log('User is not signed in');
 	}
-}
+}*/
