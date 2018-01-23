@@ -18,6 +18,71 @@ function getUserId()
   return document.getElementById("inpUserId").value;
 }
 
+<<<<<<< HEAD
+=======
+/*function setmail()
+{
+  window.sessionStorage.setItem("mail",document.getElementById("inputMail").value);
+}*/
+/*****************************************************************************
+LOGIN
+*****************************************************************************/
+function onSignIn(googleUser)
+{
+  window.sessionStorage.addKey('token',token);
+  var token = googleUser.getAuthResponse().id_token;
+  if(token==undefined)
+  {
+    alert("Bitte E-Mail angegeben!");
+  }
+  else
+  {
+    var xmlhttp=new XMLHttpRequest();
+    xmlhttp.open("POST", window.location.href+"signIn", true);
+    xmlhttp.setRequestHeader("Content-type", "application/json");
+    xmlhttp.onreadystatechange=function()
+    {
+        if(xmlhttp.readyState==4 && xmlhttp.status!=200)
+        {
+          console.log(xmlhttp.responseText);
+        }else
+        {
+          console.log(xmlhttp.responseText);
+        }
+    };
+    xmlhttp.send(JSON.stringify({"token":token}));
+  }
+}
+
+
+/*function email()
+{
+   var tempMail=window.sessionStorage.getItem("mail", document.getElementById("inputMail").value);
+   console.log(tempMail);
+   if(tempMail == undefined)
+   {
+     alert("Keine Email angegeben!");
+   } else
+   {
+   var xmlhttp = new XMLHttpRequest();
+   xmlhttp.open("POST",window.location.href+"signIn", true);
+   xmlhttp.setRequestHeader("Content-type", "application/json");
+   xmlhttp.onreadystatechange=function()
+   {
+         if(xmlhttp.readyState==4 &&  xmlhttp.status!=200)
+         {
+           console.log(xmlhttp.responseText);
+         }
+         else (xmlhttp.readyState==4 && xmlhttp.status==200)
+         {
+            console.log(xmlhttp.responseText);
+         }
+    };
+   xmlhttp.send(JSON.stringify({"mail": tempMail}));
+  }
+}*/
+
+>>>>>>> b5b191d8f24ab613225599c1aac7a71000c7fe4c
 /*****************************************************************************
 Drop
 *****************************************************************************/
@@ -372,7 +437,42 @@ function signOut() {
 	});
 }
 
+<<<<<<< HEAD
 /*var auth2;
+=======
+/*function onSignIn(googleUser) {
+var profile = googleUser.getBasicProfile();
+var id_token = googleUser.getAuthResponse().id_token;
+console.log('ID: ' + profile.getId());
+console.log('Name: ' + profile.getName());
+console.log('Email: ' + profile.getEmail());
+console.log(id_token);
+
+var xhr = new XMLHttpRequest();
+xhr.open('POST',window.location.href+"delete", true);
+xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+xhr.onload = function() {
+console.log('Signed in as: ' + xhr.responseText);
+};
+xhr.send('idtoken=' + id_token);
+
+<<<<<<< HEAD
+}*/
+
+=======
+}
+*/
+>>>>>>> c4a1d1d4738bea54c93519dd714fc6512edad40f
+function signOut() {
+var auth2 = gapi.auth2.getAuthInstance();
+auth2.signOut().then(function () {
+  window.sessionStorage.clear();
+console.log('User signed out.');
+});
+}
+
+var auth2;
+>>>>>>> b5b191d8f24ab613225599c1aac7a71000c7fe4c
 var googleUser;
 
 var appStart = function() {
