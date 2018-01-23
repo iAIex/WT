@@ -43,7 +43,7 @@ function onSignIn(googleUser)
         if(xmlhttp.readyState==4 && xmlhttp.status!=200)
         {
           console.log(xmlhttp.responseText);
-        }else 
+        }else
         {
           console.log(xmlhttp.responseText);
         }
@@ -394,7 +394,7 @@ function signOut() {
 	});
 }
 
-function onSignIn(googleUser) {
+/*function onSignIn(googleUser) {
 var profile = googleUser.getBasicProfile();
 var id_token = googleUser.getAuthResponse().id_token;
 console.log('ID: ' + profile.getId());
@@ -411,7 +411,7 @@ console.log('Signed in as: ' + xhr.responseText);
 xhr.send('idtoken=' + id_token);
 
 }
-
+*/
 function signOut() {
 var auth2 = gapi.auth2.getAuthInstance();
 auth2.signOut().then(function () {
