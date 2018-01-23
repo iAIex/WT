@@ -17,6 +17,69 @@ function getUserId()
 {
   return document.getElementById("inpUserId").value;
 }
+
+/*function setmail()
+{
+  window.sessionStorage.setItem("mail",document.getElementById("inputMail").value);
+}*/
+
+/*****************************************************************************
+LOGIN
+*****************************************************************************/
+function onSignIn(googleUser)
+{
+  var token = googleUser.getAuthResponse().id_token;
+  if(token==undefined)
+  {
+    alert("Bitte E-Mail angegeben!");
+  }
+  else
+  {
+    var xmlhttp=new XMLHttpRequest();
+    xmlhttp.open("POST", window.location.href+"signIn", true);
+    xmlhttp.setRequestHeader("Content-type", "application/json");
+    xmlhttp.onreadystatechange=function()
+    {
+        if(xmlhttp.readyState==4 && xmlhttp.status!=200)
+        {
+          console.log(xmlhttp.responseText);
+        }else 
+        {
+          console.log(xmlhttp.responseText);
+        }
+    };
+    xmlhttp.send(JSON.stringify({"token":token}));
+  }
+}
+
+
+/*function email()
+{
+   var tempMail=window.sessionStorage.getItem("mail", document.getElementById("inputMail").value);
+   console.log(tempMail);
+   if(tempMail == undefined)
+   {
+     alert("Keine Email angegeben!");
+   } else
+   {
+   var xmlhttp = new XMLHttpRequest();
+   xmlhttp.open("POST",window.location.href+"signIn", true);
+   xmlhttp.setRequestHeader("Content-type", "application/json");
+   xmlhttp.onreadystatechange=function()
+   {
+         if(xmlhttp.readyState==4 &&  xmlhttp.status!=200)
+         {
+           console.log(xmlhttp.responseText);
+         }
+         else (xmlhttp.readyState==4 && xmlhttp.status==200)
+         {
+            console.log(xmlhttp.responseText);
+         }
+    };
+   xmlhttp.send(JSON.stringify({"mail": tempMail}));
+  }
+}*/
+
 /*****************************************************************************
 Drop
 *****************************************************************************/
@@ -110,7 +173,11 @@ function uploadJson()
   if(upload.filesToUpload == 0){
     console.log("No Files");
     alert("Put some Files in there");
-  }else
+  }/*else if (arrContainsObj(upload.filesToUpload, files.myFiles))
+  {
+    alert("Bitte anderen Filenamen wählen.");
+  }*/
+  else
   {
     var jsonobjekt = {"id": user, "shareWith": share.vshares, "fileSize": daFiles[0].size, "fileName": daFiles[0].name};
     var xmlhttp = new XMLHttpRequest();
@@ -144,6 +211,8 @@ function uploadBinary(uploadId)
       {
         console.log(xmlhttp2.responseText);
         getMyFiles();
+        getSharedFiles();
+        upload.filesToUpload=[];
       }
     };
     xmlhttp2.send(fileid);
@@ -206,6 +275,7 @@ function getDeletedFiles(deleteFileId)
            {
               console.log(xmlhttp2.responseText);
               getMyFiles();
+              getSharedFiles();
            }
       };
      xmlhttp2.send(JSON.stringify(delId));
