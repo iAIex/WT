@@ -253,10 +253,15 @@ app.post('/signIn', function (req, res) { //checks user token, responds with id 
 
 app.post('/createUser', function (req, res) { //checks user token, responds with id if known user, responds with 0 if new user
     console.log(heading("---- -- /createUser -- ----"));
-    console.log(info("Request to create user " + req.body.name + " with mail " + req.body.mail + " from " + req.ip));
+    console.log(info("Request to create user " + req.body.name + " with ID " + req.body + " from " + req.ip));
+    let tempUserid = undefined;
     checkHeader(req.headers["content-type"], "application/json")
         .then(() => {
-            return dbCheckUserNames([req.body.name]);
+            return authUser(req.body.token);
+        })
+        .then((userid) => {
+            tempUserid = userid;
+            return dbCheckUsernames([req.body.name]);
         })
         .then((result) => {
             if (result[0] != undefined) {
@@ -264,7 +269,7 @@ app.post('/createUser', function (req, res) { //checks user token, responds with
                 res.end(JSON.stringify({ "Userid": 0 })); // respond with id 0 if name is already taken
                 console.log(warn("Name " + req.body.name + " already taken"));
             } else {
-                dbAddUser(req.body.name, req.body.mail)
+                dbAddUser(req.body.name, tempUserid)
                     .then((id) => {
                         res.writeHead(200, { "Content-Type": "application/json" });
                         res.end(JSON.stringify({ "Userid": id }));
