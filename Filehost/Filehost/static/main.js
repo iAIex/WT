@@ -25,9 +25,9 @@ function getUserId()
 /*****************************************************************************
 LOGIN
 *****************************************************************************/
-function onSignIn(googleUser)
+/*function onSignIn(googleUser)
 {
-  window.sessionStorage.addKey('token',token);
+  //window.sessionStorage.addKey('token',token);
   var token = googleUser.getAuthResponse().id_token;
   if(token==undefined)
   {
@@ -48,9 +48,10 @@ function onSignIn(googleUser)
           console.log(xmlhttp.responseText);
         }
     };
+    console.log("MOIN");
     xmlhttp.send(JSON.stringify({"token":token}));
   }
-}
+}*/
 
 
 /*function email()
@@ -389,7 +390,12 @@ Sign In
 function onSignIn(googleUser)
 {
   var token = googleUser.getAuthResponse().id_token;
-
+  var profile = googleUser.getBasicProfile();
+  console.log('ID: ' + profile.getId()); // Do not send to your backend! Use an ID token instead.
+  console.log('Name: ' + profile.getName());
+  console.log('Image URL: ' + profile.getImageUrl());
+  console.log('Email: ' + profile.getEmail()); // This is null if the 'email' scope is not present.
+  console.log(token);
 
   if(token==undefined)
   {
@@ -408,13 +414,13 @@ function onSignIn(googleUser)
         }else
         {
           console.log(xmlhttp.responseText);
-          if(responseText==false)
+          if(!(JSON.parse(xmlhttp.responseText).isAuth))
           {
             var userName=prompt("Bitte Nutzernamen eingeben:");
             var xmlhttp2=new XMLHttpRequest();
             xmlhttp2.open("POST", window.location.href+"createUser", true);
             xmlhttp2.setRequestHeader("Content-type", "application/json");
-            xmlhttp.onreadystatechange=function()
+            xmlhttp2.onreadystatechange=function()
             {
               if(xmlhttp2.readyState==4 && xmlhttp2.status!=200)
               {
@@ -424,15 +430,11 @@ function onSignIn(googleUser)
                 console.log(xmlhttp2.responseText);
               }
             };
-            xmlhttp2.send(JSON.stringify({"name": userName}));
-          }else
-          {
-          xmlhttp.send(JSON.stringify({"token":token}));
-
+            xmlhttp2.send(JSON.stringify({"name": userName, "token":token}));
           }
         }
-
     };
+    xmlhttp.send(JSON.stringify({"token":token}));
   }
 }
 
@@ -446,19 +448,10 @@ function signOut() {
 	auth2.signOut().then(function () {
 		console.log('User signed out.');
 	});
+  location.reload();
 }
 
 /*var auth2;
-function signOut() {
-var auth2 = gapi.auth2.getAuthInstance();
-auth2.signOut().then(function () {
-  window.sessionStorage.clear();
-console.log('User signed out.');
-});
-}
-
-var auth2;
->>>>>>> b5b191d8f24ab613225599c1aac7a71000c7fe4c
 var googleUser;
 
 var appStart = function() {
@@ -478,4 +471,4 @@ console.log('User is signed in');
 }else {
 console.log('User is not signed in');
 	}
-}*/
+};*/
