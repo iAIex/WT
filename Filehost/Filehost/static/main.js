@@ -18,8 +18,6 @@ function getUserId()
   return document.getElementById("inpUserId").value;
 }
 
-<<<<<<< HEAD
-=======
 /*function setmail()
 {
   window.sessionStorage.setItem("mail",document.getElementById("inputMail").value);
@@ -82,7 +80,6 @@ function onSignIn(googleUser)
   }
 }*/
 
->>>>>>> b5b191d8f24ab613225599c1aac7a71000c7fe4c
 /*****************************************************************************
 Drop
 *****************************************************************************/
@@ -413,7 +410,21 @@ function onSignIn(googleUser)
           console.log(xmlhttp.responseText);
           if(responseText==false)
           {
-            prompt("Bitte Nutzernamen eingeben:");
+            var userName=prompt("Bitte Nutzernamen eingeben:");
+            var xmlhttp2=new XMLHttpRequest();
+            xmlhttp2.open("POST", window.location.href+"createUser", true);
+            xmlhttp2.setRequestHeader("Content-type", "application/json");
+            xmlhttp.onreadystatechange=function()
+            {
+              if(xmlhttp2.readyState==4 && xmlhttp2.status!=200)
+              {
+                console.log(xmlhttp2.responseText);
+              }else
+              {
+                console.log(xmlhttp2.responseText);
+              }
+            };
+            xmlhttp2.send(JSON.stringify({"name": userName}));
           }else
           {
           xmlhttp.send(JSON.stringify({"token":token}));
@@ -437,32 +448,7 @@ function signOut() {
 	});
 }
 
-<<<<<<< HEAD
 /*var auth2;
-=======
-/*function onSignIn(googleUser) {
-var profile = googleUser.getBasicProfile();
-var id_token = googleUser.getAuthResponse().id_token;
-console.log('ID: ' + profile.getId());
-console.log('Name: ' + profile.getName());
-console.log('Email: ' + profile.getEmail());
-console.log(id_token);
-
-var xhr = new XMLHttpRequest();
-xhr.open('POST',window.location.href+"delete", true);
-xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-xhr.onload = function() {
-console.log('Signed in as: ' + xhr.responseText);
-};
-xhr.send('idtoken=' + id_token);
-
-<<<<<<< HEAD
-}*/
-
-=======
-}
-*/
->>>>>>> c4a1d1d4738bea54c93519dd714fc6512edad40f
 function signOut() {
 var auth2 = gapi.auth2.getAuthInstance();
 auth2.signOut().then(function () {
