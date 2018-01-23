@@ -188,7 +188,7 @@ app.post('/checkIds', function (req, res) { //returns all valid usernames in inp
                 res.writeHead(200, { "Content-Type": "application/json" });
                 res.end(JSON.stringify({ "ValidIds": [] }));
                 console.log(error("Request failed!\n"));
-            });
+        });
     } else {
         console.log(eror("Error in endpoint /ckeckIds: ids were undefined\n"));
         res.writeHead(400, { "Content-Type": "text/plain" }); //Error 400: Bad Request
@@ -225,7 +225,7 @@ app.post('/delete', function (req, res) { //deletes file with given id
             res.writeHead(404, { "Content-Type": "text/plain" }); //Error 404: Not found
             res.end("Requested file not found!");
             console.log(error("Request failed!\n"));
-        });
+      });
 });
 
 app.post('/signIn', function (req, res) { //checks user token, responds with id if known user, responds with 0 if new user
@@ -233,44 +233,20 @@ app.post('/signIn', function (req, res) { //checks user token, responds with id 
     console.log(info("Request to sign in user from " + req.ip));
     checkHeader(req.headers["content-type"], "application/json")
         .then(() => {
-            return authUser(undefined, undefined, req.body.delId);
+            return authUser(req.body.token);
         })
-
-    var token = req.body.token;
-    
-
-    let verifyToken = new Promise(function (resolve, reject) {
-        client.verifyIdToken({ "idToken":token, "audiance":audiance })
-            .then((login) => {
-                resolve(login.payload.sub);
-            })
-            .catch((err) => {
-                console.log(err);
-                reject("FAIL HAHA");
-        });
-    });
-    res.writeHead(200, { "Content-Type": "text/plain" })
-    res.end("moin");
-});
-
-
-        
-
-    /*checkHeader(req.headers["content-type"], "application/json")
-        .then(() => {
-            return dbGetUserId(req.body.mail);
-        })
-        .then((userid) => {
+        .then((isAuth) => {
             res.writeHead(200, { "Content-Type": "application/json" });
-            res.end(JSON.stringify(userid));
-            console.log(success("Request finnished!\n"));
+            res.end(JSON.stringify({ "isAuth": isAuth }));
+            console.log(success("Request finished!\n"));
         })
         .catch((err) => {
             console.log(error("Error in endpoint /signIn: " + err));
             res.writeHead(500, { "Content-Type": "text/plain" }); //Error 500: Internal Server Error
-            res.end("Internal error");
+            res.end("Authentication error");
             console.log(error("Request failed!\n"));
-    })*/
+      });
+});
 
 app.post('/createUser', function (req, res) { //checks user token, responds with id if known user, responds with 0 if new user
     console.log(heading("---- -- /cerateUser -- ----"));
@@ -624,32 +600,26 @@ function getFileExtension(filename) { //Currently not in use
 
 function authUser(userToken, fileId) { //resolves if user is authorized ########################################################################################################
     return new Promise(function (resolve, reject) {
-        console.log(info("Checking identity of user " + userid));
-        console.log(warn("CURRENTLY NO GOOGLE AUTHENTICATION ON SEVRER SIDE"));
-
-
-
-
-
-
-
-
-
-
-
-
-
-        /*if (fileId != undefined) {
-            dbCheckFilePermission(userid, fileId)
-                .then(() => {
-                    resolve(true);
-                })
-                .catch(() => {
-                    reject(false);
-                })
-        } else {
-            resolve(true);
-        }*/
+        console.log(info("Checking identity of user"));
+        client.verifyIdToken({ "idToken": userToken, "audiance": audiance })
+            .then((login) => {
+                console.log("Authenticated user" + login.payload.sub + " successfully");
+                if (fileId != undefined) {
+                    dbCheckFilePermission(login.payload.sub, fileId)
+                        .then(() => {
+                            resolve(login.payload.sub); //User allowed to access file
+                        })
+                        .catch(() => {
+                            console.log(warn("User " + login.payload.sub + " not allowed to access file " + fileId));
+                            reject("Fileaccess denied"); //User not allowed to access file
+                        })
+                } else {
+                    resolve(login.payload.sub); //User authenticated, no fileid given
+                }
+            })
+            .catch((err) => {
+                reject(err); //User could not be authenticated
+        });
     });
 }
 
