@@ -410,8 +410,13 @@ console.log('Signed in as: ' + xhr.responseText);
 };
 xhr.send('idtoken=' + id_token);
 
+<<<<<<< HEAD
 }*/
 
+=======
+}
+*/
+>>>>>>> c4a1d1d4738bea54c93519dd714fc6512edad40f
 function signOut() {
 var auth2 = gapi.auth2.getAuthInstance();
 auth2.signOut().then(function () {
