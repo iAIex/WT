@@ -1,6 +1,6 @@
-
-header{
-
+p{
+  text-align: center;
+  color: white;
 }
 
 h1{
@@ -25,7 +25,9 @@ caption{
 
 button{
   font-size: 1.5em;
-  border-style: ridge;
+  border-radius: 0.5em;
+  border-color: black;
+  border-style: groove;
   margin: auto;
 }
 
@@ -38,40 +40,53 @@ button{
 
 #logoutButton{
   position:fixed;
-  right:10px;
-  top:5px;
+  right:1em;
+  top:1em;
+  border-radius: 0.5em;
+  border-color: black;
+  border-style: groove;
+}
+
+#user{
+  text-align: center;
 }
 
 #shares{
+  color: white;
   text-align: center;
 }
 
 #moin{
   background-color:white;
   color:black;
-  height:12em;
+  height:15em;
   vertical-align: middle;
-  width:20em;
+  width:30em;
   margin: auto;
-  border-style: ridge;
-  border-color: grey;
-  border-width: thick;
+  background-color: rgba(256, 256, 256, 0.3);
+  border-radius: 0.5em;
+  border-color: black;
+  border-style: groove;
+
 }
-#yyy
+#inpGetShares
 {
-  background-color: white;
+  background-color: rgba(256, 256, 256, 0.3);
   justify-content: center;
+  border-radius: 0.5em;
+  border-color: black;
+  border-style: groove;
 }
-#xxx
+#uploadButton
 {
   display: flex;
   align-content: center;
-  widht: 50px;
 }
 #text{
   text-align: center;
   vertical-align: middle;
   color: black;
+  font-family: sans-serif;
 }
 
 table
@@ -82,15 +97,12 @@ td{
   overflow: hidden;
   text-align: center;
 }
-th{
-  border-bottom: 1px solid #aaa;
-}
 
 .FileTables{
-  border-style: ridge;
-  border-color: grey;
-  border-width: thick;
-  background-color: white;
+  border-radius: 0.5em;
+  border-color: black;
+  border-style: groove;
+  background-color: rgba(256, 256, 256, 0.3);
 
 }
 
