@@ -117,7 +117,8 @@ function uploadJson()
     var jsonobjekt = {"id": globalToken, "shareWith": share.vshares, "fileSize": daFiles[0].size, "fileName": daFiles[0].name};
     var xmlhttp = new XMLHttpRequest();
     xmlhttp.open("POST",window.location.href+"upload", true);
-    xmlhttp.setRequestHeader("Content-type", "application/json");
+    xmlhttp.setRequestHeader("Content-type", "application/json, ");
+    xmlhttp.setRequestHeader("wtfToken", globalToken);
     xmlhttp.onreadystatechange=function()
     {
       if(xmlhttp.readyState==4 && xmlhttp.status==201)
@@ -283,6 +284,7 @@ function getMyFiles()
      else if (xmlhttp.readyState==4 && xmlhttp.status==200)
      {
         myFiles(JSON.parse(xmlhttp.responseText));
+        getSharedFiles();
      }
 
    };
@@ -342,7 +344,6 @@ function onSignIn(googleUser)
             document.getElementById("logIn").style.display="none";
             document.getElementById("body").style.display="block";
             getMyFiles();
-            getSharedFiles();
           }
         }
     };
