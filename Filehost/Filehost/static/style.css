@@ -38,8 +38,12 @@ button{
 
 #logoutButton{
   position:fixed;
-  right:10px;
-  top:5px;
+  right:1em;
+  top:1em;
+}
+
+#user{
+  text-align: center;
 }
 
 #shares{
@@ -53,10 +57,8 @@ button{
   vertical-align: middle;
   width:20em;
   margin: auto;
-  border-style: ridge;
-  border-color: grey;
-  border-width: thick;
-  opacity: 0.7;
+  background-color: rgba(256, 256, 256, 0.3);
+
 }
 #inpGetShares
 {
@@ -91,8 +93,7 @@ th{
   border-style: ridge;
   border-color: grey;
   border-width: thick;
-  background-color: white;
-  opacity: 0.7;
+  background-color: rgba(256, 256, 256, 0.3);
 
 }
 
