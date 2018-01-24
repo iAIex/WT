@@ -38,19 +38,6 @@ document.getElementById("moin").addEventListener("drop",function(e){
   }
 },false);
 
-/*document.getElementById("moin").addEventListener("click",function(e)
-{
-  e = e || event;
-  e.preventDefault();
-  daFiles=e.dataTransfer.files;
-  for(var j=0; j<daFiles.length; j++)
-  {
-    if(!arrContainsObj(upload.filesToUpload, daFiles[j]))
-    {
-      upload.filesToUpload.push(daFiles[j]);
-    }
-  }
-},false);*/
 /***************************************************************************
 Share With
 ****************************************************************************/
@@ -84,7 +71,6 @@ function getSharedPeople()
            }
            else if(xmlhttp.readyState==4 && xmlhttp.status==200)
            {
-              console.log(JSON.parse(xmlhttp.responseText));
               var response = JSON.parse(xmlhttp.responseText).ValidIds;
               var tempLength=share.vshares.length;
               share.vshares=[];
@@ -92,7 +78,6 @@ function getSharedPeople()
               {
                 share.vshares=response.slice(0);
               }
-              console.log(tempLength);
               if(tempLength !== share.vshares.length)
               {
                 alert("Eingabe enthält ungültige Nuternamen!");
@@ -114,7 +99,6 @@ function uploadJson()
 {
   if(upload.filesToUpload == 0)
   {
-    console.log("No Files");
     alert("Bitte Files einfügen!");
   }if(upload.filesToUpload>1)
     {
@@ -146,15 +130,8 @@ function uploadJson()
 
 function uploadBinary(uploadId)
 {
-    console.log(window.location.href+"upload/"+uploadId);
-    console.log(upload.filesToUpload[0]);
     var fileid=new Blob ([upload.filesToUpload[0]],{type:'text/plain'});
-    console.log(fileid.size);
     var xmlhttp2=new XMLHttpRequest();
-    xmlhttp2.addEventListener("loadstart", startProgress, false);
-    xmlhttp2.addEventListener("onprogress", inProgress, false);
-    xmlhttp2.addEventListener("error", fail, false);
-    xmlhttp2.addEventListener("loadend", endProgress, false);
     xmlhttp2.open("PUT", window.location.href+"upload/"+uploadId, true);
     xmlhttp2.setRequestHeader("Content-type", "application/octet-stream");
     xmlhttp2.setRequestHeader("wtfToken", globalToken);
@@ -162,39 +139,13 @@ function uploadBinary(uploadId)
     {
       if(xmlhttp2.readyState==4 && xmlhttp2.status==201)
       {
-        console.log(xmlhttp2.responseText);
         getMyFiles();
-        getSharedFiles();
         upload.filesToUpload=[];
       }
     };
     xmlhttp2.send(fileid);
 }
 
-/*****************************************************************************
-Progress bar
-******************************************************************************/
-function startProgress(event){
-
-  document.getElementById("progress").style.display="block";
-  document.getElementById("progress").max=event.total;
-  document.getElementById("progress").value=event.loaded;
-}
-
-function inProgress(event) {
-  if(event.lengthComputable){
-    document.getElementById("progress").max=event.total;
-    document.getElementById("progress").value=event.loaded;
-  }
-}
-
-function fail() {
-  alert("Error bei Upload!");
-}
-
-function endProgress() {
-  document.getElementById("progress").style.display="none";
-}
 /*****************************************************************************
 Vue
 ******************************************************************************/
@@ -369,7 +320,6 @@ function onSignIn(googleUser)
           console.log(xmlhttp.responseText);
         }else if(xmlhttp.readyState==4 && xmlhttp.status==200)
         {
-          console.log(xmlhttp.responseText);
           if(JSON.parse(xmlhttp.responseText).isAuth!==true)
           {
             document.getElementById("logIn").style.display="none";
@@ -398,7 +348,6 @@ function createUserName()
         console.log(xmlhttp2.responseText);
       }else if(xmlhttp2.readyState==4 && xmlhttp2.status==200)
       {
-        console.log(xmlhttp2.responseText);
         if(JSON.parse(xmlhttp2.responseText).Userid!==0)
         {
           document.getElementById("mmm").style.display="none";

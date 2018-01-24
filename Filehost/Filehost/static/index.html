@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <!--<script src="vue.min.js"></script>-->
-    <script src="vue.js"></script>
-    <!--<script src="font-awesome.min.js"></script>-->
+    <script src="vue.min.js"></script>
       <script src="https://apis.google.com/js/platform.js" async defer></script>
         <meta name="google-signin-client_id" content="942241099204-887hriil80dgus1ubdmd88r834sjuabd.apps.googleusercontent.com">
     <link rel="stylesheet" href="style.css" type="text/css">
@@ -43,8 +41,8 @@
     </div>
         <p> </p>
         <button class="button button1" type="button" id="uploadButton" onclick=" getSharedPeople()">Upload</button>
-            <progress id="progress" value="0" max="100"><span id="prozent"></span></progress>
         <p> </p>
+
   <div id="shares">
     <input v-on:keypress="inpc" id="inpGetShares" type="text" placeholder="Enter user and press return to share!">
     <ul>
@@ -53,10 +51,6 @@
       </li>
     </ul>
   </div>
-<<<<<<< HEAD
-=======
-    <progress id="progress" value="0" max="100" style="display:none"></progress>
->>>>>>> da619b4d91d4dff428da2830bbe182defd425c12
 
 <div id="files">
   <table class="FileTables">
@@ -89,12 +83,10 @@
       <td><a v-bind:href="'/downloadFile/' + file.id+'/'+file.token">{{ file.name }}</a></td>
       <td>{{file.datum}}</td>
       <td>{{file.geteiltVon}}</td>
-      <td><input type="button" value="X" style="display:none"></td>
     </tr>
   </table>
 </div>
-
-  <script language="javascript" src="main.js" type="text/javascript">
+<script language="javascript" src="main.js" type="text/javascript">
   </script>
 </div>
 
