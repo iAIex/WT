@@ -205,7 +205,7 @@ Send fileId to delete the file
 function getDeletedFiles(deleteFileId)
 {
     console.log(deleteFileId);
-     var delId={"delId": deleteFileId};
+     var delId={"delId": deleteFileId, "token": globalToken};
      var xmlhttp2 = new XMLHttpRequest();
      xmlhttp2.open("POST",window.location.href+"delete", true);
      xmlhttp2.setRequestHeader("Content-type", "application/json");
