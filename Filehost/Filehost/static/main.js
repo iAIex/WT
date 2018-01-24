@@ -25,7 +25,7 @@ document.addEventListener("drop",function(e){
   e = e || event;
   e.preventDefault();
 },false);
-document.getElementById("moin").addEventListener("drop",function(e){
+document.getElementById("dropbox").addEventListener("drop",function(e){
   e = e || event;
   e.preventDefault();
   daFiles = e.dataTransfer.files;
@@ -335,6 +335,10 @@ function onSignIn(googleUser)
   }
 }
 
+/******************************************************************************
+Nutzer erstellen bei erster Anmeldung auf der Seite
+*****************************************************************************/
+
 function createUserName()
 {
     var userName=document.getElementById("user").value;
@@ -350,7 +354,7 @@ function createUserName()
       {
         if(JSON.parse(xmlhttp2.responseText).Userid!==0)
         {
-          document.getElementById("mmm").style.display="none";
+          document.getElementById("newUser").style.display="none";
           document.getElementById("logIn").style.display="none";
           document.getElementById("body").style.display="block";
           getMyFiles();
