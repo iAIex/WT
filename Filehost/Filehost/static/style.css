@@ -8,6 +8,8 @@ h1{
   color: white;
   font-size: 2em;
   font-family: sans-serif;
+  text-align-last: center;
+  position: static;
 }
 
 body {
@@ -27,14 +29,19 @@ button{
   margin: auto;
 }
 
-
 .g-signin2{
   width: 100%;
 }
-
 .g-signin2 > div{
   margin: 0 auto;
 }
+
+#logoutButton{
+  position:fixed;
+  right:10px;
+  top:5px;
+}
+
 #shares{
   text-align: center;
 }
