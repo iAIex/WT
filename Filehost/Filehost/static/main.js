@@ -13,11 +13,6 @@ function arrContainsObj(array, obj)
   return false;
 }
 
-/*function getUserId()
-{
-  return document.getElementById("inpUserId").value;
-}+/
-
 /*****************************************************************************
 Drop
 *****************************************************************************/
@@ -43,6 +38,19 @@ document.getElementById("moin").addEventListener("drop",function(e){
   }
 },false);
 
+document.getElementById("moin").addEventListener("click",function(e)
+{
+  e = e || event;
+  e.preventDefault();
+  daFiles=e.dataTransfer.files;
+  for(var j=0; j<daFiles.length; j++)
+  {
+    if(!arrContainsObj(upload.filesToUpload, daFiles[j]))
+    {
+      upload.filesToUpload.push(daFiles[j]);
+    }
+  }
+},false);
 /***************************************************************************
 Share With
 ****************************************************************************/
@@ -54,7 +62,6 @@ var deletes = function(e)
     e.preventDefault();
     this.vshares.push(document.getElementById('yyy').value);
     document.getElementById('yyy').value="";
-
   }
 };
 
@@ -108,10 +115,10 @@ function uploadJson()
   if(upload.filesToUpload == 0){
     console.log("No Files");
     alert("Bitte Files einfügen!");
-  }/*else if (arrContainsObj(upload.filesToUpload, files.myFiles))
-  {
-    alert("Bitte anderen Filenamen wählen.");
-  }*/
+  }else if(upload.filesToUpload!=1)
+    {
+      alert("Bitte nur ein File!");
+    }
   else
   {
     var jsonobjekt = {"id": globalToken, "shareWith": share.vshares, "fileSize": daFiles[0].size, "fileName": daFiles[0].name};
@@ -120,8 +127,13 @@ function uploadJson()
     xmlhttp.setRequestHeader("Content-type", "application/json");
     xmlhttp.onreadystatechange=function()
     {
-      if(xmlhttp.readyState==4 && xmlhttp.status==201)
+      if(xmlhttp.readyState==4 && xmlhttp.status!=201)
       {
+        console.log(xmlhttp.responseText);
+      }
+      else if(xmlhttp.readyState==4 && xmlhttp.status==201)
+      {
+
         id=JSON.parse(xmlhttp.responseText).UploadID;
         console.log(JSON.parse(xmlhttp.responseText).UploadID);
         uploadBinary(JSON.parse(xmlhttp.responseText).UploadID);
@@ -154,6 +166,14 @@ function uploadBinary(uploadId)
     xmlhttp2.send(fileid);
   }
 
+/*****************************************************************************
+Progress back
+******************************************************************************/
+function progress()
+{
+document.getElementById("progress").value=0;
+document.getElementById("prozent").innerHTML="0%";
+}
 /*****************************************************************************
 Vue
 ******************************************************************************/
@@ -191,14 +211,6 @@ var share = new Vue({
   }
 });
 
-/*var firstSide = new Vue({
-el:'#logIn',
-methods:{
-  notLoggedIn:function(){
-    return true;
-  }
-}
-});*/
 /*****************************************************************************
 Send fileId to delete the file
 ******************************************************************************/
