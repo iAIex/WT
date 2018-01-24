@@ -112,8 +112,11 @@ caption{
   color: black;
 }
 
-#progress{
-  justify-content: center;
+#deleteButton {
+  border-radius: 0.3em;
+  border-color: black;
+  border-style: groove;
+  background-color: rgba(256, 256, 256, 0.3);
 }
 
 table
