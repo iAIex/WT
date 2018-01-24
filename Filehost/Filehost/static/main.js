@@ -181,7 +181,7 @@ function startProgress(){
 
 function inProgress(event) {
   console.log(event);
-  var temp=(event.total/event.loaded)*100;
+  var temp=(event.loaded/(event.total+1))*100;
   console.log(Math.round(temp));
   document.getElementById("progress").value=Math.round(temp);
 }
