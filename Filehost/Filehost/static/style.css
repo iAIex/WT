@@ -96,8 +96,10 @@ caption{
   border-style: groove;
 
 }
+
 #inpGetShares
 {
+
   background-color: rgba(256, 256, 256, 0.7);
   justify-content: center;
   border-radius: 0.3em;
@@ -116,6 +118,10 @@ caption{
   font-weight: bold;
   vertical-align: middle;
   color: black;
+}
+
+#newUser {
+  text-align:center
 }
 
 #deleteButton {
