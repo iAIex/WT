@@ -44,14 +44,14 @@
     </div>
     <p> </p>
   <div id="shares">
-    <input v-on:keypress="inpc" id="yyy" type="text">
+    <input v-on:keypress="inpc" id="inpGetShares" type="text">
     <ul>
       <li v-for="shares in vshares" @click="deleteNames(shares)">
       {{shares}}
       </li>
     </ul>
   </div>
-    <button type="button" id="xxx" onclick=" getSharedPeople()">Upload</button>
+    <button type="button" id="uploadButton" onclick=" getSharedPeople()">Upload</button>
   </section>
 
 

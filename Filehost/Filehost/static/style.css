@@ -56,22 +56,23 @@ button{
   border-style: ridge;
   border-color: grey;
   border-width: thick;
+  opacity: 0.7;
 }
-#yyy
+#inpGetShares
 {
   background-color: white;
   justify-content: center;
 }
-#xxx
+#uploadButton
 {
   display: flex;
   align-content: center;
-  widht: 50px;
 }
 #text{
   text-align: center;
   vertical-align: middle;
   color: black;
+  font-family: sans-serif;
 }
 
 table
@@ -91,6 +92,7 @@ th{
   border-color: grey;
   border-width: thick;
   background-color: white;
+  opacity: 0.7;
 
 }
 
