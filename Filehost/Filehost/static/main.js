@@ -60,8 +60,8 @@ var deletes = function(e)
   if(e.which === 13)
   {
     e.preventDefault();
-    this.vshares.push(document.getElementById('yyy').value);
-    document.getElementById('yyy').value="";
+    this.vshares.push(document.getElementById('inpGetShares').value);
+    document.getElementById('inpGetShares').value="";
   }
 };
 
