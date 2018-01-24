@@ -16,8 +16,9 @@
 </head>
 <body>
   <header>
-    <h3>WTF - Web Technologies Filesharing</h3>
+      <h1>WTF</h1> <h1>Web Technologies Filesharing</h1>
   </header>
+
 
   <div id="logIn" v-if="token == null">
     <div class="g-signin2" data-onsuccess="onSignIn" data-width="300" data-height="50" data-longtitle="true"></div>
@@ -32,7 +33,7 @@
 
   <section>
     <div id="moin">
-      <p id="text"> FILES HERE</p>
+      <p id="text"> DROP FILES HERE</p>
       <output id="fileList">
         <ul>
           <li v-for="files in filesToUpload" @click="deleteFile(files)">

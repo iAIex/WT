@@ -1,14 +1,40 @@
 
 header{
-  background-color: green;
+
+}
+
+h1{
+  text-align: center;
+  color: white;
+  font-size: 2em;
+  font-family: sans-serif;
+}
+
+body {
+  background-image: url(background.jpg);
+}
+
+caption{
+  color: white;
+  text-align: left;
+}
+
+button{
+  font-size: 1.5em;
+  border-style: ridge;
+  margin: auto;
 }
 
 #moin{
-  background-color:green;
-  color:white;
-  height:9em;
+  background-color:white;
+  color:black;
+  height:12em;
   vertical-align: middle;
-  width:16em;
+  width:20em;
+  margin: auto;
+  border-style: ridge;
+  border-color: grey;
+  border-width: thick;
 }
 #yyy
 {
@@ -24,6 +50,7 @@ header{
 #text{
   text-align: center;
   vertical-align: middle;
+  color: black;
 }
 table
 {
@@ -37,13 +64,12 @@ td{
 th{
   border-bottom: 1px solid #aaa;
 }
-caption{
-  text-align: left;
-}
 
 .FileTables{
-  background-color: yellow;
-  border-style: none;
+  border-style: ridge;
+  border-color: grey;
+  border-width: thick;
+  background-color: white;
 
 }
 
