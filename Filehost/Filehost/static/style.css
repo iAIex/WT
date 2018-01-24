@@ -110,6 +110,8 @@ caption{
 }
 #uploadButton
 {
+  margin-top: 0.3em;
+  margin-bottom: 0.3em;
   display: flex;
   align-content: center;
 }
