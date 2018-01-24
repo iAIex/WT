@@ -22,7 +22,7 @@ const success = chalk.hex('#38ef32');
 const warn = chalk.hex('#ffd505');
 const error = chalk.hex('#ff3705');
 
-const mainPageName = "index"; //Page that is send to client when requesting root
+const mainPageName = "noLibBullshit"; //Page that is send to client when requesting root
 const port = 1337; // Listening Port of the app
 
 // ---- LISTENING ----
@@ -274,7 +274,7 @@ app.post('/createUser', function (req, res) { //checks user token, responds with
                     .then((id) => {
                         res.writeHead(200, { "Content-Type": "application/json" });
                         res.end(JSON.stringify({ "Userid": id }));
-                        console.log(success("Request finnished!\n"));
+                        console.log(success("DEBUG - Request finnished!\n"));
                     })
                     .catch((err) => {
                         console.log(error("Error in endpoint /createUser: " + err));
@@ -534,7 +534,7 @@ function dbAddUser(name,userid) { //adds new user with given name and email adre
                 reject("Error in query: " + err);
             } else {
                 console.log(info("dbAddUser added user " + name + " with id " + userid));
-                resolve(result.insertId);
+                resolve(userid);
             }
         });
     });
