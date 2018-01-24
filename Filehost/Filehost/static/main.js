@@ -145,12 +145,16 @@ function uploadJson()
 }
 
 function uploadBinary(uploadId)
-  {
+{
     console.log(window.location.href+"upload/"+uploadId);
     console.log(upload.filesToUpload[0]);
     var fileid=new Blob ([upload.filesToUpload[0]],{type:'text/plain'});
     console.log(fileid.size);
     var xmlhttp2=new XMLHttpRequest();
+    xmlhttp2.addEventListener("loadstart", startProgress, false);
+    xmlhttp2.addEventListener("onprogress", inProgress, false);
+    xmlhttp2.addEventListener("error", fail, false);
+    xmlhttp2.addEventListener("loadend", endProgress, false);
     xmlhttp2.open("PUT", window.location.href+"upload/"+uploadId, true);
     xmlhttp2.setRequestHeader("Content-type", "application/octet-stream");
     xmlhttp2.setRequestHeader("wtfToken", globalToken);
@@ -165,39 +169,31 @@ function uploadBinary(uploadId)
       }
     };
     xmlhttp2.send(fileid);
-  }
+}
 
 /*****************************************************************************
 Progress bar
 ******************************************************************************/
-function progressBar()
-{
-    var progressbar = document.getElementById("progress");
-    var xmlhttp=new XMLHttpRequest();
-    xmlhttp.addEventListener("loadstart", function(e)
-  {
-    document.getElementById("progress").style.display="block";
-    progressBar.value = 0;
-    display.innerHTML="0%";
-  },false);
-  xmlhttp.upload.addEventListener("progress", function(e)
-  {
-    if(e.lengthComputable)
-    {
-      progressBar.max=e.total;
-      progressBar.value=e.loaded;
-      display.innerHTML=Math.floor((e.loaded/e.total)*100)+"%";
-    }
-  },false);
-  xmlhttp.addEventListener("error", function(e)
-  {
-    alert("Error");
-  },false);
-  xmlhttp.addEventListener("loadend", function(e)
-  {
-    progressBar.value=e.loadend;
-    document.getElementById("progress").style.display="none";
-  },false);
+function startProgress(event){
+
+  document.getElementById("progress").style.display="block";
+  document.getElementById("progress").max=event.total;
+  document.getElementById("progress").value=event.loaded;
+}
+
+function inProgress(event) {
+  if(event.lengthComputable){
+    document.getElementById("progress").max=event.total;
+    document.getElementById("progress").value=event.loaded;
+  }
+}
+
+function fail() {
+  alert("Error bei Upload!");
+}
+
+function endProgress() {
+  document.getElementById("progress").style.display="none";
 }
 /*****************************************************************************
 Vue
