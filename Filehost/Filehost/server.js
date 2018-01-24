@@ -133,7 +133,7 @@ app.put('/upload/:id', function (req, res) { //upload for the file content in bi
             return checkHeader(req.headers["content-type"], "application/octet-stream");
         })
         .then(() => {
-            return authUser(req.params.id);
+            return authUser(req.headers["wtftoken"]);
         })
         .then(() => {
             return getRawBody(req)
@@ -147,7 +147,7 @@ app.put('/upload/:id', function (req, res) { //upload for the file content in bi
             console.log(success("Upload finished!\n"));
         })
         .catch(function (err) {
-            console.log(error("Error in endpoint /upload/id: " + err));
+            console.log(error("Error in endpoint /upload/id: " + err+"\n"));
             res.writeHead(500, { "Content-Type": "text/plain" }); //Error 500: Internal Server error
             res.end("That went wrong...");
     });

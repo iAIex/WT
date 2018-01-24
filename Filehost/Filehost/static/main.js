@@ -117,8 +117,7 @@ function uploadJson()
     var jsonobjekt = {"id": globalToken, "shareWith": share.vshares, "fileSize": daFiles[0].size, "fileName": daFiles[0].name};
     var xmlhttp = new XMLHttpRequest();
     xmlhttp.open("POST",window.location.href+"upload", true);
-    xmlhttp.setRequestHeader("Content-type", "application/json, ");
-    xmlhttp.setRequestHeader("wtfToken", globalToken);
+    xmlhttp.setRequestHeader("Content-type", "application/json");
     xmlhttp.onreadystatechange=function()
     {
       if(xmlhttp.readyState==4 && xmlhttp.status==201)
@@ -141,6 +140,7 @@ function uploadBinary(uploadId)
     var xmlhttp2=new XMLHttpRequest();
     xmlhttp2.open("PUT", window.location.href+"upload/"+uploadId, true);
     xmlhttp2.setRequestHeader("Content-type", "application/octet-stream");
+    xmlhttp2.setRequestHeader("wtfToken", globalToken);
     xmlhttp2.onreadystatechange=function()
     {
       if(xmlhttp2.readyState==4 && xmlhttp2.status==201)
