@@ -144,6 +144,8 @@ app.put('/upload/:id', function (req, res) { //upload for the file content in bi
         .then(() => {
             delete pendingUploads[req.params.id];
             console.log(info("Pending Uploads now: " + JSON.stringify(pendingUploads)));
+            res.writeHead(201, { "Content-Type": "text/plain" });
+            res.end("Requested uploaded!");
             console.log(success("Upload finished!\n"));
         })
         .catch(function (err) {
