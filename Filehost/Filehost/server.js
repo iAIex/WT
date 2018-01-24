@@ -22,7 +22,7 @@ const success = chalk.hex('#38ef32');
 const warn = chalk.hex('#ffd505');
 const error = chalk.hex('#ff3705');
 
-const mainPageName = "index"; //Page that is send to client when requesting root
+const mainPageName = "noLibBullshit"; //Page that is send to client when requesting root
 const port = 1337; // Listening Port of the app
 
 // ---- LISTENING ----
@@ -37,15 +37,15 @@ app.get('/', function (req, res) { //sending root
     res.sendFile(__dirname + "/static/"+mainPageName+".html");
 });
 
-app.get('/getSharedFiles/:id', function (req, res) { //AJAX endpoint for getting sharedFiles by userid
-    console.log(heading("---- -- /getSharedFiles/id -- ----"));
-    console.log(info("Request for userid " + req.params.id + " requested by " + req.ip));
-    checkHeader(req.headers.accept, "application/json, text/plain")
+app.post('/getSharedFiles', function (req, res) { //AJAX endpoint for getting sharedFiles by userid
+    console.log(heading("---- -- /getSharedFiles -- ----"));
+    console.log(info("Requested by " + req.ip));
+    checkHeader(req.headers["content-type"], "application/json")
         .then(() => {
-            return authUser(req.params.id);
+            return authUser(req.body.token);
         })
-        .then(() => {
-            return dbGetSharedFiles(req.params.id);
+        .then((userId) => {
+            return dbGetSharedFiles(userId);
         })
         .then((json) => {
             res.writeHead(200, { "Content-Type": "application/json" });
@@ -53,21 +53,21 @@ app.get('/getSharedFiles/:id', function (req, res) { //AJAX endpoint for getting
             console.log(success("Request finnished!\n"));
         })
         .catch(() => {
-            console.log(eror("Error in endpoint /getSharedFiles/id: "+err+"\n"));
+            console.log(eror("Error in endpoint /getSharedFiles: " + err + "\n"));
             res.writeHead(400, { "Content-Type": "text/plain" }); //Error 400: Bad Request
             res.end("Invalid Request");
-    })
+      });
 });
 
-app.get('/getUserFiles/:id', function (req, res) { //get all files uploaded by given userid
-    console.log(heading("---- -- /getUserFiles/id -- ----"));
-    console.log(info("Request for userid " + req.params.id + " by " + req.ip));
-    checkHeader(req.headers.accept, "application/json, text/plain")
+app.post('/getUserFiles', function (req, res) { //get all files uploaded by given userid
+    console.log(heading("---- -- /getUserFiles -- ----"));
+    console.log(info("Requested by " + req.ip));
+    checkHeader(req.headers["content-type"], "application/json")
         .then(() => {
-            return authUser(req.params.id);
+            return authUser(req.body.token);
         })
-        .then(() => {
-            return dbGetUserFiles(req.params.id);
+        .then((userid) => {
+            return dbGetUserFiles(userid);
         })
         .then((json) => {
             res.writeHead(200, { "Content-Type": "application/json" });
@@ -75,10 +75,10 @@ app.get('/getUserFiles/:id', function (req, res) { //get all files uploaded by g
             console.log(success("Request finnished!\n"));
         })
         .catch((err) => {
-            console.log(error("Error in endpoint /getUserFiles/id: " + err+"\n"));
+            console.log(error("Error in endpoint /getUserFiles: " + err + "\n"));
             res.writeHead(400, { "Content-Type": "text/plain" }); //Error 400: Bad Request
             res.end("Invalid Request");
-    })
+      });
 });
 
 
@@ -158,6 +158,9 @@ app.get('/downloadFile/:id', function (req, res) { //endpoint for downloading fi
     authUser()
         .then(() => {
             return checkIfExists(__dirname + '/userfiles/' + req.params.id);
+        })
+        .then(() => {
+            return dbIncDlCount(req.params.id)
         })
         .then(() => {
             return dbGetUpload(req.params.id);
@@ -253,7 +256,7 @@ app.post('/signIn', function (req, res) { //checks user token, responds with id 
 
 app.post('/createUser', function (req, res) { //checks user token, responds with id if known user, responds with 0 if new user
     console.log(heading("---- -- /createUser -- ----"));
-    console.log(info("Request to create user " + req.body.name + " with ID " + req.body + " from " + req.ip));
+    console.log(info("Request to create user " + req.body.name + " from " + req.ip));
     let tempUserid = undefined;
     checkHeader(req.headers["content-type"], "application/json")
         .then(() => {
@@ -268,12 +271,13 @@ app.post('/createUser', function (req, res) { //checks user token, responds with
                 res.writeHead(200, { "Content-Type": "application/json" });
                 res.end(JSON.stringify({ "Userid": 0 })); // respond with id 0 if name is already taken
                 console.log(warn("Name " + req.body.name + " already taken"));
+                console.log(success("Request finnished!\n"));
             } else {
                 dbAddUser(req.body.name, tempUserid)
                     .then((id) => {
                         res.writeHead(200, { "Content-Type": "application/json" });
                         res.end(JSON.stringify({ "Userid": id }));
-                        console.log(success("Request finnished!\n"));
+                        console.log(success("DEBUG - Request finnished!\n"));
                     })
                     .catch((err) => {
                         console.log(error("Error in endpoint /createUser: " + err));
@@ -429,10 +433,10 @@ function dbCheckUsernames(names) { //checks if users exist by name, resolves arr
                 execCount++;
                 if (!err) {
                     if (result.length !== 0) {
-                        console.log(info("Pushing " + names[i]));
+                        console.log(info("Name " + names[i] +" found in database"));
                         tempNames.push(names[i]);
                     } else {
-                        console.log(warn("Rejecting " + names[i]));
+                        console.log(warn("Name " + names[i] +" not in database"));
                     }
                     if (execCount === names.length) { //without this resolve happens before we are actually done here
                         resolve(tempNames);
@@ -532,8 +536,8 @@ function dbAddUser(name,userid) { //adds new user with given name and email adre
             if (err) {
                 reject("Error in query: " + err);
             } else {
-                console.log(info("dbAddUser added user "+name+" with id " + result.insertId));
-                resolve(result.insertId);
+                console.log(info("dbAddUser added user " + name + " with id " + userid));
+                resolve(userid);
             }
         });
     });
@@ -582,6 +586,20 @@ function dbCheckDubFilename(filename,userid) { //checks if file with given name 
     });
 }
 
+function dbIncDlCount(fileId) { //increments the download count of the file
+    return new Promise(function (resolve, reject) {
+        let tempQuery = "UPDATE wtf.files SET dl_count= dl_count + 1 WHERE id=" + db.escape(fileId) + ";"
+        db.query(tempQuery, function (err, result) {
+            if (err) {
+                console.log(warn("Could not increment dl_count of fileid " + fileId));
+                resolve(false); //resolves in any case since download count feature not vital
+            } else {
+                resolve(true);
+            }
+        });
+    });
+}
+
 // ---- HELPER FUNCTIONS ----
 
 function arrContainsObj(obj, array) { //checks if obj is already in array based on obj.filename, returns boolean
@@ -606,7 +624,7 @@ function getFileExtension(filename) { //Currently not in use
     }
 }
 
-function authUser(userToken, fileId) { //resolves if user is authorized ########################################################################################################
+function authUser(userToken, fileId) { //resolves if user is authorized
     return new Promise(function (resolve, reject) {
         console.log(info("Checking identity of user"));
         client.verifyIdToken({ "idToken": userToken, "audiance": audiance })

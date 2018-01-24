@@ -19,13 +19,17 @@
     <h3>WTF - Web Technologies Filesharing</h3>
   </header>
 
-  <div v-if="login funktion">
+  <div id="logIn" v-if="token == null">
     <div class="g-signin2" data-onsuccess="onSignIn" data-width="300" data-height="50" data-longtitle="true"></div>
       <script src="https://apis.google.com/js/platform.js?onload=renderButton" async defer></script>
   </div>
+  <div id="mmm" style="display:none">
+      <input id="user" type="text" placeholder="Nutzername eingeben">
+      <input type="button" onclick="createUserName()" value="OK">
+  </div>
   <div v-else>
         <button onclick="signOut()">Sign out</button>
-  
+
   <section>
     <div id="moin">
       <p id="text"> FILES HERE</p>

@@ -60,6 +60,41 @@ function deleteFile(id){
   xmlhttp.send(JSON.stringify(tempObj));
 }
 
+function createUserName()
+{
+  var valid=false;
+  while(!valid){
+    var name = prompt("Test");
+    var gotAnswer = false;
+    var xmlhttp2=new XMLHttpRequest();
+    xmlhttp2.open("POST", window.location.href+"createUser", true);
+    xmlhttp2.setRequestHeader("Content-type", "application/json");
+    xmlhttp2.onreadystatechange=function()
+    {
+      if(xmlhttp2.readyState==4 && xmlhttp2.status!=200)
+      {
+        if(xmlhttp2.responseText){
+          if(!gotAnswer){
+            gotAnswer=true;
+            console.log("Response f: "+xmlhttp2.responseText);
+          }
+        }
+      }else
+      {
+        if(xmlhttp2.responseText){
+          if(!gotAnswer){
+            gotAnswer=true;
+            if(JSON.parse(xmlhttp2.responseText).Userid !== 0){
+              valid=true;
+            }
+          }
+        }
+      }
+    };
+    xmlhttp2.send(JSON.stringify({"name": name, "token":"eyJhbGciOiJSUzI1NiIsImtpZCI6ImJjNGQzYWZjNDkyZTQ4YmYwZGJjMTk0YTMxYmRkZGM3ZDdhMmE5NDEifQ.eyJhenAiOiI5NDIyNDEwOTkyMDQtODg3aHJpaWw4MGRndXMxdWJkbWQ4OHI4MzRzanVhYmQuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJhdWQiOiI5NDIyNDEwOTkyMDQtODg3aHJpaWw4MGRndXMxdWJkbWQ4OHI4MzRzanVhYmQuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJzdWIiOiIxMDU3NDQ3MzYzNjA2OTI5NTU0NjQiLCJlbWFpbCI6Imx1Y2hjY29tbWFuZGVyQGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJhdF9oYXNoIjoiMUdVUW10blEtWFozeTZJMkxFd1ZwQSIsImV4cCI6MTUxNjc1NTA2NCwiaXNzIjoiYWNjb3VudHMuZ29vZ2xlLmNvbSIsImp0aSI6IjgyYjkzYmM2OTgwYzIzYjFmODllZWZhZDhkNDBiZjk5ZTdkMzU0ZDEiLCJpYXQiOjE1MTY3NTE0NjQsIm5hbWUiOiJBbGV4IEcuIiwicGljdHVyZSI6Imh0dHBzOi8vbGg2Lmdvb2dsZXVzZXJjb250ZW50LmNvbS8tT0QzdlQ5ZkFNb28vQUFBQUFBQUFBQUkvQUFBQUFBQUFBQUEvQUE2WlBUNUY0MkRCZVBYWXk3WERRZkNkaG5PQTdIWVhYdy9zOTYtYy9waG90by5qcGciLCJnaXZlbl9uYW1lIjoiQWxleCIsImZhbWlseV9uYW1lIjoiRy4iLCJsb2NhbGUiOiJkZSJ9.zKexFUnOlENHskYYNeNoY3X4EnzHn4VKEjlyp4xF7g72M2dr-Cx9QPn3gDpwE-BZ_sNBazCSHk1VLILm5Gp9kkpdIrtTFbhM0hC88ANC0tBb2hJPRBtiecLm_ORgRWDoMzqERFgIP7OwUwKJIshO3iUaAlStp1MgapzXch4ftmUHrVc1oDfxLV_yOA7D19nEXRcAhk_YkNcKXkYYIPGzgSiyi0f5hoYeOphv8atMGDctenfy1IYPF1U4hKVf1ygNYZz7i8r_HL02gFMCU5OscQaIxqExd-dqA71BbPkJrMjSibIJ0LwAOQTQt4EgxRjW5Iqmvtq_i5zoaPdHZE3Z3g"}));
+  }
+}
+
   </script>
   <a href="downloadFIle/13">Download</a>
 </body>

@@ -18,69 +18,6 @@ function getUserId()
   return document.getElementById("inpUserId").value;
 }
 
-/*function setmail()
-{
-  window.sessionStorage.setItem("mail",document.getElementById("inputMail").value);
-}*/
-/*****************************************************************************
-LOGIN
-*****************************************************************************/
-/*function onSignIn(googleUser)
-{
-  //window.sessionStorage.addKey('token',token);
-  var token = googleUser.getAuthResponse().id_token;
-  if(token==undefined)
-  {
-    alert("Bitte E-Mail angegeben!");
-  }
-  else
-  {
-    var xmlhttp=new XMLHttpRequest();
-    xmlhttp.open("POST", window.location.href+"signIn", true);
-    xmlhttp.setRequestHeader("Content-type", "application/json");
-    xmlhttp.onreadystatechange=function()
-    {
-        if(xmlhttp.readyState==4 && xmlhttp.status!=200)
-        {
-          console.log(xmlhttp.responseText);
-        }else
-        {
-          console.log(xmlhttp.responseText);
-        }
-    };
-    console.log("MOIN");
-    xmlhttp.send(JSON.stringify({"token":token}));
-  }
-}*/
-
-
-/*function email()
-{
-   var tempMail=window.sessionStorage.getItem("mail", document.getElementById("inputMail").value);
-   console.log(tempMail);
-   if(tempMail == undefined)
-   {
-     alert("Keine Email angegeben!");
-   } else
-   {
-   var xmlhttp = new XMLHttpRequest();
-   xmlhttp.open("POST",window.location.href+"signIn", true);
-   xmlhttp.setRequestHeader("Content-type", "application/json");
-   xmlhttp.onreadystatechange=function()
-   {
-         if(xmlhttp.readyState==4 &&  xmlhttp.status!=200)
-         {
-           console.log(xmlhttp.responseText);
-         }
-         else (xmlhttp.readyState==4 && xmlhttp.status==200)
-         {
-            console.log(xmlhttp.responseText);
-         }
-    };
-   xmlhttp.send(JSON.stringify({"mail": tempMail}));
-  }
-}*/
-
 /*****************************************************************************
 Drop
 *****************************************************************************/
@@ -168,7 +105,6 @@ function getSharedPeople()
 /****************************************************************************
 File upload
 ****************************************************************************/
-var user = 1;
 function uploadJson()
 {
   if(upload.filesToUpload == 0){
@@ -256,6 +192,14 @@ var share = new Vue({
   }
 });
 
+/*var firstSide = new Vue({
+el:'#logIn',
+methods:{
+  notLoggedIn:function(){
+    return true;
+  }
+}
+});*/
 /*****************************************************************************
 Send fileId to delete the file
 ******************************************************************************/
@@ -387,16 +331,11 @@ function getSharedFiles()
 /*****************************************************************************
 Sign In
 *****************************************************************************/
+var globalToken=undefined;
 function onSignIn(googleUser)
 {
   var token = googleUser.getAuthResponse().id_token;
-  var profile = googleUser.getBasicProfile();
-  console.log('ID: ' + profile.getId()); // Do not send to your backend! Use an ID token instead.
-  console.log('Name: ' + profile.getName());
-  console.log('Image URL: ' + profile.getImageUrl());
-  console.log('Email: ' + profile.getEmail()); // This is null if the 'email' scope is not present.
-  console.log(token);
-
+  globalToken=token;
   if(token==undefined)
   {
     alert("Invalid Google Account or Password!");
@@ -411,31 +350,45 @@ function onSignIn(googleUser)
         if(xmlhttp.readyState==4 && xmlhttp.status!=200)
         {
           console.log(xmlhttp.responseText);
-        }else
+        }else if(xmlhttp.readyState==4 && xmlhttp.status==200)
         {
           console.log(xmlhttp.responseText);
-          if(!(JSON.parse(xmlhttp.responseText).isAuth))
+          if(JSON.parse(xmlhttp.responseText).isAuth!==true)
           {
-            var userName=prompt("Bitte Nutzernamen eingeben:");
-            var xmlhttp2=new XMLHttpRequest();
-            xmlhttp2.open("POST", window.location.href+"createUser", true);
-            xmlhttp2.setRequestHeader("Content-type", "application/json");
-            xmlhttp2.onreadystatechange=function()
-            {
-              if(xmlhttp2.readyState==4 && xmlhttp2.status!=200)
-              {
-                console.log(xmlhttp2.responseText);
-              }else
-              {
-                console.log(xmlhttp2.responseText);
-              }
-            };
-            xmlhttp2.send(JSON.stringify({"name": userName, "token":token}));
+            console.log("MOIN");
+            document.getElementById("mmm").style.display="block";
           }
         }
     };
     xmlhttp.send(JSON.stringify({"token":token}));
   }
+}
+
+function createUserName()
+{
+
+    var userName=document.getElementById("user").value;
+    var xmlhttp2=new XMLHttpRequest();
+    xmlhttp2.open("POST", window.location.href+"createUser", true);
+    xmlhttp2.setRequestHeader("Content-type", "application/json");
+    xmlhttp2.onreadystatechange=function()
+    {
+      if(xmlhttp2.readyState==4 && xmlhttp2.status!=200)
+      {
+        console.log(xmlhttp2.responseText);
+      }else if(xmlhttp2.readyState==4 && xmlhttp2.status==200)
+      {
+        console.log(xmlhttp2.responseText);
+        if(JSON.parse(xmlhttp2.responseText).Userid!==0)
+        {
+          document.getElementById("mmm").style.display="none";
+        }else
+        {
+          alert("Nochmal eingeben");
+        }
+      }
+    };
+    xmlhttp2.send(JSON.stringify({"name": userName, "token":globalToken}));
 }
 
 
