@@ -160,6 +160,9 @@ app.get('/downloadFile/:id', function (req, res) { //endpoint for downloading fi
             return checkIfExists(__dirname + '/userfiles/' + req.params.id);
         })
         .then(() => {
+            return dbIncDlCount(req.params.id)
+        })
+        .then(() => {
             return dbGetUpload(req.params.id);
         })
         .then((filename) => {
@@ -578,6 +581,20 @@ function dbCheckDubFilename(filename,userid) { //checks if file with given name 
                 } else {
                     reject("Filename already taken");
                 }
+            }
+        });
+    });
+}
+
+function dbIncDlCount(fileId) { //increments the download count of the file
+    return new Promise(function (resolve, reject) {
+        let tempQuery = "UPDATE wtf.files SET dl_count= dl_count + 1 WHERE id=" + db.escape(fileId) + ";"
+        db.query(tempQuery, function (err, result) {
+            if (err) {
+                console.log(warn("Could not increment dl_count of fileid " + fileId));
+                resolve(false); //resolves in any case since download count feature not vital
+            } else {
+                resolve(true);
             }
         });
     });
