@@ -33,7 +33,7 @@ http.listen(port, function () {
 // ---- ROUTING ----
 app.get('/', function (req, res) { //sending root
     console.log(heading("---- -- / -- ----"));
-    console.log(info("Root Requested by " + req.ip+"\n"));
+    console.log(warn("Root Requested by " + req.ip+"\n"));
     res.sendFile(__dirname + "/static/"+mainPageName+".html");
 });
 
@@ -60,7 +60,7 @@ app.get('/getSharedFiles/:token', function (req, res) { //AJAX endpoint for gett
 });
 
 app.get('/getUserFiles/:token', function (req, res) { //get all files uploaded by given userid
-    console.log(heading("---- -- /getUserFiles -- ----"));
+    console.log(heading("---- -- /getUserFiles/token -- ----"));
     console.log(info("Requested by " + req.ip));
     checkHeader(req.headers.accept, "application/json, text/plain")
         .then(() => {
@@ -157,7 +157,7 @@ app.put('/upload/:id', function (req, res) { //upload for the file content in bi
 
 // ---- FILE DOWNLOAD ----
 app.get('/downloadFile/:id/:token', function (req, res) { //endpoint for downloading file with given id
-    console.log(heading("---- -- /downloadFile/id -- ----"));
+    console.log(heading("---- -- /downloadFile/id/token -- ----"));
     console.log(info("Request to download file " + req.params.id + " by " + req.ip));
     authUser(req.params.token, req.params.id)
         .then(() => {
@@ -171,7 +171,8 @@ app.get('/downloadFile/:id/:token', function (req, res) { //endpoint for downloa
         })
         .then((filename) => {
             res.download(__dirname + '/userfiles/' + req.params.id, filename);
-            console.log(success("Send file "+filename+"\nRequest finished!\n"));
+            console.log(info("Sent file " + filename + "\n"));
+            console.log(success("Request finished!\n"));
         })
         .catch((err) => {
             console.log(error("Error in endpoint /downloadFile/id: " + err));
@@ -281,7 +282,7 @@ app.post('/createUser', function (req, res) { //checks user token, responds with
                     .then((id) => {
                         res.writeHead(200, { "Content-Type": "application/json" });
                         res.end(JSON.stringify({ "Userid": id }));
-                        console.log(success("DEBUG - Request finnished!\n"));
+                        console.log(success("Request finnished!\n"));
                     })
                     .catch((err) => {
                         console.log(error("Error in endpoint /createUser: " + err));
@@ -476,10 +477,10 @@ function dbCheckFilePermission(userid, fileid) { //checks wether user is allowed
             });
         }
         dbCheckIfOwn(userid, fileid)
-            .then(function () { console.log(success("Access granted"));resolve(true) })
+            .then(function () {resolve(true) })
             .catch(function () {
                 dbCheckIfShared(userid, fileid)
-                    .then(function () {console.log(success("Access granted")); resolve(true)})
+                    .then(function () {resolve(true)})
                     .catch(function () {console.log(error("Access denied")); reject(false)
                 });
             });
