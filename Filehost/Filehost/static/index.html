@@ -31,7 +31,6 @@
   <div id="body" style="display:none">
       <button id="logoutButton" onclick="signOut()">Sign out</button>
 
-  <section>
     <div id="moin">
       <p id="text"> DROP FILES HERE</p>
       <output id="fileList">
@@ -45,9 +44,8 @@
         <p> </p>
         <button type="button" id="uploadButton" onclick=" getSharedPeople()">Upload</button>
         <p> </p>
-        <p>Share with: </p>
   <div id="shares">
-    <input v-on:keypress="inpc" id="inpGetShares" type="text">
+    <input v-on:keypress="inpc" id="inpGetShares" type="text" placeholder="Enter user and press return to share!">
     <ul>
       <li v-for="shares in vshares" @click="deleteNames(shares)">
       {{shares}}
@@ -55,10 +53,7 @@
     </ul>
   </div>
     <progress id="progress" value="0" max="100"><span id="prozent"></span></progress>
-  </section>
 
-
-<section>
 <div id="files">
   <table class="FileTables">
     <caption>Meine Uploads</caption>
@@ -97,7 +92,6 @@
 
   <script language="javascript" src="main.js" type="text/javascript">
   </script>
-  </section>
 </div>
 
 </body>
