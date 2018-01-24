@@ -29,6 +29,8 @@ button{
   border-color: black;
   border-style: groove;
   margin: auto;
+  background-color: rgba(256, 256, 256, 0.9);
+
 }
 
 .g-signin2{
