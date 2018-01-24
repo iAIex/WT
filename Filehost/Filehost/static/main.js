@@ -273,7 +273,7 @@ function getMyFiles()
 {
   var xmlhttp = new XMLHttpRequest();
   xmlhttp.open("GET",window.location.href+"getUserFiles/"+globalToken, true);
-  xmlhttp.setRequestHeader("Access", "application/json, text/plain");
+  xmlhttp.setRequestHeader("Accept", "application/json, text/plain");
   xmlhttp.onreadystatechange=function()
   {
      if(xmlhttp.readyState==4 && xmlhttp.status!=200)
@@ -294,7 +294,7 @@ function getSharedFiles()
 {
    var xmlhttp = new XMLHttpRequest();
    xmlhttp.open("GET",window.location.href+"getSharedFiles/"+globalToken, true);
-   xmlhttp.setRequestHeader("Access", "application/json, text/plain");
+   xmlhttp.setRequestHeader("Accept", "application/json, text/plain");
    xmlhttp.onreadystatechange=function()
    {
       if(xmlhttp.readyState==4 &&  xmlhttp.status!=200)
