@@ -66,7 +66,7 @@
     <th></th>
     </tr>
     <tr v-for="files in myFiles">
-      <td><a v-bind:href="'/downloadFile/' + files.id">{{ files.name }}</a></td>
+      <td><a v-bind:href="'/downloadFile/' + files.id+'/'+files.token">{{ files.name }}</a></td>
       <td>{{files.datum}}</td>
       <td>{{files.teilenMit}}</td>
       <td><button type="button" v-bind:id="files.id" onclick="getDeletedFiles(this.id)"></button></td>
@@ -84,7 +84,7 @@
       <th>Geteilt von</th>
     </tr>
     <tr v-for="file in sharedFiles">
-      <td><a v-bind:href="'/downloadFile/'+ file.id">{{ file.name }}</a></td>
+      <td><a v-bind:href="'/downloadFile/' + file.id+'/'+file.token">{{ file.name }}</a></td>
       <td>{{file.datum}}</td>
       <td>{{file.geteiltVon}}</td>
     </tr>

@@ -234,6 +234,7 @@ function myFiles(json)
     for(var i=0; i<json.length; i++)
     {
       var temp = {};
+      temp.token=globalToken;
       temp.name = json[i].filename;
       temp.id=json[i].ID;
       var datum = new Date(json[i].upload_time);
@@ -262,6 +263,7 @@ function sharedFiles(json){
     files.sharedFiles = [];
     for(var i=0; i<json.length; i++){
       var temp = {};
+      temp.token=globalToken;
       temp.name = json[i].filename;
       temp.id=json[i].id;
       var datum = new Date(json[i].upload_time);
