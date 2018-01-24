@@ -159,7 +159,7 @@ app.put('/upload/:id', function (req, res) { //upload for the file content in bi
 app.get('/downloadFile/:id/:token', function (req, res) { //endpoint for downloading file with given id
     console.log(heading("---- -- /downloadFile/id -- ----"));
     console.log(info("Request to download file " + req.params.id + " by " + req.ip));
-    authUser(req.params.token, req.params.id);
+    authUser(req.params.token, req.params.id)
         .then(() => {
             return checkIfExists(__dirname + '/userfiles/' + req.params.id);
         })
@@ -390,7 +390,7 @@ function dbAddShareEntries(fileid, shareArray) { //Adds shares for given fileid
         if (shareArray.length !== 0) {
             let execCount = 0;
             for (let i = 0; i < shareArray.length; i++) {
-                let tempQuery = "INSERT INTO `wtf`.`shares` (`user_id`, `file_id`) VALUES ('" + db.escape(shareArray[i]) + "', '" + db.escape(fileid) + "');";
+                let tempQuery = "INSERT INTO `wtf`.`shares` (`user_id`, `file_id`) VALUES (" + db.escape(shareArray[i]) + ", '" + db.escape(fileid) + "');";
                 db.query(tempQuery, function (err, result) {
                     execCount++;
                     if (err) {
