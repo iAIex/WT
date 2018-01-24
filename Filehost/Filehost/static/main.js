@@ -152,7 +152,7 @@ function uploadBinary(uploadId)
     console.log(fileid.size);
     var xmlhttp2=new XMLHttpRequest();
     xmlhttp2.addEventListener("loadstart", startProgress, false);
-    xmlhttp2.addEventListener("progress", inProgress, false);
+    xmlhttp2.addEventListener("onprogress", inProgress, false);
     xmlhttp2.addEventListener("error", fail, false);
     xmlhttp2.addEventListener("loadend", endProgress, false);
     xmlhttp2.open("PUT", window.location.href+"upload/"+uploadId, true);
@@ -174,17 +174,18 @@ function uploadBinary(uploadId)
 /*****************************************************************************
 Progress bar
 ******************************************************************************/
-function startProgress(){
+function startProgress(event){
 
   document.getElementById("progress").style.display="block";
+  document.getElementById("progress").max=event.total;
+  document.getElementById("progress").value=event.loaded;
 }
 
 function inProgress(event) {
-  console.log(event);
-  var temp=(event.loaded/(event.total+0.000001))*100;
-  console.log(Math.round(temp));
-  
-  document.getElementById("progress").value=Math.round(temp);
+  if(event.lengthComputable){
+    document.getElementById("progress").max=event.total;
+    document.getElementById("progress").value=event.loaded;
+  }
 }
 
 function fail() {
