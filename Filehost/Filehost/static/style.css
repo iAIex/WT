@@ -23,14 +23,37 @@ caption{
   text-align: left;
 }
 
-button{
-  font-size: 1.5em;
-  border-radius: 0.5em;
+.button {
+  font-size: 2.0em;
+  border-radius: 0.3em;
   border-color: black;
   border-style: groove;
   margin: auto;
-  background-color: rgba(256, 256, 256, 0.9);
+  text-align: center;
+  display: inline-block;
+  -webkit-transition-duration: 0.4s;
+  transition-duration: 0.4s;
+  cursor: pointer;
+}
 
+.button1 {
+  background-color: rgba(256, 256, 256, 0.3);
+    color: black;
+}
+
+.button1:hover {
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+}
+
+.button2 {
+  background-color: rgba(256, 256, 256, 0.5);
+    color: black;
+}
+
+.button2:hover {
+    background-color: rgba(0, 0, 0, 0.3);
+    color: white;
 }
 
 .g-signin2{
@@ -44,9 +67,6 @@ button{
   position:fixed;
   right:1em;
   top:1em;
-  border-radius: 0.5em;
-  border-color: black;
-  border-style: groove;
 }
 
 #user{
@@ -66,7 +86,7 @@ button{
   width:30em;
   margin: auto;
   background-color: rgba(256, 256, 256, 0.3);
-  border-radius: 0.5em;
+  border-radius: 0.3em;
   border-color: black;
   border-style: groove;
 
@@ -75,7 +95,7 @@ button{
 {
   background-color: rgba(256, 256, 256, 0.7);
   justify-content: center;
-  border-radius: 0.5em;
+  border-radius: 0.3em;
   border-color: black;
   border-style: groove;
   width: 20em;
@@ -92,6 +112,10 @@ button{
   color: black;
 }
 
+#progress{
+  justify-content: center;
+}
+
 table
 {
   width: 100%;
@@ -102,7 +126,7 @@ td{
 }
 
 .FileTables{
-  border-radius: 0.5em;
+  border-radius: 0.3em;
   border-color: black;
   border-style: groove;
   background-color: rgba(256, 256, 256, 0.3);
