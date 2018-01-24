@@ -1,6 +1,7 @@
 
-header{
-
+p{
+  text-align: center;
+  color: white;
 }
 
 h1{
@@ -25,7 +26,9 @@ caption{
 
 button{
   font-size: 1.5em;
-  border-style: ridge;
+  border-radius: 0.5em;
+  border-color: black;
+  border-style: groove;
   margin: auto;
 }
 
@@ -40,6 +43,9 @@ button{
   position:fixed;
   right:1em;
   top:1em;
+  border-radius: 0.5em;
+  border-color: black;
+  border-style: groove;
 }
 
 #user{
@@ -47,6 +53,7 @@ button{
 }
 
 #shares{
+  color: white;
   text-align: center;
 }
 
@@ -58,12 +65,18 @@ button{
   width:30em;
   margin: auto;
   background-color: rgba(256, 256, 256, 0.3);
+  border-radius: 0.5em;
+  border-color: black;
+  border-style: groove;
 
 }
 #inpGetShares
 {
-  background-color: white;
+  background-color: rgba(256, 256, 256, 0.3);
   justify-content: center;
+  border-radius: 0.5em;
+  border-color: black;
+  border-style: groove;
 }
 #uploadButton
 {
@@ -90,9 +103,9 @@ th{
 }
 
 .FileTables{
-  border-style: ridge;
-  border-color: grey;
-  border-width: thick;
+  border-radius: 0.5em;
+  border-color: black;
+  border-style: groove;
   background-color: rgba(256, 256, 256, 0.3);
 
 }
