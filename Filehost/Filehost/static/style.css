@@ -71,6 +71,11 @@ caption{
 
 #user{
   text-align: center;
+  background-color: rgba(256, 256, 256, 0.7);
+  justify-content: center;
+  border-radius: 0.3em;
+  border-color: black;
+  border-style: groove;
 }
 
 #shares{
@@ -99,6 +104,7 @@ caption{
   border-color: black;
   border-style: groove;
   width: 20em;
+  text-align: center;
 }
 #uploadButton
 {
@@ -113,6 +119,14 @@ caption{
 }
 
 #deleteButton {
+  border-radius: 0.3em;
+  border-color: black;
+  border-style: groove;
+  background-color: rgba(256, 256, 256, 0.3);
+  cursor: pointer;
+}
+
+#okButton {
   border-radius: 0.3em;
   border-color: black;
   border-style: groove;
