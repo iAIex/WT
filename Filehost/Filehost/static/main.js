@@ -38,7 +38,7 @@ document.getElementById("moin").addEventListener("drop",function(e){
   }
 },false);
 
-document.getElementById("moin").addEventListener("click",function(e)
+/*document.getElementById("moin").addEventListener("click",function(e)
 {
   e = e || event;
   e.preventDefault();
@@ -50,7 +50,7 @@ document.getElementById("moin").addEventListener("click",function(e)
       upload.filesToUpload.push(daFiles[j]);
     }
   }
-},false);
+},false);*/
 /***************************************************************************
 Share With
 ****************************************************************************/
@@ -60,8 +60,8 @@ var deletes = function(e)
   if(e.which === 13)
   {
     e.preventDefault();
-    this.vshares.push(document.getElementById('yyy').value);
-    document.getElementById('yyy').value="";
+    this.vshares.push(document.getElementById('inpGetShares').value);
+    document.getElementById('inpGetShares').value="";
   }
 };
 
@@ -112,10 +112,11 @@ File upload
 ****************************************************************************/
 function uploadJson()
 {
-  if(upload.filesToUpload == 0){
+  if(upload.filesToUpload == 0)
+  {
     console.log("No Files");
     alert("Bitte Files einfügen!");
-  }else if(upload.filesToUpload!=1)
+  }if(upload.filesToUpload>1)
     {
       alert("Bitte nur ein File!");
     }
@@ -130,10 +131,10 @@ function uploadJson()
       if(xmlhttp.readyState==4 && xmlhttp.status!=201)
       {
         console.log(xmlhttp.responseText);
+        alert("Filename already taken!");
       }
       else if(xmlhttp.readyState==4 && xmlhttp.status==201)
       {
-
         id=JSON.parse(xmlhttp.responseText).UploadID;
         console.log(JSON.parse(xmlhttp.responseText).UploadID);
         uploadBinary(JSON.parse(xmlhttp.responseText).UploadID);
@@ -167,12 +168,36 @@ function uploadBinary(uploadId)
   }
 
 /*****************************************************************************
-Progress back
+Progress bar
 ******************************************************************************/
-function progress()
+function progressBar()
 {
-document.getElementById("progress").value=0;
-document.getElementById("prozent").innerHTML="0%";
+    var progressbar = document.getElementById("progress");
+    var xmlhttp=new XMLHttpRequest();
+    xmlhttp.addEventListener("loadstart", function(e)
+  {
+    document.getElementById("progress").style.display="block";
+    progressBar.value = 0;
+    display.innerHTML="0%";
+  },false);
+  xmlhttp.upload.addEventListener("progress", function(e)
+  {
+    if(e.lengthComputable)
+    {
+      progressBar.max=e.total;
+      progressBar.value=e.loaded;
+      display.innerHTML=Math.floor((e.loaded/e.total)*100)+"%";
+    }
+  },false);
+  xmlhttp.addEventListener("error", function(e)
+  {
+    alert("Error");
+  },false);
+  xmlhttp.addEventListener("loadend", function(e)
+  {
+    progressBar.value=e.loadend;
+    document.getElementById("progress").style.display="none";
+  },false);
 }
 /*****************************************************************************
 Vue
@@ -231,7 +256,6 @@ function getDeletedFiles(deleteFileId)
            {
               console.log(xmlhttp2.responseText);
               getMyFiles();
-              getSharedFiles();
            }
       };
      xmlhttp2.send(JSON.stringify(delId));
@@ -250,7 +274,7 @@ function myFiles(json)
       temp.name = json[i].filename;
       temp.id=json[i].ID;
       var datum = new Date(json[i].upload_time);
-      temp.datum = datum.getDate()+"."+datum.getMonth()+"."+datum.getFullYear();
+      temp.datum = datum.getDate()+"."+datum.getMonth()+1+"."+datum.getFullYear();
       if(json[i].name == 0){
         temp.teilenMit = "Niemandem";
       }else{
@@ -279,7 +303,7 @@ function sharedFiles(json){
       temp.name = json[i].filename;
       temp.id=json[i].id;
       var datum = new Date(json[i].upload_time);
-      temp.datum = datum.getDate()+"."+datum.getMonth()+"."+datum.getFullYear();
+      temp.datum = datum.getDate()+"."+datum.getMonth()+1+"."+datum.getFullYear();
       temp.geteiltVon = json[i].name;
       files.sharedFiles.push(temp);
     }
@@ -385,7 +409,6 @@ function createUserName()
           document.getElementById("logIn").style.display="none";
           document.getElementById("body").style.display="block";
           getMyFiles();
-          getSharedFiles();
         }else
         {
           alert("Username wurde schon verwendet!");
@@ -407,25 +430,3 @@ function signOut() {
 	});
   location.reload();
 }
-
-/*var auth2;
-var googleUser;
-
-var appStart = function() {
-	gapi.load('auth2', initSigninV2);
-};
-
-var initSigninV2 = function() {
-auth2 = gapi.auth2.init({
-		client_id: '942241099204-887hriil80dgus1ubdmd88r834sjuabd.apps.googleusercontent.com',
-		scope: 'profile'
-});
-auth2.isSignedIn.listen(signinChanged);
-auth2.currentUser.listen(userChanged);
-
-if (auth2.isSignedIn.get() == true) {
-console.log('User is signed in');
-}else {
-console.log('User is not signed in');
-	}
-};*/

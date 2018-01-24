@@ -44,14 +44,15 @@
     </div>
     <p> </p>
   <div id="shares">
-    <input v-on:keypress="inpc" id="yyy" type="text">
+    <input v-on:keypress="inpc" id="inpGetShares" type="text">
     <ul>
       <li v-for="shares in vshares" @click="deleteNames(shares)">
       {{shares}}
       </li>
     </ul>
   </div>
-    <button type="button" id="xxx" onclick=" getSharedPeople()">Upload</button>
+    <button type="button" id="uploadButton" onclick=" getSharedPeople()">Upload</button>
+    <progress id="progress" value="0" max="100"><span id="prozent"></span></progress>
   </section>
 
 
@@ -87,6 +88,7 @@
       <td><a v-bind:href="'/downloadFile/' + file.id+'/'+file.token">{{ file.name }}</a></td>
       <td>{{file.datum}}</td>
       <td>{{file.geteiltVon}}</td>
+      <td><input type="button" value="X" style="display:none"></td>
     </tr>
   </table>
 </div>
