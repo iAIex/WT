@@ -20,16 +20,17 @@
   </header>
 
 
-  <div id="logIn" v-if="token == null">
+  <div id="logIn" style="display:block">
     <div class="g-signin2" data-onsuccess="onSignIn" data-width="300" data-height="50" data-longtitle="true"></div>
       <script src="https://apis.google.com/js/platform.js?onload=renderButton" async defer></script>
+      <button onclick="signOut()">Sign out</button>
   </div>
   <div id="mmm" style="display:none">
       <input id="user" type="text" placeholder="Nutzername eingeben">
       <input type="button" onclick="createUserName()" value="OK">
   </div>
-  <div v-else>
-        <button onclick="signOut()">Sign out</button>
+  <div id="body" style="display:none">
+      <button onclick="signOut()">Sign out</button>
 
   <section>
     <div id="moin">
@@ -89,9 +90,7 @@
     </tr>
   </table>
 </div>
-<input type="text" id="inpUserId">
-Get My Files<input type="button" onclick="getMyFiles()" value="refresh">
-Get Shared Files<input type="button" onclick="getSharedFiles()" value="refresh">
+
   <script language="javascript" src="main.js" type="text/javascript">
   </script>
   </section>

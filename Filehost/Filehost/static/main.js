@@ -13,10 +13,10 @@ function arrContainsObj(array, obj)
   return false;
 }
 
-function getUserId()
+/*function getUserId()
 {
   return document.getElementById("inpUserId").value;
-}
+}+/
 
 /*****************************************************************************
 Drop
@@ -46,8 +46,6 @@ document.getElementById("moin").addEventListener("drop",function(e){
 /***************************************************************************
 Share With
 ****************************************************************************/
-//var callb=document.getElementById('yyy').addEventListener('keypress', function(e)
-
 var deletes = function(e)
 {
   var leer=false;
@@ -109,14 +107,14 @@ function uploadJson()
 {
   if(upload.filesToUpload == 0){
     console.log("No Files");
-    alert("Put some Files in there");
+    alert("Bitte Files einfügen!");
   }/*else if (arrContainsObj(upload.filesToUpload, files.myFiles))
   {
     alert("Bitte anderen Filenamen wählen.");
   }*/
   else
   {
-    var jsonobjekt = {"id": user, "shareWith": share.vshares, "fileSize": daFiles[0].size, "fileName": daFiles[0].name};
+    var jsonobjekt = {"id": globalToken, "shareWith": share.vshares, "fileSize": daFiles[0].size, "fileName": daFiles[0].name};
     var xmlhttp = new XMLHttpRequest();
     xmlhttp.open("POST",window.location.href+"upload", true);
     xmlhttp.setRequestHeader("Content-type", "application/json");
@@ -273,59 +271,42 @@ function sharedFiles(json){
 }
 function getMyFiles()
 {
-  var userId = getUserId();
-   if(userId == undefined)
-   {
-     console.log("userId is undefined");
-     return;
-   }
-   else
-   {
-      xmlhttp = new XMLHttpRequest();
-      xmlhttp.open("GET",window.location.href+"getUserFiles/"+userId, true);
-      xmlhttp.setRequestHeader("Accept", "application/json, text/plain");
-      xmlhttp.onreadystatechange=function()
-        {
-           if(xmlhttp.readyState==4 && xmlhttp.status!=200)
-           {
-             console.log(xmlhttp.responseText);
-           }
-           else if (xmlhttp.readyState==4 && xmlhttp.status==200)
-           {
-              myFiles(JSON.parse(xmlhttp.responseText));
-           }
+  var xmlhttp = new XMLHttpRequest();
+  xmlhttp.open("POST",window.location.href+"getUserFiles/"+globalToken, true);
+  xmlhttp.setRequestHeader("Content-type", "application/json");
+  xmlhttp.onreadystatechange=function()
+  {
+     if(xmlhttp.readyState==4 && xmlhttp.status!=200)
+     {
+       console.log(xmlhttp.responseText);
+     }
+     else if (xmlhttp.readyState==4 && xmlhttp.status==200)
+     {
+        myFiles(JSON.parse(xmlhttp.responseText));
+     }
 
-         };
-        xmlhttp.send();
-    }
+   };
+   xmlhttp.send(JSON.stringify({"token": globalToken}));
+
 }
 
 function getSharedFiles()
 {
-  var userId = getUserId();
-  if(userId == undefined)
-  {
-    console.log("userId is undefined");
-    return;
-  }
-  else
-  {
-     xmlhttp = new XMLHttpRequest();
-     xmlhttp.open("GET",window.location.href+"getSharedFiles/"+userId, true);
-     xmlhttp.setRequestHeader("Accept", "application/json, text/plain");
-     xmlhttp.onreadystatechange=function()
-     {
-           if(xmlhttp.readyState==4 &&  xmlhttp.status!=200)
-           {
-             console.log(xmlhttp.responseText);
-           }
-           else if(xmlhttp.readyState==4 && xmlhttp.status==200)
-           {
-              sharedFiles(JSON.parse(xmlhttp.responseText));
-           }
-      };
-     xmlhttp.send();
-   }
+   var xmlhttp = new XMLHttpRequest();
+   xmlhttp.open("POST",window.location.href+"getSharedFiles/"+globalToken, true);
+   xmlhttp.setRequestHeader("Content-type", "application/json");
+   xmlhttp.onreadystatechange=function()
+   {
+      if(xmlhttp.readyState==4 &&  xmlhttp.status!=200)
+      {
+        console.log(xmlhttp.responseText);
+      }
+      else if(xmlhttp.readyState==4 && xmlhttp.status==200)
+      {
+         sharedFiles(JSON.parse(xmlhttp.responseText));
+      }
+    };
+    xmlhttp.send(JSON.stringify({"token": globalToken}));
 }
 
 /*****************************************************************************
@@ -355,8 +336,13 @@ function onSignIn(googleUser)
           console.log(xmlhttp.responseText);
           if(JSON.parse(xmlhttp.responseText).isAuth!==true)
           {
-            console.log("MOIN");
+            document.getElementById("logIn").style.display="none";
             document.getElementById("mmm").style.display="block";
+          }else{
+            document.getElementById("logIn").style.display="none";
+            document.getElementById("body").style.display="block";
+            getMyFiles();
+            getSharedFiles();
           }
         }
     };
@@ -366,7 +352,6 @@ function onSignIn(googleUser)
 
 function createUserName()
 {
-
     var userName=document.getElementById("user").value;
     var xmlhttp2=new XMLHttpRequest();
     xmlhttp2.open("POST", window.location.href+"createUser", true);
@@ -382,9 +367,13 @@ function createUserName()
         if(JSON.parse(xmlhttp2.responseText).Userid!==0)
         {
           document.getElementById("mmm").style.display="none";
+          document.getElementById("logIn").style.display="none";
+          document.getElementById("body").style.display="block";
+          getMyFiles();
+          getSharedFiles();
         }else
         {
-          alert("Nochmal eingeben");
+          alert("Username wurde schon verwendet!");
         }
       }
     };
