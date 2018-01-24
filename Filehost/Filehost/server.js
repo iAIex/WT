@@ -145,7 +145,7 @@ app.put('/upload/:id', function (req, res) { //upload for the file content in bi
             delete pendingUploads[req.params.id];
             console.log(info("Pending Uploads now: " + JSON.stringify(pendingUploads)));
             res.writeHead(201, { "Content-Type": "text/plain" });
-            res.end("Requested uploaded!");
+            res.end("File uploaded!");
             console.log(success("Upload finished!\n"));
         })
         .catch(function (err) {
@@ -156,10 +156,10 @@ app.put('/upload/:id', function (req, res) { //upload for the file content in bi
 });
 
 // ---- FILE DOWNLOAD ----
-app.get('/downloadFile/:id', function (req, res) { //endpoint for downloading file with given id
+app.get('/downloadFile/:id/:token', function (req, res) { //endpoint for downloading file with given id
     console.log(heading("---- -- /downloadFile/id -- ----"));
     console.log(info("Request to download file " + req.params.id + " by " + req.ip));
-    authUser()
+    authUser(req.params.token, req.params.id);
         .then(() => {
             return checkIfExists(__dirname + '/userfiles/' + req.params.id);
         })
@@ -208,7 +208,7 @@ app.post('/delete', function (req, res) { //deletes file with given id
     console.log(info("Request to delete file " + req.params.id + " by " + req.ip));
     checkHeader(req.headers["content-type"], "application/json")
         .then(() => {
-            return authUser(undefined, undefined, req.body.delId);
+            return authUser(req.body.token,req.body.delId);
         })
         .then(() => {
             return checkIfExists(__dirname + '/userfiles/' + req.body.delId);
