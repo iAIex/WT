@@ -7,7 +7,6 @@ h1{
   text-align: center;
   color: white;
   font-size: 2em;
-  font-family: sans-serif;
   text-align-last: center;
   position: static;
 }
@@ -16,6 +15,7 @@ body {
   background-image: url(background.jpg);
   background-repeat: no-repeat;
   background-attachment: fixed;
+  font-family: sans-serif;
 }
 
 caption{
@@ -29,6 +29,8 @@ button{
   border-color: black;
   border-style: groove;
   margin: auto;
+  background-color: rgba(256, 256, 256, 0.9);
+
 }
 
 .g-signin2{
@@ -71,11 +73,12 @@ button{
 }
 #inpGetShares
 {
-  background-color: rgba(256, 256, 256, 0.3);
+  background-color: rgba(256, 256, 256, 0.7);
   justify-content: center;
   border-radius: 0.5em;
   border-color: black;
   border-style: groove;
+  width: 20em;
 }
 #uploadButton
 {
@@ -84,9 +87,9 @@ button{
 }
 #text{
   text-align: center;
+  font-weight: bold;
   vertical-align: middle;
   color: black;
-  font-family: sans-serif;
 }
 
 table
