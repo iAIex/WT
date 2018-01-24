@@ -22,7 +22,7 @@ const success = chalk.hex('#38ef32');
 const warn = chalk.hex('#ffd505');
 const error = chalk.hex('#ff3705');
 
-const mainPageName = "noLibBullshit"; //Page that is send to client when requesting root
+const mainPageName = "index"; //Page that is send to client when requesting root
 const port = 1337; // Listening Port of the app
 
 // ---- LISTENING ----
@@ -37,12 +37,12 @@ app.get('/', function (req, res) { //sending root
     res.sendFile(__dirname + "/static/"+mainPageName+".html");
 });
 
-app.post('/getSharedFiles', function (req, res) { //AJAX endpoint for getting sharedFiles by userid
-    console.log(heading("---- -- /getSharedFiles -- ----"));
+app.get('/getSharedFiles/:token', function (req, res) { //AJAX endpoint for getting sharedFiles by userid
+    console.log(heading("---- -- /getSharedFiles/token -- ----"));
     console.log(info("Requested by " + req.ip));
-    checkHeader(req.headers["content-type"], "application/json")
+    checkHeader(req.headers.accept, "application/json, text/plain")
         .then(() => {
-            return authUser(req.body.token);
+            return authUser(req.params.token);
         })
         .then((userId) => {
             return dbGetSharedFiles(userId);
@@ -52,19 +52,19 @@ app.post('/getSharedFiles', function (req, res) { //AJAX endpoint for getting sh
             res.end(json);
             console.log(success("Request finnished!\n"));
         })
-        .catch(() => {
-            console.log(eror("Error in endpoint /getSharedFiles: " + err + "\n"));
+        .catch((err) => {
+            console.log(error("Error in endpoint /getSharedFiles: " + err + "\n"));
             res.writeHead(400, { "Content-Type": "text/plain" }); //Error 400: Bad Request
             res.end("Invalid Request");
       });
 });
 
-app.post('/getUserFiles', function (req, res) { //get all files uploaded by given userid
+app.get('/getUserFiles/:token', function (req, res) { //get all files uploaded by given userid
     console.log(heading("---- -- /getUserFiles -- ----"));
     console.log(info("Requested by " + req.ip));
-    checkHeader(req.headers["content-type"], "application/json")
+    checkHeader(req.headers.accept, "application/json, text/plain")
         .then(() => {
-            return authUser(req.body.token);
+            return authUser(req.params.token);
         })
         .then((userid) => {
             return dbGetUserFiles(userid);
@@ -90,17 +90,19 @@ var pendingUploads = {}; //Keeps track of pending uploads to reduce load on data
 
 app.post('/upload', function (req, res) { //metadata upload that returns uploadId to client
     console.log(heading("---- -- /upload -- ----"));
-    console.log(info("Request for userid " + req.body.id + " by " + req.ip));
+    console.log(info("Request by " + req.ip));
     let tempUploadId = undefined; //used to be able to get the uploadId in dbAddShareEntries()
+    let tempUserId = undefined;
     checkHeader(req.headers["content-type"], "application/json")
         .then(() => {
             return authUser(req.body.id);
         })
-        .then(() => {
-            return dbCheckDubFilename(req.body.fileName, req.body.id);
+        .then((userId) => {
+            tempUserId = userId;
+            return dbCheckDubFilename(req.body.fileName, userId);
         })
         .then(() => {
-            return dbAddUpload(req.body.id, req.body.fileSize, req.body.fileName);
+            return dbAddUpload(tempUserId, req.body.fileSize, req.body.fileName);
         })
         .then((uploadId) => {
             tempUploadId = uploadId; //used to be able to get the uploadId in dbAddShareEntries()
@@ -193,7 +195,7 @@ app.post('/checkIds', function (req, res) { //returns all valid usernames in inp
                 console.log(error("Request failed!\n"));
         });
     } else {
-        console.log(eror("Error in endpoint /ckeckIds: ids were undefined\n"));
+        console.log(error("Error in endpoint /ckeckIds: ids were undefined\n"));
         res.writeHead(400, { "Content-Type": "text/plain" }); //Error 400: Bad Request
         res.end("Invalid Request");
     }
