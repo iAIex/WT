@@ -69,7 +69,7 @@
       <td><a v-bind:href="'/downloadFile/' + files.id+'/'+files.token">{{ files.name }}</a></td>
       <td>{{files.datum}}</td>
       <td>{{files.teilenMit}}</td>
-      <td><button type="button" v-bind:id="files.id" onclick="getDeletedFiles(this.id)"></button></td>
+      <td><input type="button" value="X" id="deleteButton" v-bind:id="files.id" onclick="getDeletedFiles(this.id)"></td>
     </tr>
   </table>
 <br>
