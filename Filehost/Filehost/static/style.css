@@ -12,6 +12,8 @@ h1{
 
 body {
   background-image: url(background.jpg);
+  background-repeat: no-repeat;
+  background-attachment: fixed;
 }
 
 caption{
@@ -22,6 +24,10 @@ caption{
 button{
   font-size: 1.5em;
   border-style: ridge;
+  margin: auto;
+}
+
+#shares{
   margin: auto;
 }
 
@@ -52,9 +58,9 @@ button{
   vertical-align: middle;
   color: black;
 }
+
 table
 {
-  border-collapse: collapse;
   width: 100%;
 }
 td{
