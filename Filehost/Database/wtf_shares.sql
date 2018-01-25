@@ -16,28 +16,32 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `users`
+-- Table structure for table `shares`
 --
 
-DROP TABLE IF EXISTS `users`;
+DROP TABLE IF EXISTS `shares`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `users` (
-  `id` varchar(30) NOT NULL,
-  `name` varchar(20) NOT NULL DEFAULT 'anonymous',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `id_UNIQUE` (`id`)
+CREATE TABLE `shares` (
+  `key` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` varchar(30) DEFAULT NULL,
+  `file_id` int(10) unsigned DEFAULT NULL,
+  PRIMARY KEY (`key`),
+  UNIQUE KEY `key_UNIQUE` (`key`),
+  KEY `id_idx1` (`file_id`),
+  KEY `user_id_idx` (`user_id`),
+  CONSTRAINT `file_id` FOREIGN KEY (`file_id`) REFERENCES `files` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `users`
+-- Dumping data for table `shares`
 --
 
-LOCK TABLES `users` WRITE;
-/*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES ('1','iAlex'),('2','Paddy');
-/*!40000 ALTER TABLE `users` ENABLE KEYS */;
+LOCK TABLES `shares` WRITE;
+/*!40000 ALTER TABLE `shares` DISABLE KEYS */;
+/*!40000 ALTER TABLE `shares` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -49,4 +53,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-01-23 22:40:06
+-- Dump completed on 2018-01-25  2:20:53

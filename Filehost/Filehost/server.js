@@ -1,4 +1,5 @@
 'use strict';
+//Node Packages
 const express = require('express');
 const app = require('express')();
 const fileUpload = require('express-fileupload');
@@ -9,14 +10,17 @@ const getRawBody = require('raw-body');
 const saveFile = require('save-file');
 const fs = require('fs');
 
+//Required for Google Auth
 const audiance = "942241099204-887hriil80dgus1ubdmd88r834sjuabd.apps.googleusercontent.com";
 const { OAuth2Client } = require('google-auth-library');
 var client = new OAuth2Client(audiance, '', '');
 
+//Enables colored output in console
 const coloredText = require('chalk');
 const chalk = new coloredText.constructor({ level: 3 });
 
-const info = chalk.hex('#2ef7f7'); //Defining styles of console output
+//Defining styles of console output
+const info = chalk.hex('#2ef7f7');
 const heading = chalk.hex('#2ef7f7').underline;
 const success = chalk.hex('#38ef32');
 const warn = chalk.hex('#ffd505');
@@ -25,19 +29,22 @@ const error = chalk.hex('#ff3705');
 const mainPageName = "index"; //Page that is send to client when requesting root
 const port = 1337; // Listening Port of the app
 
+// ---- ---- ROUTING ---- ----
+
 // ---- LISTENING ----
 http.listen(port, function () {
-    console.log(success("Server up on "+port+"\n->Time to party<-"));
+    console.log(success("Server up on " + port + "\n->Time to party<-"));
 });
 
-// ---- ROUTING ----
+// ---- ROOT PAGE ----
 app.get('/', function (req, res) { //sending root
     console.log(heading("---- -- / -- ----"));
-    console.log(warn("Root Requested by " + req.ip+"\n"));
+    console.log(info("Root requested by " + req.ip+"\n"));
     res.sendFile(__dirname + "/static/"+mainPageName+".html");
 });
 
-app.get('/getSharedFiles/:token', function (req, res) { //AJAX endpoint for getting sharedFiles by userid
+// ---- DISPLAYING FILES ----
+app.get('/getSharedFiles/:token', function (req, res) { //AJAX endpoint for getting sharedFiles
     console.log(heading("---- -- /getSharedFiles/token -- ----"));
     console.log(info("Requested by " + req.ip));
     checkHeader(req.headers.accept, "application/json, text/plain")
@@ -59,7 +66,7 @@ app.get('/getSharedFiles/:token', function (req, res) { //AJAX endpoint for gett
       });
 });
 
-app.get('/getUserFiles/:token', function (req, res) { //get all files uploaded by given userid
+app.get('/getUserFiles/:token', function (req, res) { //get all files uploaded by user
     console.log(heading("---- -- /getUserFiles/token -- ----"));
     console.log(info("Requested by " + req.ip));
     checkHeader(req.headers.accept, "application/json, text/plain")
@@ -133,10 +140,10 @@ app.put('/upload/:id', function (req, res) { //upload for the file content in bi
             return checkHeader(req.headers["content-type"], "application/octet-stream");
         })
         .then(() => {
-            return authUser(req.headers["wtftoken"]);
+            return authUser(req.headers["wtftoken"]); //token for authentication is passed in the header of the request
         })
         .then(() => {
-            return getRawBody(req)
+            return getRawBody(req);
         })
         .then((buf) => {
             return saveFile(buf, "userfiles/" + req.params.id);
@@ -155,6 +162,28 @@ app.put('/upload/:id', function (req, res) { //upload for the file content in bi
     });
 });
 
+app.post('/checkIds', function (req, res) { //returns all valid usernames in input array as array
+    console.log(heading("---- -- /ckeckIds -- ----"));
+    console.log(info("Request to check ids " + req.body.ids + " by " + req.ip));
+    if (req.body.ids != undefined) {
+        dbCheckUsernames(req.body.ids)
+            .then((resArr) => {
+                res.writeHead(200, { "Content-Type": "application/json" });
+                res.end(JSON.stringify({ "ValidIds": resArr }));
+                console.log(success("Request finnished!\n"));
+            })
+            .catch((err) => {
+                res.writeHead(200, { "Content-Type": "application/json" });
+                res.end(JSON.stringify({ "ValidIds": [] }));
+                console.log(error("Request failed!\n"));
+            });
+    } else {
+        console.log(error("Error in endpoint /ckeckIds: ids were undefined\n"));
+        res.writeHead(400, { "Content-Type": "text/plain" }); //Error 400: Bad Request
+        res.end("Invalid Request");
+    }
+});
+
 // ---- FILE DOWNLOAD ----
 app.get('/downloadFile/:id/:token', function (req, res) { //endpoint for downloading file with given id
     console.log(heading("---- -- /downloadFile/id/token -- ----"));
@@ -171,7 +200,7 @@ app.get('/downloadFile/:id/:token', function (req, res) { //endpoint for downloa
         })
         .then((filename) => {
             res.download(__dirname + '/userfiles/' + req.params.id, filename);
-            console.log(info("Sent file " + filename + "\n"));
+            console.log(info("Sent file " + filename));
             console.log(success("Request finished!\n"));
         })
         .catch((err) => {
@@ -182,28 +211,7 @@ app.get('/downloadFile/:id/:token', function (req, res) { //endpoint for downloa
     });
 });
 
-app.post('/checkIds', function (req, res) { //returns all valid usernames in input array as array
-    console.log(heading("---- -- /ckeckIds -- ----"));
-    console.log(info("Request to check ids " + req.body.ids + " by " + req.ip));
-    if (req.body.ids != undefined) {
-        dbCheckUsernames(req.body.ids)
-            .then((resArr) => {
-                res.writeHead(200, { "Content-Type": "application/json" });
-                res.end(JSON.stringify({ "ValidIds": resArr }));
-                console.log(success("Request finnished!\n"));
-            })
-            .catch((err) => {
-                res.writeHead(200, { "Content-Type": "application/json" });
-                res.end(JSON.stringify({ "ValidIds": [] }));
-                console.log(error("Request failed!\n"));
-        });
-    } else {
-        console.log(error("Error in endpoint /ckeckIds: ids were undefined\n"));
-        res.writeHead(400, { "Content-Type": "text/plain" }); //Error 400: Bad Request
-        res.end("Invalid Request");
-    }
-});
-
+// ---- FILE DELETION ----
 app.post('/delete', function (req, res) { //deletes file with given id
     console.log(heading("---- -- /delete -- ----"));
     console.log(info("Request to delete file " + req.params.id + " by " + req.ip));
@@ -236,6 +244,7 @@ app.post('/delete', function (req, res) { //deletes file with given id
       });
 });
 
+// ---- USER MANAGEMENT ----
 app.post('/signIn', function (req, res) { //checks user token, responds with id if known user, responds with 0 if new user
     console.log(heading("---- -- /signIn -- ----"));
     console.log(info("Request to sign in user from " + req.ip));
@@ -259,7 +268,7 @@ app.post('/signIn', function (req, res) { //checks user token, responds with id 
       });
 });
 
-app.post('/createUser', function (req, res) { //checks user token, responds with id if known user, responds with 0 if new user
+app.post('/createUser', function (req, res) { //checks user token, responds with id if username is valid, responds with 0 if name is already taken
     console.log(heading("---- -- /createUser -- ----"));
     console.log(info("Request to create user " + req.body.name + " from " + req.ip));
     let tempUserid = undefined;
@@ -281,7 +290,7 @@ app.post('/createUser', function (req, res) { //checks user token, responds with
                 dbAddUser(req.body.name, tempUserid)
                     .then((id) => {
                         res.writeHead(200, { "Content-Type": "application/json" });
-                        res.end(JSON.stringify({ "Userid": id }));
+                        res.end(JSON.stringify({ "Userid": id })); // responds with userid if user was created successfully
                         console.log(success("Request finnished!\n"));
                     })
                     .catch((err) => {
@@ -300,10 +309,10 @@ app.post('/createUser', function (req, res) { //checks user token, responds with
     })
 });
 
+// ---- STATIC FILES ----
+app.use('/', express.static(__dirname + '/static')); //Sends static files (CSS,JavaScript,etc)
 
-app.use('/', express.static(__dirname + '/static')); //Sends static files
-
-// ---- 404 Handling ----
+// ---- 404 HANDLING ----
 var count404 = 0;
 app.use(function (req, res) { //sends 404 pages
     console.log(heading("---- -- 404 Handler -- ----"));
@@ -312,21 +321,23 @@ app.use(function (req, res) { //sends 404 pages
     console.log(warn("Number of 404s so far: " + count404 + "\n"));
 });
 
-// ---- DATABASE ----
+// ---- ---- END OF ROUTING ---- ----
 
-//ALTER TABLE tablename AUTO_INCREMENT = 1; for resetting AI
+// ---- ---- DATABASE ---- ----
 
+// ---- INITIALISATION ----
 var db = mysql.createConnection({ //configuring db parameters
     host: "localhost",
     user: "User1",
     password: "ibims1user"
 });
 
-db.connect(function (err) { //opening connection to database
+db.connect(function (err) { //opening connection to database, connection is kept open
     if (err) { console.log(error("Database connection failed!\n" + err)); return }
     else {console.log(success("MySQL connected"))}
 });
 
+// ---- QUERIES GETTING DATA ----
 function dbGetUserFiles(userid) { // resolves to array of all files of given user
     return new Promise(function (resolve, reject) {
         let tempQuery = "SELECT files.id,filename,upload_time,name FROM wtf.files LEFT JOIN wtf.shares ON wtf.files.id = wtf.shares.file_id LEFT JOIN wtf.users ON wtf.shares.user_id = wtf.users.id WHERE owner = " + db.escape(userid) + " ORDER BY wtf.files.id;";
@@ -371,6 +382,122 @@ function dbGetSharedFiles(userid) { // resolves to array of all files shared wit
     });
 }
 
+function dbGetUpload(fileId) { //return filename of file with given id
+    return new Promise(function (resolve, reject) {
+        let tempQuery = "SELECT filename FROM wtf.files WHERE id =" + db.escape(fileId) + ";";
+        db.query(tempQuery, function (err, result) {
+            if (err) {
+                reject("Error in query: " + err);
+            } else {
+                if (result.length == 0) {
+                    reject("No entry found for ID " + fileId);
+                } else {
+                    console.log(info("dbGetUpload retrieved filename " + result[0].filename + " for fileid " + fileId));
+                    resolve(result[0].filename);
+                }
+            }
+        });
+    });
+}
+
+// ---- QUERIES CHECKING DATA ----
+function dbCheckUsernames(names) { //checks if users exist by name, resolves array containing all valid names
+    return new Promise(function (resolve, reject) {
+        let tempNames = [];
+        let execCount = 0; // Counts executions of querys, workaround to only resolve when tempNames is compiled completely
+        for (let i = 0; i < names.length; i++) {
+            let tempQuery = "SELECT name FROM wtf.users WHERE name LIKE " + db.escape(names[i]) + ";"; //db.escape already puts name in single quotes
+            db.query(tempQuery, function (err, result) {
+                execCount++;
+                if (!err) {
+                    if (result.length !== 0) {
+                        console.log(info("Name " + names[i] + " found in database"));
+                        tempNames.push(names[i]);
+                    } else {
+                        console.log(warn("Name " + names[i] + " not in database"));
+                    }
+                    if (execCount === names.length) { //without this resolve happens before we are actually done here
+                        resolve(tempNames);
+                    }
+                }
+            });
+        }
+    });
+}
+
+function dbCheckFilePermission(userid, fileid) { //checks wether user is allowed to access file or not - yes, it's ugly...
+    return new Promise(function (resolve, reject) {
+        function dbCheckIfOwn(userid, fileid) {
+            return new Promise(function (resolve, reject) {
+                console.log(info("Checking permission of user " + userid + " for fileId " + fileid));
+                let tempQuery = "SELECT filename FROM wtf.files WHERE id=" + db.escape(fileid) + " AND owner=" + db.escape(userid) + ";";
+                db.query(tempQuery, function (err, result) { //checks if user is owner of file
+                    if (err) {
+                        reject(false);
+                    } else {
+                        if (result.length === 0) {
+                            reject(false);
+                        } else {
+                            resolve(true);
+                        }
+                    }
+                });
+            });
+        }
+        function dbCheckIfShared(userid, fileid) {
+            return new Promise(function (resolve, reject) {
+                resolve(true);
+            });
+        }
+        dbCheckIfOwn(userid, fileid)
+            .then(function () { resolve(true) })
+            .catch(function () {
+                dbCheckIfShared(userid, fileid)
+                    .then(function () { resolve(true) })
+                    .catch(function () {
+                        console.log(error("Access denied")); reject(false)
+                    });
+            });
+    });
+}
+
+function dbCheckUserExists(userId) { //checks if user with given id is already in database
+    return new Promise(function (resolve, reject) {
+        let tempQuery = "SELECT name FROM wtf.users WHERE id LIKE " + db.escape(userId) + ";";
+        db.query(tempQuery, function (err, result) {
+            if (err) {
+                reject("Error in query: " + err);
+            } else {
+                if (result.length == 0) {
+                    console.log(info("No user with this token"));
+                    resolve(false);
+                } else {
+                    console.log(info("dbGetUserId found name " + result[0].name + " for id " + userId));
+                    resolve(true);
+                }
+            }
+        });
+    });
+}
+
+function dbCheckDubFilename(filename, userid) { //checks if file with given name has already been uploaded by same user
+    return new Promise(function (resolve, reject) {
+        let tempQuery = "SELECT id FROM wtf.files WHERE owner=" + db.escape(userid) + " AND filename LIKE " + db.escape(filename) + ";";
+        db.query(tempQuery, function (err, result) {
+            if (err) {
+                reject("Error in query: " + err);
+            } else {
+                if (result[0] == undefined) {
+                    resolve(true);
+                } else {
+                    reject("Filename already taken");
+                }
+            }
+        });
+    });
+}
+
+// ---- QUERIES ADDING DATA ----
 function dbAddUpload(userid, fileSize, fileName) { //resolves to fileid used for upload later on
     return new Promise(function (resolve, reject) {
         let tempQuery = "INSERT INTO `wtf`.`files` (`owner`, `filename`) VALUES ('" + userid + "', '" + fileName + "');";
@@ -410,83 +537,21 @@ function dbAddShareEntries(fileid, shareArray) { //Adds shares for given fileid
     });
 }
 
-function dbGetUpload(fileId) { //return filename of file with given id
+function dbAddUser(name, userid) { //adds new user with given name and email adress
     return new Promise(function (resolve, reject) {
-        let tempQuery = "SELECT filename FROM wtf.files WHERE id ="+db.escape(fileId)+";";
+        let tempQuery = "INSERT INTO `wtf`.`users` (`name`, `id`) VALUES (" + db.escape(name) + ", " + db.escape(userid) + ");";
         db.query(tempQuery, function (err, result) {
             if (err) {
                 reject("Error in query: " + err);
             } else {
-                if (result.length == 0) {
-                    reject("No entry found for ID " + fileId);
-                } else {
-                    console.log(info("dbGetUpload retrieved filename " + result[0].filename + " for fileid " + fileId));
-                    resolve(result[0].filename);
-                }
+                console.log(info("dbAddUser added user " + name + " with id " + userid));
+                resolve(userid);
             }
         });
     });
 }
 
-function dbCheckUsernames(names) { //checks if users exist by name, resolves array containing all valid names
-    return new Promise(function (resolve, reject) {
-        let tempNames = [];
-        let execCount = 0; // Counts executions of querys, workaround to only resolve when tempNames is compiled completely
-        for (let i = 0; i < names.length; i++) {
-            let tempQuery = "SELECT name FROM wtf.users WHERE name LIKE " + db.escape(names[i]) + ";"; //db.escape already puts name in single quotes
-            db.query(tempQuery, function (err, result) {
-                execCount++;
-                if (!err) {
-                    if (result.length !== 0) {
-                        console.log(info("Name " + names[i] +" found in database"));
-                        tempNames.push(names[i]);
-                    } else {
-                        console.log(warn("Name " + names[i] +" not in database"));
-                    }
-                    if (execCount === names.length) { //without this resolve happens before we are actually done here
-                        resolve(tempNames);
-                    }
-                }
-            });
-        }
-    });
-}
-
-function dbCheckFilePermission(userid, fileid) { //checks wether user is allowed to access file or not
-    return new Promise(function (resolve, reject) {
-        function dbCheckIfOwn(userid, fileid) {
-            return new Promise(function (resolve, reject) {
-                console.log(info("Checking permission of user " + userid + " for fileId " + fileid));
-                let tempQuery = "SELECT filename FROM wtf.files WHERE id=" + db.escape(fileid) + " AND owner=" + db.escape(userid) + ";";
-                db.query(tempQuery, function (err, result) { //checks if user is owner of file
-                    if (err) {
-                        reject(false);
-                    } else {
-                        if (result.length === 0) {
-                            reject(false);
-                        } else {
-                            resolve(true);
-                        }
-                    }
-                });
-            });
-        }
-        function dbCheckIfShared(userid, fileid) {
-            return new Promise(function (resolve, reject) {
-                resolve(true);
-            });
-        }
-        dbCheckIfOwn(userid, fileid)
-            .then(function () {resolve(true) })
-            .catch(function () {
-                dbCheckIfShared(userid, fileid)
-                    .then(function () {resolve(true)})
-                    .catch(function () {console.log(error("Access denied")); reject(false)
-                });
-            });
-    });
-}
-
+// ---- QUERIES DELETING DATA ----
 function dbDeleteShares(fileId) { // deletes all shares for given fileId
     return new Promise(function (resolve, reject) {
         let tempQuery = "DELETE FROM `wtf`.`shares` WHERE `file_id` = "+db.escape(fileId)+";";
@@ -515,39 +580,7 @@ function dbDeleteFile(fileId) { // deletes file entry for given fileId
     });
 }
 
-function dbCheckUserExists(userId) { //checks if user with given id is already in database
-    return new Promise(function (resolve, reject) {
-        let tempQuery = "SELECT name FROM wtf.users WHERE id LIKE " + db.escape(userId) + ";";
-        db.query(tempQuery, function (err, result) {
-            if (err) {
-                reject("Error in query: " + err);
-            } else {
-                if (result.length == 0) {
-                    console.log(info("No user with this token"));
-                    resolve(false);
-                } else {
-                    console.log(info("dbGetUserId found name " + result[0].name + " for id " + userId));
-                    resolve(true);
-                }
-            }
-        });
-    });
-}
-
-function dbAddUser(name,userid) { //adds new user with given name and email adress
-    return new Promise(function (resolve, reject) {
-        let tempQuery = "INSERT INTO `wtf`.`users` (`name`, `id`) VALUES (" + db.escape(name) + ", " + db.escape(userid) + ");";
-        db.query(tempQuery, function (err, result) {
-            if (err) {
-                reject("Error in query: " + err);
-            } else {
-                console.log(info("dbAddUser added user " + name + " with id " + userid));
-                resolve(userid);
-            }
-        });
-    });
-}
-
+// ---- QUERIES TRANSFORMING DATA ----
 function dbTranslateShares(usernames) { //ranslates array of usernames to array of userids
     return new Promise(function (resolve, reject) {
         let tempUserids = [];
@@ -574,24 +607,7 @@ function dbTranslateShares(usernames) { //ranslates array of usernames to array 
     });
 }
 
-function dbCheckDubFilename(filename,userid) { //checks if file with given name has already been uploaded by same user
-    return new Promise(function (resolve, reject) {
-        let tempQuery = "SELECT id FROM wtf.files WHERE owner="+db.escape(userid)+" AND filename LIKE "+db.escape(filename)+";";
-        db.query(tempQuery, function (err, result) {
-            if (err) {
-                reject("Error in query: " + err);
-            } else {
-                if (result[0] == undefined) {
-                    resolve(true);
-                } else {
-                    reject("Filename already taken");
-                }
-            }
-        });
-    });
-}
-
-function dbIncDlCount(fileId) { //increments the download count of the file
+function dbIncDlCount(fileId) { //increments the download count of the file - currently not reflected/implemented on frontend
     return new Promise(function (resolve, reject) {
         let tempQuery = "UPDATE wtf.files SET dl_count= dl_count + 1 WHERE id=" + db.escape(fileId) + ";"
         db.query(tempQuery, function (err, result) {
@@ -605,7 +621,9 @@ function dbIncDlCount(fileId) { //increments the download count of the file
     });
 }
 
-// ---- HELPER FUNCTIONS ----
+// ---- ---- END OF DATABASE ---- ----
+
+// ---- ---- HELPER FUNCTIONS ----  ----
 
 function arrContainsObj(obj, array) { //checks if obj is already in array based on obj.filename, returns boolean
     for (let x = 0; x < array.length; x++) {
@@ -614,19 +632,6 @@ function arrContainsObj(obj, array) { //checks if obj is already in array based 
         }
     }
     return false;
-}
-
-function getFileExtension(filename) { //Currently not in use
-    if (filename==undefined) {
-        console.log(warn("Helper get Filename Extension: input was empty, returning extension nope"));
-        return "nope";
-    }
-    let tempFilename = filename.split(".");
-    if (tempFilename.length === 0) {
-        return tempFilename[0];
-    } else {
-        return tempFilename[tempFilename.length - 1];
-    }
 }
 
 function authUser(userToken, fileId) { //resolves if user is authorized
@@ -696,3 +701,48 @@ function deleteFile(fileId) { //deletes file from disk based on fileid
         });
     });
 }
+
+// ---- ---- END OF HELPER FUNCTIONS ---- ----
+
+/*                                   .,,,.
+                           @@@@@@@(.       ,#@@@@@@&
+                      @@@@#                         %@@@&
+                  #@@@                                   @@@/
+               &@@,                                         /@@,
+             @@/                @@                             @@@
+           @@.                  *@   @@@   @@                    /@@
+         @@                      @# @@@@  @@    @@@@#              #@@
+       (@&   #@@@@@@@@@(         @@&@ ,@ @@     @@     @@            @@
+      @@     @@@@@@@@@@@         @@@   @@@     @@     @@ (@@           @@
+     @@           @@@@@@                .     /@%    @@@                @@
+    @@         #@@@  ,@@                       .   ,@@  *                @@
+   @@         @@@    ,@@                            /           (@        @@
+  @@        /@@,      @@        #@@@@@@@@                       @@@        @@
+ /@        @@@                @@@@     &@@@                      @@@       *@.
+ @@        @@                @@&          @@@@@@@@                @@,       @@
+ @        @@@               @@@                 @@@*              @@@       ,@
+@@       ,@@           &@@@@@@(     @@@@@@*       @@.             .@@        @(
+@@       @@@          @@@           @@@@@@*       @@@@@(           @@*       @@
+@@       @@@         @@&            @@@@@@*           @@@          @@&       @@
+@@       @@@         @@.            @@@@@@*            @@@         @@%       @@
+@@       /@@         (@@            @@@@@@*            @@@         @@.       @@
+#@        @@#         (@@@/     @@@@@@@@@@@@@@(      %@@@         @@@        @,
+ @*       @@@            @@@@@    @@@@@@@@@@@   @@@@@@@           @@&       &@
+ @@        @@/                     &@@@@@@@                      @@@        @@
+  @&       #@@                       @@@@              *,       @@@        @@
+  %@        &@@                        /               @@     &@@@        *@,
+   @@                                                  @@   *@@@          @%
+    @@                   /@                            @@ @@@@           @&
+     #@.             @@ %@#   &@                       @@@@#           &@(
+      ,@@              @@(    @@     @@(               @@@@@@@@@@@    @@
+        @@         @@@@@/    @@     @@@@  @@@                       .@@
+          @@          %     &@     @@ @@ @@ @@                     @@
+            @@.            *@@@@  @@  .@%@  @@                  *@@
+              @@@                 @/   @@   @@                @@@
+                .@@&                                       @@@
+                   ,@@@,                               (@@@
+                        @@@@@                    .@@@@@
+                             .@@@@@@@@@@@@@@@@@@&.
+
+Serverfile and this fancy logo created by Alexander Gebhardt aka iAlex(https://github.com/iAIex)
+*/
