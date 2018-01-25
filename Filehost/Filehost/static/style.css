@@ -27,7 +27,7 @@ caption{
   font-size: 2.0em;
   border-radius: 0.3em;
   border-color: black;
-  border-style: groove;
+  border-style: solid;
   margin: auto;
   text-align: center;
   display: inline-block;
@@ -65,12 +65,17 @@ caption{
 
 #logoutButton{
   position:fixed;
-  right:1em;
-  top:1em;
+  right:0.5em;
+  top:0.5em;
 }
 
 #user{
   text-align: center;
+  background-color: rgba(256, 256, 256, 0.7);
+  justify-content: center;
+  border-radius: 0.3em;
+  border-color: black;
+  border-style: solid;
 }
 
 #shares{
@@ -88,20 +93,25 @@ caption{
   background-color: rgba(256, 256, 256, 0.3);
   border-radius: 0.3em;
   border-color: black;
-  border-style: groove;
+  border-style: solid;
 
 }
+
 #inpGetShares
 {
+
   background-color: rgba(256, 256, 256, 0.7);
   justify-content: center;
   border-radius: 0.3em;
   border-color: black;
-  border-style: groove;
+  border-style: solid;
   width: 20em;
+  text-align: center;
 }
 #uploadButton
 {
+  margin-top: 0.3em;
+  margin-bottom: 0.3em;
   display: flex;
   align-content: center;
 }
@@ -112,8 +122,24 @@ caption{
   color: black;
 }
 
-#progress{
-  justify-content: center;
+#newUser {
+  text-align:center
+}
+
+#deleteButton {
+  border-radius: 0.3em;
+  border-color: black;
+  border-style: solid;
+  background-color: rgba(256, 256, 256, 0.3);
+  cursor: pointer;
+}
+
+#okButton {
+  border-radius: 0.3em;
+  border-color: black;
+  border-style: solid;
+  background-color: rgba(256, 256, 256, 0.3);
+  cursor: pointer;
 }
 
 table
@@ -128,7 +154,7 @@ td{
 .FileTables{
   border-radius: 0.3em;
   border-color: black;
-  border-style: groove;
+  border-style: solid;
   background-color: rgba(256, 256, 256, 0.3);
 
 }

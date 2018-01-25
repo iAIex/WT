@@ -24,7 +24,7 @@
   </div>
   <div id="newUser" style="display:none">
       <input id="user" type="text" placeholder="Nutzername eingeben">
-      <input type="button" onclick="createUserName()" value="OK">
+      <input type="button" onclick="createUserName()" value="OK" id="okButton">
   </div>
   <div id="body" style="display:none">
       <button class="button button2" id="logoutButton" onclick="signOut()">Sign out</button>
@@ -39,10 +39,7 @@
         </ul>
       </output>
     </div>
-        <p> </p>
         <button class="button button1" type="button" id="uploadButton" onclick=" getSharedPeople()">Upload</button>
-        <p> </p>
-
   <div id="shares">
     <input v-on:keypress="inpc" id="inpGetShares" type="text" placeholder="Enter user and press return to share!">
       <li v-for="shares in vshares" @click="deleteNames(shares)">
