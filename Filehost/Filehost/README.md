@@ -55,7 +55,17 @@ var db = mysql.createConnection({ //configuring db parameters
     password: "YOUR_PASSWORD_HERE"
 });
 ```
-Then you have to install node by downloading it [here](https://nodejs.org/en/download/) or on Debian Linux running
+Additionally you have to provide a Google app token in server.js and index.html  
+server.js
+```
+//Required for Google Auth
+const audiance = "your_token_here.apps.googleusercontent.com";
+```
+index.html
+```
+<meta name="google-signin-client_id" content="your_token_here.apps.googleusercontent.com">
+```
+Then install node by downloading it [here](https://nodejs.org/en/download/) or on Debian Linux running
 ```
 curl -sL https://deb.nodesource.com/setup_9.x | sudo -E bash -
 sudo apt-get install -y nodejs

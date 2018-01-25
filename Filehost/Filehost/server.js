@@ -39,7 +39,7 @@ http.listen(port, function () {
 // ---- ROOT PAGE ----
 app.get('/', function (req, res) { //sending root
     console.log(heading("---- -- / -- ----"));
-    console.log(warn("Root requested by " + req.ip+"\n"));
+    console.log(info("Root requested by " + req.ip+"\n"));
     res.sendFile(__dirname + "/static/"+mainPageName+".html");
 });
 
