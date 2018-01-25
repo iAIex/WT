@@ -126,7 +126,7 @@ caption{
   text-align:center
 }
 
-#deleteButton {
+.deleteButton {
   border-radius: 0.3em;
   border-color: black;
   border-style: solid;

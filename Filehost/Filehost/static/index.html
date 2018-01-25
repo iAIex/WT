@@ -31,48 +31,48 @@
 
     <div id="dropbox">
       <p id="text"> DROP FILES HERE</p>
-      <output id="fileList">
-        <ul>
+
+        <ul id="fileList">
           <li v-for="files in filesToUpload" @click="deleteFile(files)">
             {{files.name}}
           </li>
         </ul>
-      </output>
+
     </div>
         <button class="button button1" type="button" id="uploadButton" onclick=" getSharedPeople()">Upload</button>
   <div id="shares">
     <input v-on:keypress="inpc" id="inpGetShares" type="text" placeholder="Enter user and press return to share!">
+     <ul>
       <li v-for="shares in vshares" @click="deleteNames(shares)">
       {{shares}}
       </li>
+     </ul>
   </div>
 
 <div id="files">
   <table class="FileTables">
-    <caption>Meine Uploads</caption>
+    <caption>My Uploads</caption>
     <tr>
     <th>Name</th>
-    <th>Datum</th>
-    <th>Teilen mit</th>
+    <th>Date</th>
+    <th>Shared with</th>
     <th></th>
     </tr>
     <tr v-for="files in myFiles">
       <td><a v-bind:href="'/downloadFile/' + files.id+'/'+files.token">{{ files.name }}</a></td>
       <td>{{files.datum}}</td>
       <td>{{files.teilenMit}}</td>
-      <td><input type="button" value="X" id="deleteButton" v-bind:id="files.id" onclick="getDeletedFiles(this.id)"></td>
+      <td><input class="deleteButton" type="button" value="X" id="deleteButton" v-bind:id="files.id" onclick="getDeletedFiles(this.id)"></td>
     </tr>
   </table>
 <br>
 <br>
   <table class="FileTables">
-    <tr>
-    <caption>Geteilte Uploads</caption>
-    </tr>
+    <caption>Shared Uploads</caption>
     <tr>
       <th>Name</th>
-      <th>Datum</th>
-      <th>Geteilt von</th>
+      <th>Date</th>
+      <th>Shared from</th>
     </tr>
     <tr v-for="file in sharedFiles">
       <td><a v-bind:href="'/downloadFile/' + file.id+'/'+file.token">{{ file.name }}</a></td>
@@ -81,8 +81,7 @@
     </tr>
   </table>
 </div>
-<script language="javascript" src="main.js" type="text/javascript">
-  </script>
+<script src="main.js"></script>
 </div>
 
 </body>
