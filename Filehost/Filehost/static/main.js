@@ -161,7 +161,8 @@ function uploadJson()
   if(upload.filesToUpload == 0)//Abfangen, falls keine Datei gedroppt wurde
   {
     alert("Put a File in the Dropbox!");
-  }if(upload.filesToUpload>1)//Nur eine Datei kann hochgeladen werden
+  }
+  if(upload.filesToUpload.length>1)//Nur eine Datei kann hochgeladen werden
     {
       alert("Please only upload one file at a time!");
     }
