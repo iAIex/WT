@@ -98,7 +98,6 @@ Eintragen der Nutzer mit denen die Datei geteilt wird
 ****************************************************************************/
 var newShare = function(e)
 {
-  var leer=false;
   if(e.which === 13) //Durch drücken der Entertaste wird der Nutzer hinzugefügt
   {
     e.preventDefault();
