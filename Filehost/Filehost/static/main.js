@@ -1,20 +1,75 @@
 /*****************************************************************************
-Hilfsfunktion
-****************************************************************************/
-function arrContainsObj(array, obj)
+Sign In
+*****************************************************************************/
+var globalToken=false;
+function onSignIn(googleUser)
 {
-  for(var i= 0; i<array.length; i++)
+  var token = googleUser.getAuthResponse().id_token;
+  globalToken=token;
+  if(token==undefined)
   {
-    if(array[i].name.includes(obj.name))
-    {
-      return true;
-    }
+    alert("Invalid Google Account or Password!");
   }
-  return false;
+  else
+  {
+    var xmlhttp=new XMLHttpRequest();
+    xmlhttp.open("POST", window.location.href+"signIn", true);
+    xmlhttp.setRequestHeader("Content-type", "application/json");
+    xmlhttp.onreadystatechange=function()
+    {
+        if(xmlhttp.readyState==4 && xmlhttp.status!=200)
+        {
+          console.log(xmlhttp.responseText);
+        }else if(xmlhttp.readyState==4 && xmlhttp.status==200)
+        {
+          if(JSON.parse(xmlhttp.responseText).isAuth!==true)
+          {
+            document.getElementById("logIn").style.display="none";
+            document.getElementById("newUser").style.display="block";
+          }else{
+            document.getElementById("logIn").style.display="none";
+            document.getElementById("body").style.display="block";
+            getMyFiles();
+          }
+        }
+    };
+    xmlhttp.send(JSON.stringify({"token":token}));
+  }
+}
+
+/******************************************************************************
+Nutzer erstellen bei erster Anmeldung auf der Seite
+*****************************************************************************/
+function createUserName()
+{
+    var userName=document.getElementById("user").value;
+    var xmlhttp2=new XMLHttpRequest();
+    xmlhttp2.open("POST", window.location.href+"createUser", true);
+    xmlhttp2.setRequestHeader("Content-type", "application/json");
+    xmlhttp2.onreadystatechange=function()
+    {
+      if(xmlhttp2.readyState==4 && xmlhttp2.status!=200)
+      {
+        console.log(xmlhttp2.responseText);
+      }else if(xmlhttp2.readyState==4 && xmlhttp2.status==200)
+      {
+        if(JSON.parse(xmlhttp2.responseText).Userid!==0)
+        {
+          document.getElementById("newUser").style.display="none";
+          document.getElementById("logIn").style.display="none";
+          document.getElementById("body").style.display="block";
+          getMyFiles();
+        }else //Abfangen von gleichen Nutzernamen
+        {
+          alert("Username already taken!");
+        }
+      }
+    };
+    xmlhttp2.send(JSON.stringify({"name": userName, "token":globalToken}));
 }
 
 /*****************************************************************************
-Drop
+Dropbox
 *****************************************************************************/
 var daFiles=[];
 document.addEventListener("dragover",function(e){
@@ -39,16 +94,22 @@ document.getElementById("dropbox").addEventListener("drop",function(e){
 },false);
 
 /***************************************************************************
-Share With
+Eintragen der Nutzer mit denen die Datei geteilt wird
 ****************************************************************************/
-var deletes = function(e)
+var newShare = function(e)
 {
   var leer=false;
-  if(e.which === 13)
+  if(e.which === 13) //Durch drücken der Entertaste wird der Nutzer hinzugefügt
   {
     e.preventDefault();
+    if(document.getElementById("inpGetShares").value=="")
+    {
+      alert("Invalid Username! Please correct your input!");
+    }else
+    {
     this.vshares.push(document.getElementById('inpGetShares').value);
     document.getElementById('inpGetShares').value="";
+    }
   }
 };
 
@@ -78,9 +139,9 @@ function getSharedPeople()
               {
                 share.vshares=response.slice(0);
               }
-              if(tempLength !== share.vshares.length)
+              if(tempLength !== share.vshares.length)//Abfrage von ungültigen Nutzernamen
               {
-                alert("Eingabe enthält ungültige Nuternamen!");
+                alert("Invalid Username! Please correct your input!");
               }
               else
               {
@@ -93,16 +154,16 @@ function getSharedPeople()
 }
 
 /****************************************************************************
-File upload
+Hochladen der Dateien
 ****************************************************************************/
 function uploadJson()
 {
-  if(upload.filesToUpload == 0)
+  if(upload.filesToUpload == 0)//Abfangen, falls keine Datei gedroppt wurde
   {
-    alert("Bitte Files einfügen!");
-  }if(upload.filesToUpload>1)
+    alert("Put a File in the Dropbox!");
+  }if(upload.filesToUpload>1)//Nur eine Datei kann hochgeladen werden
     {
-      alert("Bitte nur ein File!");
+      alert("Please only upload one file at a time!");
     }
   else
   {
@@ -146,115 +207,9 @@ function uploadBinary(uploadId)
     xmlhttp2.send(fileid);
 }
 
-/*****************************************************************************
-Vue
-******************************************************************************/
-var files = new Vue({
-  el: "#files",
-  data: {
-    myFiles:[],
-
-    sharedFiles:[],
-  }
-});
-
-var upload = new Vue({
-  el:'#fileList',
-  data:{
-    filesToUpload:[]
-  },
-  methods: {
-    deleteFile: function(files){
-      this.filesToUpload.splice(files, 1);
-    }
-  }
-});
-
-var share = new Vue({
-  el:'#shares',
-  data:{
-    vshares:[]
-  },
-  methods: {
-    inpc: deletes,
-    deleteNames: function(shares){
-      this.vshares.splice(shares, 1);
-    }
-  }
-});
-
-/*****************************************************************************
-Send fileId to delete the file
-******************************************************************************/
-function getDeletedFiles(deleteFileId)
-{
-    console.log(deleteFileId);
-     var delId={"delId": deleteFileId, "token": globalToken};
-     var xmlhttp2 = new XMLHttpRequest();
-     xmlhttp2.open("POST",window.location.href+"delete", true);
-     xmlhttp2.setRequestHeader("Content-type", "application/json");
-     xmlhttp2.onreadystatechange=function()
-     {
-           if(xmlhttp2.readyState==4 &&  xmlhttp2.status!=200)
-           {
-             console.log(xmlhttp2.responseText);
-           }
-           else if(xmlhttp2.readyState==4 && xmlhttp2.status==200)
-           {
-              console.log(xmlhttp2.responseText);
-              getMyFiles();
-           }
-      };
-     xmlhttp2.send(JSON.stringify(delId));
-}
 /****************************************************************************
-Auflisten der Files
-******************************************************************************/
-var maxPers=4; //Max numbers of names to show in shared with collumn
-function myFiles(json)
-{
-    files.myFiles = [];
-    for(var i=0; i<json.length; i++)
-    {
-      var temp = {};
-      temp.token=globalToken;
-      temp.name = json[i].filename;
-      temp.id=json[i].ID;
-      var datum = new Date(json[i].upload_time);
-      temp.datum = datum.getDate()+"."+datum.getMonth()+1+"."+datum.getFullYear();
-      if(json[i].name == 0){
-        temp.teilenMit = "Niemandem";
-      }else{
-        for(var j=0;j<json[i].name.length;j++){
-          if(j===0){
-            temp.teilenMit=json[i].name[j];
-          }else{
-            if(j<maxPers){
-              temp.teilenMit=temp.teilenMit+", "+json[i].name[j];
-            }else if(j===maxPers){
-              temp.teilenMit=temp.teilenMit+" + "+(json[i].name.length-maxPers)+
-              " anderen";
-            }
-          }
-        }
-      }
-      files.myFiles.push(temp);
-    }
-}
-
-function sharedFiles(json){
-    files.sharedFiles = [];
-    for(var i=0; i<json.length; i++){
-      var temp = {};
-      temp.token=globalToken;
-      temp.name = json[i].filename;
-      temp.id=json[i].id;
-      var datum = new Date(json[i].upload_time);
-      temp.datum = datum.getDate()+"."+datum.getMonth()+1+"."+datum.getFullYear();
-      temp.geteiltVon = json[i].name;
-      files.sharedFiles.push(temp);
-    }
-}
+Anfrage nach allen eigens hochgeladenen Dateien des eingeloggten Nutzers
+****************************************************************************/
 function getMyFiles()
 {
   var xmlhttp = new XMLHttpRequest();
@@ -277,6 +232,69 @@ function getMyFiles()
 
 }
 
+/****************************************************************************
+Auflisten der Datein, des eingeloggten Nutzers
+******************************************************************************/
+var maxPers=4; //Max. Anzahl an Namen hintereinander, mit denen die Datei geteilt wurden
+function myFiles(json)
+{
+    files.myFiles = [];
+    for(var i=0; i<json.length; i++)
+    {
+      var temp = {};
+      temp.token=globalToken;
+      temp.name = json[i].filename;
+      temp.id=json[i].ID;
+      var datum = new Date(json[i].upload_time);
+      temp.datum = datum.getDate()+"."+datum.getMonth()+1+"."+datum.getFullYear();
+      if(json[i].name == 0){
+        temp.teilenMit = "Nobody";
+      }else{
+        for(var j=0;j<json[i].name.length;j++){
+          if(j===0){
+            temp.teilenMit=json[i].name[j];
+          }else{
+            if(j<maxPers){
+              temp.teilenMit=temp.teilenMit+", "+json[i].name[j];
+            }else if(j===maxPers){
+              temp.teilenMit=temp.teilenMit+" + "+(json[i].name.length-maxPers)+
+              " others";
+            }
+          }
+        }
+      }
+      files.myFiles.push(temp);
+    }
+}
+
+/*****************************************************************************
+Löschen einer hochgeladenen Datei
+******************************************************************************/
+function getDeletedFiles(deleteFileId)
+{
+    console.log(deleteFileId);
+     var delId={"delId": deleteFileId, "token": globalToken};
+     var xmlhttp2 = new XMLHttpRequest();
+     xmlhttp2.open("POST",window.location.href+"delete", true);
+     xmlhttp2.setRequestHeader("Content-type", "application/json");
+     xmlhttp2.onreadystatechange=function()
+     {
+           if(xmlhttp2.readyState==4 &&  xmlhttp2.status!=200)
+           {
+             console.log(xmlhttp2.responseText);
+           }
+           else if(xmlhttp2.readyState==4 && xmlhttp2.status==200)
+           {
+              console.log(xmlhttp2.responseText);
+              getMyFiles();
+           }
+      };
+     xmlhttp2.send(JSON.stringify(delId)); //ID der Datei wird gesendet zum löschen
+}
+
+/*****************************************************************************
+Anfrage nach allen Dateien, die mit dem eingeloggten Nutzer geteilt wurden
+******************************************************************************/
 function getSharedFiles()
 {
    var xmlhttp = new XMLHttpRequest();
@@ -297,85 +315,83 @@ function getSharedFiles()
 }
 
 /*****************************************************************************
-Sign In
-*****************************************************************************/
-var globalToken=undefined;
-function onSignIn(googleUser)
-{
-  var token = googleUser.getAuthResponse().id_token;
-  globalToken=token;
-  if(token==undefined)
-  {
-    alert("Invalid Google Account or Password!");
-  }
-  else
-  {
-    var xmlhttp=new XMLHttpRequest();
-    xmlhttp.open("POST", window.location.href+"signIn", true);
-    xmlhttp.setRequestHeader("Content-type", "application/json");
-    xmlhttp.onreadystatechange=function()
-    {
-        if(xmlhttp.readyState==4 && xmlhttp.status!=200)
-        {
-          console.log(xmlhttp.responseText);
-        }else if(xmlhttp.readyState==4 && xmlhttp.status==200)
-        {
-          if(JSON.parse(xmlhttp.responseText).isAuth!==true)
-          {
-            document.getElementById("logIn").style.display="none";
-            document.getElementById("mmm").style.display="block";
-          }else{
-            document.getElementById("logIn").style.display="none";
-            document.getElementById("body").style.display="block";
-            getMyFiles();
-          }
-        }
-    };
-    xmlhttp.send(JSON.stringify({"token":token}));
-  }
+Auflisten der Dateien, die mit dem eingeloggten Nutzer geteilt wurden
+******************************************************************************/
+function sharedFiles(json){
+    files.sharedFiles = [];
+    for(var i=0; i<json.length; i++){
+      var temp = {};
+      temp.token=globalToken;
+      temp.name = json[i].filename;
+      temp.id=json[i].id;
+      var datum = new Date(json[i].upload_time);
+      temp.datum = datum.getDate()+"."+datum.getMonth()+1+"."+datum.getFullYear();
+      temp.geteiltVon = json[i].name;
+      files.sharedFiles.push(temp);
+    }
 }
 
-/******************************************************************************
-Nutzer erstellen bei erster Anmeldung auf der Seite
-*****************************************************************************/
+/*****************************************************************************
+Vue
+******************************************************************************/
+var files = new Vue({
+  el: "#files",
+  data: {
+    myFiles:[],
 
-function createUserName()
-{
-    var userName=document.getElementById("user").value;
-    var xmlhttp2=new XMLHttpRequest();
-    xmlhttp2.open("POST", window.location.href+"createUser", true);
-    xmlhttp2.setRequestHeader("Content-type", "application/json");
-    xmlhttp2.onreadystatechange=function()
-    {
-      if(xmlhttp2.readyState==4 && xmlhttp2.status!=200)
-      {
-        console.log(xmlhttp2.responseText);
-      }else if(xmlhttp2.readyState==4 && xmlhttp2.status==200)
-      {
-        if(JSON.parse(xmlhttp2.responseText).Userid!==0)
-        {
-          document.getElementById("newUser").style.display="none";
-          document.getElementById("logIn").style.display="none";
-          document.getElementById("body").style.display="block";
-          getMyFiles();
-        }else
-        {
-          alert("Username wurde schon verwendet!");
-        }
-      }
-    };
-    xmlhttp2.send(JSON.stringify({"name": userName, "token":globalToken}));
-}
+    sharedFiles:[],
+  }
+});
 
+var upload = new Vue({
+  el:'#fileList',
+  data:{
+    filesToUpload:[]
+  },
+  methods: {
+    deleteFile: function(files){
+      this.filesToUpload.splice(files, 1);//Durch draufklicken auf die Datei
+                                          //wird diese aus der Dropbox gelöscht
+    }
+  }
+});
+
+var share = new Vue({
+  el:'#shares',
+  data:{
+    vshares:[]
+  },
+  methods: {
+    inpc: newShare,
+    deleteNames: function(shares){
+      this.vshares.splice(shares, 1);//Durch draufklicken auf einen Nutzernamen
+                                     //wird dieser gelöscht
+    }
+  }
+});
 
 /****************************************************************************
 Sign Out
 ******************************************************************************/
-
 function signOut() {
 	var auth2 = gapi.auth2.getAuthInstance();
 	auth2.signOut().then(function () {
 		console.log('User signed out.');
 	});
   location.reload();
+}
+
+/*****************************************************************************
+Hilfsfunktion
+****************************************************************************/
+function arrContainsObj(array, obj)//Abfrage ob es Namenskonflikte gibt
+{
+  for(var i= 0; i<array.length; i++)
+  {
+    if(array[i].name.includes(obj.name))
+    {
+      return true;
+    }
+  }
+  return false;
 }

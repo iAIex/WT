@@ -45,11 +45,9 @@
 
   <div id="shares">
     <input v-on:keypress="inpc" id="inpGetShares" type="text" placeholder="Enter user and press return to share!">
-    <ul>
       <li v-for="shares in vshares" @click="deleteNames(shares)">
       {{shares}}
       </li>
-    </ul>
   </div>
 
 <div id="files">
