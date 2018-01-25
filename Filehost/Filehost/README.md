@@ -11,7 +11,7 @@ A node based filesharing webservice
 ### Patrick Weiß - *Frontend and Styling* - [Paddy24041998](https://github.com/paddy24041998)
 
 ### Michael Schreder - *Authentication on Clientside, Styling* - [Senpai96](https://github.com/senpai96)
-The Google Sign-In with OAuth 2.0 is linked to a google developers OAuth 2.0-Client-ID. The OAuth 2.0-Client-ID is integrated in the sign-in button and only allows access from specific addresses. If you click on the google sign-in button and log in correctly to your account, is sends the google user token_id to the backend server to be verified. Access is only allowed from (http://localhost:1337) and (http://gmal-net.dyndns.org). If the server is hosted on a different domain, the sign-in will refue to work.
+The Google Sign-In with OAuth 2.0 is linked to a google developers OAuth 2.0-Client-ID. The OAuth 2.0-Client-ID is integrated in the sign-in button and only allows access from specific addresses. If you click on the google sign-in button and log in correctly to your account, is sends the google user token_id to the backend server to be verified. Access is only allowed from (http://localhost:1337) and (http://localhost:80). If the server is hosted on a different domain, the sign-in will refue to work.
 The simple and friendly page design is done with css. The background picture is a free to use picture.
 
 ### Alexander Gebhardt - *Backend, Authentication on Serverside, Database and Deployment* - [iAIex](https://github.com/iAIex)
